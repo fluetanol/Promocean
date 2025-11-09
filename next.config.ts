@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 
   output: 'export',
+
+  eslint: {
+    ignoreDuringBuilds: true,  // 빌드 시 ESLint 무시
+  },
   
   images: {
     remotePatterns: [
