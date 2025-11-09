@@ -10,7 +10,7 @@ export default function ContestPostLayout({
   modal,
 }: {
   children: React.ReactNode;
-  modal?: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <>
