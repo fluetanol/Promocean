@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +31,7 @@ public class ArticleService {
     private final ArticleTagService articleTagService;
     private final ArticleRepository articleRepository;
     private final ArticleFileService articleFileService;
+    private final ArticleElasticSearchService articleElasticSearchService;
 
     @Transactional
     public ArticleDetailRes createArticle(CustomUserDetails userDetails, Long spaceId,
@@ -43,6 +42,8 @@ public class ArticleService {
         Article article = saveArticle(articleReq, folder);
         articleTagService.createArticleTag(articleReq.tags(), article);
         String fileUrl = articleFileService.createArticleFile(articleReq.filePath(), article);
+
+        articleElasticSearchService.indexArticle(article, fileUrl, articleReq.tags());
 
         return ArticleDetailRes.builder()
                 .articleId(article.getId())
@@ -80,6 +81,9 @@ public class ArticleService {
         article.updateArticle(articleReq.title(), articleReq.description(), articleReq.prompt(),
                 PromptType.valueOf(articleReq.type()), articleReq.exampleQuestion(),
                 articleReq.exampleAnswer());
+
+        articleElasticSearchService.indexArticle(article, articleReq.filePath(), articleReq.tags());
+
     }
 
     @Transactional
@@ -91,20 +95,21 @@ public class ArticleService {
 
         article.deleteArticle();
         articleTagService.deleteArticleTag(article);
+        articleElasticSearchService.deleteArticle(article.getId());
     }
 
     @Transactional(readOnly = true)
     public ArticleListRes getArticleList(CustomUserDetails userDetails, Long spaceId,
-            Long folderId, Integer type, String tag, String title, int page, int size, SortType sort) {
+            Long folderId, Integer type, String tag, String title, int page, int size,
+            SortType sort) {
         if (Objects.isNull(folderId)) {
             spaceService.validateEditableSpace(spaceId, userDetails.memberId());
         } else {
             folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
         }
 
-        Pageable pageable = PageRequest.of(page - 1, size, sort.getSort());
-        Page<ArticleListItemQueryRes> articles = articleRepository.findAllArticles(folderId, type,
-                tag, title, pageable);
+        Page<ArticleListItemQueryRes> articles = articleElasticSearchService
+                .getArticles(folderId, title, tag, type, sort, page, size);
 
         List<ArticleInfo> articleInfos = articles.stream()
                 .map(article -> ArticleInfo.builder()
