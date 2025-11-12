@@ -24,8 +24,8 @@ public class FileMetadataUtil {
                 .map(f -> f.substring(f.lastIndexOf('.') + 1).toLowerCase())
                 .orElseThrow(InvalidFilenameException::new);
 
-        if (extension.equals("jpeg")) {
-            return "jpg";
+        if (extension.equals("jpg")) {
+            return "jpeg";
         }
 
         if (!SUPPORTED_IMAGE_TYPES.contains(extension)) {

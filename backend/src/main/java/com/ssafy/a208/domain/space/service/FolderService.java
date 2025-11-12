@@ -66,8 +66,12 @@ public class FolderService {
             FolderReq folderReq) {
         Space space = spaceService.getEditableSpace(spaceId, userDetails.memberId());
         Folder folder = folderReader.getFolderById(folderId);
-        folderReader.checkDuplicatedName(space, folderReq.name());
+        if (Objects.equals(folder.getName(), folderReq.name())) {
+            folder.updateColor(folderReq.color());
+            return;
+        }
 
+        folderReader.checkDuplicatedName(space, folderReq.name());
         folder.updateFolder(folderReq.name(), folderReq.color());
     }
 

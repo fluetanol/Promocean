@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long>,
         ArticleTagRepositoryCustom {
+    int countByTagIdAndDeletedAtIsNull(Long tagId);
 
 }

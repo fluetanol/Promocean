@@ -72,13 +72,18 @@ public class SpaceService {
         List<SpaceInfo> spaceInfos = teamSpaces.stream()
                 .map(teamSpace -> {
                     String coverUrl = spaceCoverService.getSpaceCoverUrl(teamSpace);
-                    int participantCnt = participantService.getParticipantsBySpaceId(
-                            teamSpace.getId()).size();
+                    List<Participant> participantList = participantService
+                            .getParticipantsBySpaceId(teamSpace.getId());
+                    Participant participant = participantList.stream()
+                            .filter(p -> p.getMember().getId().equals(userDetails.memberId()))
+                            .findFirst().get();
+
                     return SpaceInfo.builder()
                             .spaceId(teamSpace.getId())
                             .name(teamSpace.getName())
                             .spaceCoverUrl(coverUrl)
-                            .participantCnt(participantCnt)
+                            .participantCnt(participantList.size())
+                            .userRole(participant.getRole().name())
                             .build();
                 })
                 .toList();

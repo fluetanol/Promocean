@@ -3,6 +3,7 @@ package com.ssafy.a208.domain.member.service;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
+import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.exception.AlreadyExistEmailException;
 import com.ssafy.a208.domain.member.exception.AlreadyExistNicknameException;
@@ -83,6 +84,12 @@ public class MemberService {
         return CheckDuplicateRes.builder()
                 .isDuplicated(isDuplicated)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public UsableTokenRes getUsableToken(CustomUserDetails userDetails) {
+        Member member = memberReader.getMemberById(userDetails.memberId());
+        return UsableTokenRes.builder().usableToken(member.getUsableCnt()).build();
     }
 
     private Member createMember(SignupReq signupReq, Space space) {

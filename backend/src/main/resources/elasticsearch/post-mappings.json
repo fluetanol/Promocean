@@ -1,0 +1,52 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "title": {
+      "type": "text",
+      "analyzer": "nori",
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        }
+      }
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "nori"
+    },
+    "authorNickname": {
+      "type": "keyword"
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "tags": {
+      "type": "keyword"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "likeCount": {
+      "type": "integer"
+    },
+    "replyCount": {
+      "type": "integer"
+    },
+    "popularityScore": {
+      "type": "long"
+    },
+    "profilePath": {
+      "type": "keyword",
+      "index": false
+    },
+    "filePath": {
+      "type": "keyword",
+      "index": false
+    }
+  }
+}
