@@ -8,6 +8,8 @@ import SpaceArchiveDeleteModal from "../modal/SpaceArchiveDeleteModal";
 import SpaceArchiveEditModal from "../modal/SpaceArchiveEditModal";
 import SpaceAPI from "@/api/space";
 import { colorCodeFrontToBack } from "@/utils/colorController";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
+import { useSpaceStore } from "@/store/spaceStore";
 
 export interface SpaceArchiveItemProps {
     folderId : number;
@@ -15,8 +17,6 @@ export interface SpaceArchiveItemProps {
     color: string;
     isPinned: boolean;
     isTeamSpace :boolean;
-    teamName?: string;
-    spaceId? : number;
     archiveItemListState: SpaceArchiveData[];
     setArchiveItemListState: (newState: SpaceArchiveData[]) => void;
     pinnedItemListState: SpaceArchiveData[];
@@ -50,9 +50,7 @@ export default function SpaceArchiveItem({
     name,
     color,
     isPinned,
-    spaceId,
     isTeamSpace,
-    teamName,
     archiveItemListState,
     setArchiveItemListState,
     pinnedItemListState,
@@ -63,31 +61,37 @@ export default function SpaceArchiveItem({
     const [isPinnedState, setIsPinnedState] = useState(isPinned);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+    const archiveFolderStore = useArchiveFolderStore();
+    const spaceStore = useSpaceStore();
+    const teamName = spaceStore.currentSpace?.name;
+    const spaceId = spaceStore.currentSpace?.spaceId;
+    
     const handleArchiveRoute = () => {
         console.log(`${name} 아카이브 아이템 클릭됨`);
+        archiveFolderStore.setCurrentFolder({
+            name : name,
+            folderId : folderId,
+            color : color,
+            isPinned : isPinned
+        })
+
         if(isTeamSpace && teamName) {
-          router.push(`/team-space/${spaceId}/archive/${folderId}`);
+          router.push(`/team-space/${encodeURIComponent(teamName)}/archive/${encodeURIComponent(name)}`);
         } else {
-          router.push('/my-space/archive/' + folderId);
+          router.push('/my-space/archive/' + encodeURIComponent(name));
         }
     }
 
     const handlePinnedClick = async (e: React.ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
         const res = await SpaceAPI.patchMySpaceArchiveFolderPinStatus(spaceId!, folderId);
-
-        
         const newPinnedState = !isPinnedState;
         setIsPinnedState(newPinnedState);
-        
-
         // false → true (일반 폴더 → Pinned)
         if (newPinnedState) {
             // 일반 리스트에서 제거
             const updatedArchiveList = archiveItemListState.filter(item => item.name !== name);
             setArchiveItemListState(updatedArchiveList);
-
             // Pinned 리스트에 추가
             setPinnedItemListState([...pinnedItemListState, { folderId, name, color, isPinned: true }]);
         }
@@ -96,17 +100,12 @@ export default function SpaceArchiveItem({
             // Pinned 리스트에서 제거
             const updatedPinnedList = pinnedItemListState.filter(item => item.name !== name);
             setPinnedItemListState(updatedPinnedList);
-
             // 일반 리스트에 추가
             setArchiveItemListState([...archiveItemListState, { folderId, name, color, isPinned: false }]);
         }
         
         const res2 = await SpaceAPI.getSpaceArchiveFoldersData(spaceId!);
         
-
-        
-        // setArchiveItemListState([]);
-        // setPinnedItemListState([]);
 
         console.log("pin res " ,res);
         console.log(`${name} 아카이브 폴더 pinned ${newPinnedState ? '설정' : '해제'}됨`);

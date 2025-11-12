@@ -2,16 +2,15 @@
 
 "use client";
 
+import { useAuthStore } from "@/store/authStore";
 import React from "react";
 
 /**
  * SpaceHeaderProps 인터페이스
- * @property {string} nickname - 사용자 닉네임
  * @property {boolean} [isTeamSpace] - 팀 스페이스 여부
  * @property {string} [description] - 설명 텍스트
  */
 export interface SpaceHeaderProps {
-    nickname: string;
     isTeamSpace?: boolean;
     description?: string;
 }
@@ -30,7 +29,11 @@ export interface SpaceHeaderProps {
  * @returns {JSX.Element} 헤더 컴포넌트
  */
 export default function SpaceHeader(
-  {nickname, isTeamSpace = false, description}: SpaceHeaderProps) {
+  {isTeamSpace = false, description}: SpaceHeaderProps) {
+
+    const authStore = useAuthStore();
+    const nickname = authStore.user?.nickname || "익명의 사용자";
+
 
   return (
     <header className="w-full">

@@ -1,36 +1,45 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import SpaceCardHeader from "@/components/layout/SpaceCardHeader";
 import SpaceArchiveList from "@/components/list/SpaceArchiveList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
 import { SpaceArchiveData } from "@/app/my-space/page";
 import SpaceAPI from "@/api/space";
+import TeamSpaceHeader from "@/components/layout/TeamSpaceHeader";
+import { useSpaceStore } from "@/store/spaceStore";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 
 export default function TeamSpaceArchivePage() {
-  const params = useParams();
-  const spaceIdParams = params["team-archive"];
-  const spaceId = Number(spaceIdParams);
-  console.log("스페이스 id ", spaceId);
-
   const [archiveItemListState, setArchiveItemListState] = useState<SpaceArchiveData[]>([]);
   const [pinnedItemListState, setPinnedItemListState] = useState<SpaceArchiveData[]>([]);
   const [isLoadingState, setIsLoadingState] = useState(true);
 
+  const spaceStore = useSpaceStore();
+ 
+  const archiveFolderStore = useArchiveFolderStore();
+  const currentSpace = spaceStore.currentSpace;
+  const spaceId = currentSpace?.spaceId;
+  const name  = currentSpace?.name;
+
+  console.log("스페이스 ",currentSpace);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if(!currentSpace) return;
+        
         console.log("스페이스 아이디 useEffect ", spaceId);
-        const res = await SpaceAPI.getSpaceArchiveFoldersData(spaceId);
+        //없으면 -1로 보내어 의도적인 에러 발생
+        const res = await SpaceAPI.getSpaceArchiveFoldersData(spaceId || -1);
 
-        const spaceData = res?.folders;
-        console.log("data ", spaceData);
+        const archiveFolders = res?.folders;
+        archiveFolderStore.setAllFolderList(archiveFolders || []);
 
         const newArchiveItemListState : SpaceArchiveData[] = [];
         const newPinnedItemListState : SpaceArchiveData[] = [];
 
-        for(const folder of spaceData || []){
+        for(const folder of archiveFolders || []){
           folder.color = `#${folder.color}`;
           if(folder.isPinned){
             newPinnedItemListState.push(folder);
@@ -39,9 +48,9 @@ export default function TeamSpaceArchivePage() {
           }
         }
 
-        setPinnedItemListState(newPinnedItemListState);
-        setArchiveItemListState(newArchiveItemListState);
-        setIsLoadingState(false);
+          setPinnedItemListState(newPinnedItemListState);
+          setArchiveItemListState(newArchiveItemListState);
+          setIsLoadingState(false);
         }
        catch (error) {
         console.error("Failed to fetch data:", error);
@@ -50,7 +59,7 @@ export default function TeamSpaceArchivePage() {
     }
 
     fetchData();
-  }, []);
+  }, [currentSpace]);
 
   if (isLoadingState) {
     return (
@@ -61,6 +70,8 @@ export default function TeamSpaceArchivePage() {
   }
 
   return (
+    <>
+    <TeamSpaceHeader nickname={name||"팀 이름"} spaceId={spaceId}/>
     <div className="min-h-screen bg-gray-50">
       <div className="flex justify-end-safe">
         <div className="shrink-0 min-w-[380px]">
@@ -74,7 +85,7 @@ export default function TeamSpaceArchivePage() {
           <SpaceArchiveList
             isPinnedList={true}
             isTeamSpace={true}
-            teamName={"teamName"}
+
             spaceId={spaceId}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
@@ -90,7 +101,6 @@ export default function TeamSpaceArchivePage() {
           <SpaceArchiveList
             isPinnedList={false}
             isTeamSpace={true}
-            teamName={"teamName"}
             spaceId={spaceId}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
@@ -100,5 +110,6 @@ export default function TeamSpaceArchivePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

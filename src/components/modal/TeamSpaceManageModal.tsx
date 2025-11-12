@@ -4,21 +4,26 @@ import TeamSpaceInsertionModalTabs from "../filter/TeamSpaceInsertionModalTabs";
 import SpaceAddMemberItem from "../item/SpaceAddMemberItem";
 import TeamSpaceRoleItem from "../item/TeamSpaceRoleItem";
 import TeamSpaceRoleList from "../list/TeamSpaceRoleList";
+import ImageChoiceButton from "../button/ImageChoiceButton";
+import SpaceAPI from "@/api/space";
+import { UploadAPI } from "@/api/upload";
 
 export interface TeamSpacePageProps {
+    spaceId? : number;
     isModalOpenState: boolean;
     handleModalClose: () => void;
-    modalTabState: "권한" | "초대" | "삭제";
-    setModalTabState: (tab: "권한" | "초대" | "삭제") => void;
+    modalTabState: "권한" | "초대" | "수정" | "삭제";
+    setModalTabState: (tab: "권한" | "초대" | "수정" | "삭제") => void;
     memberListState: string[];
     setMemberListState: (members: string[]) => void;
     teamName?: string;
+
 }
 
 
 
-export default function TeamSpaceManageModal( { isModalOpenState, handleModalClose, modalTabState, setModalTabState, memberListState, setMemberListState, teamName = "팀 스페이스"}: TeamSpacePageProps) {
-
+export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handleModalClose, modalTabState, setModalTabState, memberListState, setMemberListState, teamName = "팀 스페이스"}: TeamSpacePageProps) {
+    console.log("spaceId in TeamSpaceManageModal:", spaceId);
     const router = useRouter();
     const [addMemberListState, setAddMemberListState] = useState<string[]>([
         "정태승",
@@ -28,17 +33,62 @@ export default function TeamSpaceManageModal( { isModalOpenState, handleModalClo
         "최지훈",
     ]);
 
-    const [deleteInputState, setDeleteInputState] = useState("");
-    const deleteConfirmText = `${teamName}을 삭제 하겠습니다`;
-    const isDeleteValid = deleteInputState === deleteConfirmText;
+    // 수정 탭 state
+    const [editSpaceImageState, setEditSpaceImageState] = useState<File | null>(null);
+    const [editSpaceNameState, setEditSpaceNameState] = useState(teamName);
 
-    const handleDeleteTeam = () => {
+    const [deleteInputState, setDeleteInputState] = useState("");
+    const deleteConfirmText = `${teamName}를 삭제 하겠습니다`;
+    const isDeleteValid = deleteInputState === deleteConfirmText;
+    
+    const handleDeleteTeam = async () => {
+        console.log("handle " ,spaceId);
         if (isDeleteValid) {
-            alert(`${teamName}이 삭제되었습니다`);
-            handleModalClose();
+   
+            const res = await SpaceAPI.deleteTeamSpace(spaceId!);
+            console.log("Res ",res);
+            //handleModalClose();
+                     alert(`${teamName}이 삭제되었습니다`);
+
             router.push('/team-space');
         }
     };
+
+    const handleInsertionTeam = async () => {
+
+        const s3res =await UploadAPI.getImagesS3Upload(editSpaceImageState ? editSpaceImageState.name : "default.png");
+        console.log("s3Res ", s3res);
+
+        const presignedUrl = s3res?.presignedUrl;
+        const key = s3res?.key;
+
+        if(s3res && editSpaceImageState) {
+
+            const uploadS3Res = await UploadAPI.uploadImageToS3({
+                presignedUrl : presignedUrl!,
+                file : editSpaceImageState
+            });
+
+            // console.log("Upload S3 Res ", uploadS3Res);
+
+            const patchRes = await SpaceAPI.patchTeamSpace(spaceId!, {
+                name: editSpaceNameState,
+                spaceCoverPath : key!
+            });
+
+            console.log("Patch Res ", patchRes);
+
+            alert(`${teamName}이 수정되었습니다`);
+
+            handleModalClose();
+        }
+        else{
+            console.log("No image to upload, just update name");
+            handleModalClose();
+        }
+
+    }
+
 
     return(
         <>
@@ -90,6 +140,55 @@ export default function TeamSpaceManageModal( { isModalOpenState, handleModalClo
                             hover:bg-primary/80">초대하기</button>
                         </div>
 
+                    </>
+                ) : modalTabState === "수정" ? (
+                    <>
+                        {/* 수정 탭 */}
+                        <div className="flex flex-col gap-6">
+                            {/* 커버 이미지 섹션 */}
+                            <ImageChoiceButton setSpaceImageState={setEditSpaceImageState} />
+
+                            {/* 팀 스페이스 이름 섹션 */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    팀 스페이스 이름
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editSpaceNameState}
+                                    onChange={(e) => setEditSpaceNameState(e.target.value)}
+                                    placeholder="팀 스페이스 이름을 입력하세요"
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                />
+                            </div>
+
+                            {/* 버튼 섹션 */}
+                            <div className="flex flex-row justify-center gap-4 py-2 w-full">
+                                <button
+                                    type="button"
+                                    className="bg-gray-200 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                                    onClick={handleModalClose}
+                                >
+                                    취소하기
+                                </button>
+                                <button
+                                    type="button"
+                                    className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/80 transition-colors"
+                                    onClick={() => {
+                                        // TODO: API 호출하여 팀 스페이스 정보 업데이트
+                                        // console.log("Team space update:", {
+                                        //     spaceId,
+                                        //     name: editSpaceNameState,
+                                        //     image: null
+                                        // });
+                                        handleInsertionTeam();
+                                        handleModalClose();
+                                    }}
+                                >
+                                    저장하기
+                                </button>
+                            </div>
+                        </div>
                     </>
                 ) : (
                     <>

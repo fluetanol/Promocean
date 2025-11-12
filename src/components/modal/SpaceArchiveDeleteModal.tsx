@@ -33,7 +33,7 @@ export default function SpaceArchiveDeleteModal({
                 <h2 className="text-2xl font-semibold">폴더 삭제</h2>
 
                 <p className="text-gray-700">
-                    <span className="font-semibold">"{title}"</span> 폴더를 삭제하시겠습니까?
+                    <span className="font-semibold">{title}</span> 폴더를 삭제하시겠습니까?
                 </p>
 
                 <div className="flex flex-row justify-center gap-4 mt-2">

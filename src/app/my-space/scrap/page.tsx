@@ -22,7 +22,7 @@ return (
 
     <div className="min-h-screen bg-gray-50">
   
-      <SpaceBoardHeader titleName="스크랩" description="스크랩한 글을 모아볼 수 있습니다." />
+      <SpaceBoardHeader title="스크랩" description="스크랩한 글을 모아볼 수 있습니다." />
       <MySpaceArchiveFilterSection buttonMode="search"/>
 
       <SpaceScrapBoardList itemList={spaceScrapBoardList}/>

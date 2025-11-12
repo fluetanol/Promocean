@@ -6,6 +6,7 @@ import SpaceArchiveList from "@/components/list/SpaceArchiveList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
 import { useAuthStore } from "@/store/authStore";
 import { SpaceAPI } from "@/api/space";
+import { useSpaceStore } from "@/store/spaceStore";
 
 export interface SpaceArchiveData {
   folderId : number;
@@ -20,22 +21,37 @@ export default function MySpacePage() {
   const [isLoadingState, setIsLoadingState] = useState(true);
 
   //부분적 구독을 하고 싶으면 이런 구문을 쓰자.
-  const personalSpaceIdState = useAuthStore((state)=>state.user?.personalSpaceId);
+  //const personalSpaceIdState = useAuthStore((state)=>state.user?.personalSpaceId);
   // console.log("렌더링?")
+
+  const authStore = useAuthStore();
+  const spaceStore = useSpaceStore();
+  const user = authStore.user;
+  const personalSpaceId = user?.personalSpaceId;
+  const name = user?.nickname || "나의 스페이스";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await SpaceAPI.getSpaceArchiveFoldersData(personalSpaceIdState);
+        const res = await SpaceAPI.getSpaceArchiveFoldersData(personalSpaceId!);
 
         if(!res){ 
           return;
+        }
+
+        if(personalSpaceId){
+          
+        spaceStore.setCurrentSpace({
+          spaceId: personalSpaceId!,
+          name : name,
+          participantCnt : 1,
+          spaceCoverUrl : "",
+        });
         }
         
         console.log("data!! ", res);
 
         //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.
-
         const newArchiveItemListState : SpaceArchiveData[] = [];
         const newPinnedItemListState : SpaceArchiveData[] = [];
 
@@ -59,7 +75,7 @@ export default function MySpacePage() {
     };
 
     fetchData();
-  }, [personalSpaceIdState]);
+  }, [personalSpaceId]);
 
   if (isLoadingState) {
     return (
@@ -83,7 +99,7 @@ export default function MySpacePage() {
           <SpaceArchiveList 
             isPinnedList={true}
             isTeamSpace={false}
-            spaceId={personalSpaceIdState!}
+            spaceId={personalSpaceId!}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}
@@ -98,7 +114,7 @@ export default function MySpacePage() {
           <SpaceArchiveList 
             isPinnedList={false}
             isTeamSpace={false}
-            spaceId={personalSpaceIdState!}
+            spaceId={personalSpaceId!}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}

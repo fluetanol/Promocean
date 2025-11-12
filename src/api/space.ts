@@ -141,7 +141,7 @@ export const SpaceAPI = {
     /**
      * 스페이스의 아카이브 폴더 데이터를 조회하는 API입니다.
      */
-    async getSpaceArchiveFoldersData(spaceId : number | undefined) : Promise<GetSpaceArchiveFoldersResponse | null> {
+    async getSpaceArchiveFoldersData(spaceId : number) : Promise<GetSpaceArchiveFoldersResponse | null> {
         if(!spaceId){ return null;}
 
         console.log("API spaceId ", spaceId);
@@ -258,6 +258,8 @@ export const SpaceAPI = {
         * 팀 스페이스를 삭제하는 API입니다.
     */
     async deleteTeamSpace(teamSpaceId : number) : Promise<DeleteTeamSpaceResponse | null> {
+        console.log("Delete Team Space ID ", teamSpaceId);    
+    
         const res = await apiFetch<ApiResponse<DeleteTeamSpaceResponse>>(`/api/v1/spaces/${teamSpaceId}`, {
             method: "DELETE",
         });
@@ -271,7 +273,7 @@ export const SpaceAPI = {
         * 팀 스페이스를 수정하는 API입니다.
     */
     async patchTeamSpace(teamSpaceId : number, teamSpaceData : PatchTeamSpaceRequest) : Promise<NoArgsResponse | null> {
-        const res = await apiFetch<NoArgsResponse>(`/api/v1/spaces/team/${teamSpaceId}`, {
+        const res = await apiFetch<NoArgsResponse>(`/api/v1/spaces/${teamSpaceId}`, {
             method: "PATCH",
             body: JSON.stringify(teamSpaceData),
         });

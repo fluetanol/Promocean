@@ -12,7 +12,7 @@ export default function MyLayout({
 }: Readonly<{children: React.ReactNode}>){
         return(
             <div>
-             <MySpaceHeader nickname="홍길동"/>
+             <MySpaceHeader/>
              <MySpaceTabs/>
              {children}
             </div>

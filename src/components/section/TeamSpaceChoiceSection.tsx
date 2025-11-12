@@ -6,20 +6,28 @@ import { TeamSpaceChoiceItemProps } from "../item/TeamSpaceTeamChoiceItem"
 import TeamSpaceTeamChoiceList from "../list/TeamSpaceTeamChoiceLlist"
 import TeamSpaceAddModal from "../modal/TeamSpaceAddModal";
 import { SpaceAPI } from "@/api/space";
+import { useSpaceStore } from "@/store/spaceStore";
 
 export default function TeamSpaceChoiceSection(){
     
     const [isModalOpenState, setIsModalOpenState] = useState(false);
     const [shouldRenderModalState, setShouldRenderModalState] = useState(false);
     const [teamSpaceTeamChoiceListState, setTeamSpaceTeamChoiceListState] = useState<TeamSpaceChoiceItemProps[]>([]);
+    const spaceStore = useSpaceStore();
+
 
     useEffect(()=>{
-        console.log("팀 스페이스 리스트 ", teamSpaceTeamChoiceListState);
+        // console.log("팀 스페이스 리스트 ", teamSpaceTeamChoiceListState);
         const fetchData = async () => {
             try {
                 const res = await SpaceAPI.getTeamSpaceList();
-                console.log("팀 스페이스 리스트 재조회 ", res!.spaces);
-                setTeamSpaceTeamChoiceListState(res!.spaces || []);
+                const spaceList = res?.spaces || [];
+
+                console.log("팀 스페이스 리스트 재조회 ", spaceList);
+
+                spaceStore.setAllTeamSpaces(spaceList);
+                setTeamSpaceTeamChoiceListState(spaceList);
+
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }

@@ -9,7 +9,6 @@ import { useAuthStore } from "@/store/authStore";
 export interface SpaceArchiveListProps {
   isPinnedList?: boolean;
   isTeamSpace: boolean;
-  teamName?: string;
   spaceId?: number;
   archiveItemListState: SpaceArchiveData[];
   setArchiveItemListState: (newState: SpaceArchiveData[]) => void;
@@ -28,7 +27,6 @@ const interactiveBtnClasses = `
 export default function SpaceArchiveList({
     isPinnedList,
     isTeamSpace,
-    teamName,
     spaceId,
     archiveItemListState,
     setArchiveItemListState,
@@ -91,8 +89,6 @@ export default function SpaceArchiveList({
                     color={item.color}
                     isPinned={item.isPinned}
                     isTeamSpace={isTeamSpace}
-                    teamName={teamName}
-                    spaceId={spaceId}
                     archiveItemListState={archiveItemListState}
                     setArchiveItemListState={setArchiveItemListState}
                     pinnedItemListState={pinnedItemListState}
