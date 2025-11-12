@@ -83,7 +83,7 @@ public class ScrapRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute @Valid ScrapQueryDto query
     ) {
-        ScrapListRes res = scrapService.getScraps(userDetails, query);
+        ScrapListRes res = scrapService.getScrapsV2(userDetails, query);
         return ApiResponse.ok(res);
     }
 }
