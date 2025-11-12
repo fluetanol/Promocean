@@ -1,0 +1,51 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "scrapId": {
+      "type": "long"
+    },
+    "memberId": {
+      "type": "long"
+    },
+    "postId": {
+      "type": "long"
+    },
+    "title": {
+      "type": "text",
+      "analyzer": "nori",
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        }
+      }
+    },
+    "authorNickname": {
+      "type": "keyword"
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "tags": {
+      "type": "keyword"
+    },
+    "scrapCreatedAt": {
+      "type": "date"
+    },
+    "isDeleted": {
+      "type": "boolean"
+    },
+    "profilePath": {
+      "type": "keyword",
+      "index": false
+    },
+    "filePath": {
+      "type": "keyword",
+      "index": false
+    }
+  }
+}
