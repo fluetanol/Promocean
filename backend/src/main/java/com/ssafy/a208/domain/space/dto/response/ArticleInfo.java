@@ -1,7 +1,7 @@
 package com.ssafy.a208.domain.space.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 
 @Builder
@@ -11,7 +11,7 @@ public record ArticleInfo(
         String fileUrl,
         String type,
         LocalDateTime updatedAt,
-        List<String> tags
+        Set<String> tags
 ) {
 
 }

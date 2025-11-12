@@ -6,20 +6,22 @@ import com.ssafy.a208.domain.space.dto.response.ArticleInfo;
 import com.ssafy.a208.domain.space.dto.response.ArticleListItemQueryRes;
 import com.ssafy.a208.domain.space.dto.response.ArticleListRes;
 import com.ssafy.a208.domain.space.entity.Article;
+import com.ssafy.a208.domain.space.entity.ArticleDocument;
 import com.ssafy.a208.domain.space.entity.Folder;
 import com.ssafy.a208.domain.space.exception.InvalidArticleRequestException;
 import com.ssafy.a208.domain.space.reader.ArticleReader;
+import com.ssafy.a208.domain.space.repository.ArticleElasticSearchRepository;
 import com.ssafy.a208.domain.space.repository.ArticleRepository;
 import com.ssafy.a208.domain.tag.service.ArticleTagService;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.common.enums.SortType;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,8 @@ public class ArticleService {
     private final ArticleTagService articleTagService;
     private final ArticleRepository articleRepository;
     private final ArticleFileService articleFileService;
+    private final ArticleElasticSearchService articleElasticSearchService;
+    private final ArticleElasticSearchRepository articleElasticSearchRepository;
 
     @Transactional
     public ArticleDetailRes createArticle(CustomUserDetails userDetails, Long spaceId,
@@ -43,6 +47,22 @@ public class ArticleService {
         Article article = saveArticle(articleReq, folder);
         articleTagService.createArticleTag(articleReq.tags(), article);
         String fileUrl = articleFileService.createArticleFile(articleReq.filePath(), article);
+
+        articleElasticSearchRepository.save(ArticleDocument.builder()
+                .articleId(article.getId())
+                .folderId(folderId)
+                .title(article.getTitle())
+                .filePath(fileUrl)
+                .type(article.getType())
+                .tags(articleReq.tags())
+
+                .createdAt(Date.from(article.getCreatedAt()
+                        .atZone(ZoneId.of("Asia/Seoul"))  // 서울 시간 적용
+                        .toInstant()))
+                .updatedAt(Date.from(article.getUpdatedAt()
+                        .atZone(ZoneId.of("Asia/Seoul"))  // 서울 시간 적용
+                        .toInstant()))
+                .build());
 
         return ArticleDetailRes.builder()
                 .articleId(article.getId())
@@ -95,16 +115,16 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public ArticleListRes getArticleList(CustomUserDetails userDetails, Long spaceId,
-            Long folderId, Integer type, String tag, String title, int page, int size, SortType sort) {
+            Long folderId, Integer type, String tag, String title, int page, int size,
+            SortType sort) {
         if (Objects.isNull(folderId)) {
             spaceService.validateEditableSpace(spaceId, userDetails.memberId());
         } else {
             folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
         }
 
-        Pageable pageable = PageRequest.of(page - 1, size, sort.getSort());
-        Page<ArticleListItemQueryRes> articles = articleRepository.findAllArticles(folderId, type,
-                tag, title, pageable);
+        Page<ArticleListItemQueryRes> articles = articleElasticSearchService
+                .searchWithNativeQuery(folderId, title, tag, type, sort, page, size);
 
         List<ArticleInfo> articleInfos = articles.stream()
                 .map(article -> ArticleInfo.builder()
