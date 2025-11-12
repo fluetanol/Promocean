@@ -7,13 +7,17 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import com.ssafy.a208.domain.space.dto.response.ArticleListItemQueryRes;
+import com.ssafy.a208.domain.space.entity.Article;
 import com.ssafy.a208.domain.space.entity.ArticleDocument;
+import com.ssafy.a208.domain.space.repository.ArticleElasticSearchRepository;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.common.enums.SortType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,6 +32,7 @@ import org.springframework.stereotype.Service;
 public class ArticleElasticSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
+    private final ArticleElasticSearchRepository articleElasticSearchRepository;
 
     public Page<ArticleListItemQueryRes> searchWithNativeQuery(Long folderId, String titleKeyword,
             String tagKeyword,
@@ -105,5 +110,32 @@ public class ArticleElasticSearchService {
         return new PageImpl<>(content, PageRequest.of(page - 1, size), searchHits.getTotalHits());
     }
 
+    public void indexArticle(Article article, String fileUrl, Set<String> tags) {
+
+        Date createdAt = Date.from(article.getCreatedAt()
+                .atZone(ZoneId.of("Asia/Seoul"))
+                .toInstant());
+
+        Date updatedAt = Date.from(article.getUpdatedAt()
+                .atZone(ZoneId.of("Asia/Seoul"))
+                .toInstant());
+
+        ArticleDocument articleDocument = ArticleDocument.builder()
+                .articleId(article.getId())
+                .folderId(article.getFolder().getId())
+                .title(article.getTitle())
+                .filePath(fileUrl)
+                .type(article.getType())
+                .tags(tags)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .build();
+
+        articleElasticSearchRepository.save(articleDocument);
+    }
+
+    public void deleteArticle(Long articleId) {
+        articleElasticSearchRepository.deleteById(articleId);
+    }
 
 }

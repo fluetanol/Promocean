@@ -6,18 +6,14 @@ import com.ssafy.a208.domain.space.dto.response.ArticleInfo;
 import com.ssafy.a208.domain.space.dto.response.ArticleListItemQueryRes;
 import com.ssafy.a208.domain.space.dto.response.ArticleListRes;
 import com.ssafy.a208.domain.space.entity.Article;
-import com.ssafy.a208.domain.space.entity.ArticleDocument;
 import com.ssafy.a208.domain.space.entity.Folder;
 import com.ssafy.a208.domain.space.exception.InvalidArticleRequestException;
 import com.ssafy.a208.domain.space.reader.ArticleReader;
-import com.ssafy.a208.domain.space.repository.ArticleElasticSearchRepository;
 import com.ssafy.a208.domain.space.repository.ArticleRepository;
 import com.ssafy.a208.domain.tag.service.ArticleTagService;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.common.enums.SortType;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +32,6 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleFileService articleFileService;
     private final ArticleElasticSearchService articleElasticSearchService;
-    private final ArticleElasticSearchRepository articleElasticSearchRepository;
 
     @Transactional
     public ArticleDetailRes createArticle(CustomUserDetails userDetails, Long spaceId,
@@ -48,21 +43,7 @@ public class ArticleService {
         articleTagService.createArticleTag(articleReq.tags(), article);
         String fileUrl = articleFileService.createArticleFile(articleReq.filePath(), article);
 
-        articleElasticSearchRepository.save(ArticleDocument.builder()
-                .articleId(article.getId())
-                .folderId(folderId)
-                .title(article.getTitle())
-                .filePath(fileUrl)
-                .type(article.getType())
-                .tags(articleReq.tags())
-
-                .createdAt(Date.from(article.getCreatedAt()
-                        .atZone(ZoneId.of("Asia/Seoul"))  // 서울 시간 적용
-                        .toInstant()))
-                .updatedAt(Date.from(article.getUpdatedAt()
-                        .atZone(ZoneId.of("Asia/Seoul"))  // 서울 시간 적용
-                        .toInstant()))
-                .build());
+        articleElasticSearchService.indexArticle(article, fileUrl, articleReq.tags());
 
         return ArticleDetailRes.builder()
                 .articleId(article.getId())
@@ -100,6 +81,9 @@ public class ArticleService {
         article.updateArticle(articleReq.title(), articleReq.description(), articleReq.prompt(),
                 PromptType.valueOf(articleReq.type()), articleReq.exampleQuestion(),
                 articleReq.exampleAnswer());
+
+        articleElasticSearchService.indexArticle(article, articleReq.filePath(), articleReq.tags());
+
     }
 
     @Transactional
@@ -111,6 +95,7 @@ public class ArticleService {
 
         article.deleteArticle();
         articleTagService.deleteArticleTag(article);
+        articleElasticSearchService.deleteArticle(article.getId());
     }
 
     @Transactional(readOnly = true)
