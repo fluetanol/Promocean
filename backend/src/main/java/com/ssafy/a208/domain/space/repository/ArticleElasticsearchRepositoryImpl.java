@@ -6,17 +6,12 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import com.ssafy.a208.domain.space.dto.response.ArticleListItemQueryRes;
 import com.ssafy.a208.domain.space.entity.ArticleDocument;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.common.enums.SortType;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -26,9 +21,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ArticleElasticsearchRepositoryImpl {
+
     private final ElasticsearchOperations elasticsearchOperations;
 
-    public Page<ArticleListItemQueryRes> searchWithNativeQuery(Long folderId, String titleKeyword,
+    public SearchHits<ArticleDocument> searchWithNativeQuery(Long folderId, String titleKeyword,
             String tagKeyword,
             Integer promptType, SortType sort, int page, int size) {
 
@@ -83,25 +79,7 @@ public class ArticleElasticsearchRepositoryImpl {
                 .build();
 
         // 검색 실행
-        SearchHits<ArticleDocument> searchHits = elasticsearchOperations.search(nativeQuery,
-                ArticleDocument.class);
-
-        List<ArticleListItemQueryRes> content = searchHits.stream()
-                .map(hit -> {
-                    ArticleDocument doc = hit.getContent();
-                    return new ArticleListItemQueryRes(
-                            doc.getArticleId(),
-                            doc.getTitle(),
-                            doc.getType(),
-                            doc.getFilePath(),
-                            doc.getTags(),
-                            LocalDateTime.ofInstant(doc.getUpdatedAt().toInstant(),
-                                    ZoneId.of("Asia/Seoul"))
-                    );
-                })
-                .toList();
-
-        return new PageImpl<>(content, PageRequest.of(page - 1, size), searchHits.getTotalHits());
+        return elasticsearchOperations.search(nativeQuery, ArticleDocument.class);
     }
 
 }

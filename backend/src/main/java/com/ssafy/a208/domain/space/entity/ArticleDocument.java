@@ -1,6 +1,7 @@
 package com.ssafy.a208.domain.space.entity;
 
 import com.ssafy.a208.global.common.enums.PromptType;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -34,9 +35,9 @@ public class ArticleDocument {
     private Set<String> tags;
 
     @Field(type = FieldType.Date)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Field(type = FieldType.Date)
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
 }
