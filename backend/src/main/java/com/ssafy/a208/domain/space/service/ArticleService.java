@@ -9,6 +9,7 @@ import com.ssafy.a208.domain.space.entity.Article;
 import com.ssafy.a208.domain.space.entity.Folder;
 import com.ssafy.a208.domain.space.exception.InvalidArticleRequestException;
 import com.ssafy.a208.domain.space.reader.ArticleReader;
+import com.ssafy.a208.domain.space.repository.ArticleElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.space.repository.ArticleRepository;
 import com.ssafy.a208.domain.tag.service.ArticleTagService;
 import com.ssafy.a208.global.common.enums.PromptType;
@@ -31,6 +32,7 @@ public class ArticleService {
     private final ArticleTagService articleTagService;
     private final ArticleRepository articleRepository;
     private final ArticleFileService articleFileService;
+    private final ArticleElasticsearchRepositoryImpl articleElasticsearchRepository;
     private final ArticleElasticSearchService articleElasticSearchService;
 
     @Transactional
@@ -108,7 +110,7 @@ public class ArticleService {
             folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
         }
 
-        Page<ArticleListItemQueryRes> articles = articleElasticSearchService
+        Page<ArticleListItemQueryRes> articles = articleElasticsearchRepository
                 .searchWithNativeQuery(folderId, title, tag, type, sort, page, size);
 
         List<ArticleInfo> articleInfos = articles.stream()

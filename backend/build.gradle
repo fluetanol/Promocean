@@ -61,7 +61,6 @@ dependencies {
 
     // elastic search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'co.elastic.clients:elasticsearch-java'
 }
 
 sourceSets {
