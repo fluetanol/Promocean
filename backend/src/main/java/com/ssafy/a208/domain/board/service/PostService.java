@@ -1,8 +1,8 @@
 package com.ssafy.a208.domain.board.service;
 
+import com.ssafy.a208.domain.board.document.PostDocument;
 import com.ssafy.a208.domain.board.dto.*;
 import com.ssafy.a208.domain.board.entity.Post;
-import com.ssafy.a208.domain.board.entity.Reply;
 import com.ssafy.a208.domain.board.exception.InvalidPostRequestException;
 import com.ssafy.a208.domain.board.exception.PostNotFoundException;
 import com.ssafy.a208.domain.board.exception.PostAccessDeniedException;
@@ -10,6 +10,7 @@ import com.ssafy.a208.domain.board.reader.PostFileReader;
 import com.ssafy.a208.domain.board.reader.PostLikeReader;
 import com.ssafy.a208.domain.board.reader.PostReader;
 import com.ssafy.a208.domain.board.reader.ReplyReader;
+import com.ssafy.a208.domain.board.repository.PostElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.board.repository.PostRepository;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.reader.MemberReader;
@@ -54,6 +55,8 @@ public class PostService {
     private final ReplyService replyService;
     private final ScrapService scrapService;
     private final S3Service s3Service;
+    private final PostIndexService postIndexService;
+    private final PostElasticsearchRepositoryImpl postElasticsearchRepositoryImpl;
 
     /**
      * 게시글을 생성합니다.
@@ -84,6 +87,9 @@ public class PostService {
                 .build();
 
         postRepository.save(post);
+
+        // ES 인덱싱 추가
+        postIndexService.indexPost(post);
 
         // 태그 처리
         postTagService.createTags(req.tags(), post);
@@ -176,6 +182,8 @@ public class PostService {
                 req.sampleQuestion(),
                 req.sampleAnswer()
         );
+        // ES 재인덱싱 추가
+        postIndexService.indexPost(post);
 
         // 태그 처리
         postTagService.createTags(req.tags(), post);
@@ -215,6 +223,9 @@ public class PostService {
 
         // 게시글 소프트 딜리트
         post.deletePost();
+
+        // ES에서 삭제 추가
+        postIndexService.deletePost(postId);
 
         // 댓글 소프트 딜리트
         replyService.deleteRepliesByPost(post);
@@ -512,6 +523,57 @@ public class PostService {
                 .itemCnt(postItems.size())
                 .totalCnt(projectionPage.getTotalElements())
                 .totalPages(projectionPage.getTotalPages())
+                .currentPage(query.page())
+                .build();
+    }
+
+    /**
+     * 게시글 목록 조회 V4 (ElasticSearch 사용)
+     */
+    @Transactional(readOnly = true)
+    public PostListRes getPostsV4(PostListQueryDto query) {
+        // 페이징 설정
+        Pageable pageable = PageRequest.of(query.page() - 1, query.size());
+
+        // ElasticSearch로 검색
+        Page<PostDocument> documentPage = postElasticsearchRepositoryImpl.searchPosts(query, pageable);
+
+        // DTO 변환
+        List<PostListItemDto> postItems = documentPage.getContent().stream()
+                .map(doc -> {
+                    // 프로필 URL
+                    String profileUrl = doc.getProfilePath() != null ?
+                            s3Service.getCloudFrontUrl(doc.getProfilePath()) : null;
+
+                    // 파일 URL
+                    String fileUrl = doc.getFilePath() != null ?
+                            s3Service.getCloudFrontUrl(doc.getFilePath()) : null;
+
+                    return PostListItemDto.builder()
+                            .postId(doc.getId())
+                            .author(doc.getAuthorNickname())
+                            .profileUrl(profileUrl)
+                            .title(doc.getTitle())
+                            .description(doc.getDescription())
+                            .type(doc.getType())
+                            .category(doc.getCategory())
+                            .tags(doc.getTags())
+                            .likeCnt(doc.getLikeCount())
+                            .replyCnt(doc.getReplyCount())
+                            .fileUrl(fileUrl)
+                            .createdAt(doc.getCreatedAt())
+                            .build();
+                })
+                .toList();
+
+        log.info("게시글 목록 조회 완료 (V4 - ElasticSearch) - page: {}, size: {}, totalCount: {}",
+                query.page(), query.size(), documentPage.getTotalElements());
+
+        return PostListRes.builder()
+                .posts(postItems)
+                .itemCnt(postItems.size())
+                .totalCnt(documentPage.getTotalElements())
+                .totalPages(documentPage.getTotalPages())
                 .currentPage(query.page())
                 .build();
     }

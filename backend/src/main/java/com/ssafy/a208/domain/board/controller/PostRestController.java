@@ -126,7 +126,7 @@ public class PostRestController {
     public ResponseEntity<ApiResponse<PostListRes>> getPosts(
             @ModelAttribute @Valid PostListQueryDto query
     ) {
-        PostListRes res = postService.getPostsV3(query);
+        PostListRes res = postService.getPostsV4(query);
         return ApiResponse.ok(res);
     }
 }

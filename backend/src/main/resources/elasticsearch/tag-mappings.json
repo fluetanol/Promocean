@@ -1,0 +1,21 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "name": {
+      "type": "text",
+      "analyzer": "korean_nori",
+      "search_analyzer": "korean_nori",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "normalizer": "lowercase_normalizer"
+        }
+      }
+    },
+    "usageCnt": {
+      "type": "integer"
+    }
+  }
+}

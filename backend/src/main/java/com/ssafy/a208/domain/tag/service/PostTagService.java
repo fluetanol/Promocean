@@ -27,7 +27,7 @@ public class PostTagService {
     private final TagService tagService;
     private final PostTagReader postTagReader;
     private final PostTagRepository postTagRepository;
-
+    private final TagIndexService tagIndexService;
     /**
      * 게시글에 태그를 저장합니다.
      * Tag가 이미 있다면 매핑 정보만 저장하고, 새로운 Tag라면 생성 후 매핑합니다.
@@ -47,7 +47,7 @@ public class PostTagService {
             throw new TagLimitExceededException();
         }
 
-        // 기존 매핑 정보 제거 (소프트 딜리트)
+        // 기존 매핑 정보 제거 (하드 딜리트)
         this.deleteTags(post);
 
         for (String tagName : tags) {
@@ -56,20 +56,9 @@ public class PostTagService {
             tagOptional.ifPresentOrElse(
                     // 태그가 존재하는 경우
                     existing -> {
-                        // 매핑 정보 찾기
-                        Optional<PostTag> postTagOptional = postTagReader
-                                .getPostTag(post.getId(), existing.getId());
-
-                        // 매핑 정보가 있으면 restore, 없으면 새로 생성
-                        postTagOptional.ifPresentOrElse(
-                                existingPostTag -> existingPostTag.restorePostTag(),
-                                () -> postTagRepository.save(
-                                        PostTag.builder()
-                                                .tag(existing)
-                                                .post(post)
-                                                .build()
-                                )
-                        );
+                        saveNewPostTag(existing, post);
+                        // ES 동기화
+                        tagIndexService.updateTagUsageCount(existing.getId());
                     },
                     // 태그를 새로 만들어야 하는 경우
                     () -> {
@@ -77,12 +66,10 @@ public class PostTagService {
                         Tag newTag = tagService.createTag(tagName);
 
                         // 매핑 정보 생성
-                        postTagRepository.save(
-                                PostTag.builder()
-                                        .tag(newTag)
-                                        .post(post)
-                                        .build()
-                        );
+                        saveNewPostTag(newTag, post);
+
+                        // ES 동기화 (새 태그)
+                        tagIndexService.indexTag(newTag);
                     }
             );
         }
@@ -116,7 +103,21 @@ public class PostTagService {
         List<PostTag> postTags = postTagReader.getPostTags(post.getId());
 
         for (PostTag postTag : postTags) {
-            postTag.deletePostTag();
+            // 하드 딜리트로 수정함~
+            postTagRepository.delete(postTag);
+            tagIndexService.updateTagUsageCount(postTag.getTag().getId());
         }
+    }
+
+    /**
+     * 새 PostTag 저장
+     */
+    private void saveNewPostTag(Tag tag, Post post) {
+        postTagRepository.save(
+                PostTag.builder()
+                        .tag(tag)
+                        .post(post)
+                        .build()
+        );
     }
 }

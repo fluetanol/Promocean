@@ -15,4 +15,6 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
 
     /**게시글에 연결된 모든 활성 태그를 조회*/
     List<PostTag> findAllByPostIdAndDeletedAtIsNull(Long postId);
+
+    int countByTagIdAndDeletedAtIsNull(Long tagId);
 }
