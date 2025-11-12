@@ -23,6 +23,7 @@ public class ArticleTagService {
     private final TagService tagService;
     private final ArticleTagReader articleTagReader;
     private final ArticleTagRepository articleTagRepository;
+    private final TagIndexService tagIndexService;
 
     @Transactional
     public void createArticleTag(Set<String> tags, Article article) {
@@ -30,10 +31,14 @@ public class ArticleTagService {
             Optional<Tag> tag = tagReader.getTagByName(name);
 
             tag.ifPresentOrElse(
-                    existing -> saveNewArticleTag(existing, article),
+                    existing -> {
+                        saveNewArticleTag(existing, article);
+                        tagIndexService.updateTagUsageCount(existing.getId());
+                    },
                     () -> {
                         Tag newTag = tagService.createTag(name);
                         saveNewArticleTag(newTag, article);
+                        tagIndexService.indexTag(newTag);
                     }
             );
         }
@@ -49,6 +54,7 @@ public class ArticleTagService {
                 oldTags.add(tag.getTag().getName());
             }
             articleTagRepository.delete(tag);
+            tagIndexService.updateTagUsageCount(tag.getTag().getId());
         }
 
         tags.removeAll(oldTags);
@@ -68,6 +74,7 @@ public class ArticleTagService {
         List<ArticleTag> articleTags = articleTagReader.getArticleTag(article);
         for (ArticleTag articleTag : articleTags) {
             articleTagRepository.delete(articleTag);
+            tagIndexService.updateTagUsageCount(articleTag.getTag().getId());
         }
     }
 
