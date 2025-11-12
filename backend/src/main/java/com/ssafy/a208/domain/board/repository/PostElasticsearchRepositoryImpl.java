@@ -16,6 +16,7 @@ import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class PostElasticsearchRepositoryImpl {
                 .map(SearchHit::getContent)
                 .toList();
 
-        return org.springframework.data.support.PageableExecutionUtils.getPage(
+        return PageableExecutionUtils.getPage(
                 posts,
                 pageable,
                 searchHits::getTotalHits
