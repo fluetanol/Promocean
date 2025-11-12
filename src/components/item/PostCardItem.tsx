@@ -11,9 +11,9 @@ import ChatBubbleBottomCenterText from '../icon/ChatBubbleBottomCenterText'
  * @description PostCardItem component is a post card item component that displays the post card item content
  * @returns {React.ReactNode}
  */
-export default function PostCardItem({ id, title, hashtags, category, likeCount, commentCount, image }: PostCardItemProps) {
+export default function PostCardItem({ postId, title, hashtags, category, likeCount, commentCount, image }: PostCardItemProps) {
   return (
-    <Link href={`/community/${id}`} className="block group">
+    <Link href={`/community/${postId}`} className="block group">
       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
 
         {/* Image Section */}

@@ -1,6 +1,6 @@
-"use client";
-
 // frontend/src/app/contest/[postId]/@modal/(.)notice/[noticeId]/page.tsx
+
+"use client";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, use } from "react";
@@ -13,19 +13,19 @@ import { ContestNoticeDetailData } from "@/types/itemType";
  * @description 대회 상세 페이지에서 공지 사항을 조회하는 경우 나오는 모달입니다.
  * @returns {React.ReactNode}
  */
-export default function ContestNoticeModal({ params }: { params: Promise<{ noticeId: number }> }) {
+export default function ContestNoticeModal({ params }: { params: Promise<{ contestId: number, noticeId: number }> }) {
   
   const router = useRouter();
-  const { noticeId } = use(params);
+  const { contestId, noticeId } = use(params);
   const [noticeData, setNoticeData] = useState<ContestNoticeDetailData | null>(null);
 
   useEffect(() => {
     const fetchNoticeDetail = async () => {
-      const { noticeData } = await ContestAPI.getContestNoticeDetailData(noticeId);
+      const { noticeData } = await ContestAPI.getContestNoticeDetailData(contestId, noticeId);
       setNoticeData(noticeData);
     };
     fetchNoticeDetail();
-  }, [noticeId]);
+  }, [contestId, noticeId]);
 
   return (
     <div

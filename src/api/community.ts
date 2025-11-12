@@ -71,8 +71,8 @@ export const CommunityAPI = {
       };
     }
 
-    // const response = await apiFetch<ApiResponse>(`/api/v1/posts?${queryParams.toString()}`);
-    const response = await apiFetch<ApiResponse>(`/mock/CommunityBoardListResponse.json`);
+    const response = await apiFetch<ApiResponse>(`/api/v1/posts?${queryParams.toString()}`);
+    // const response = await apiFetch<ApiResponse>(`/mock/CommunityBoardListResponse.json`);
 
     const communityBoardList: CommunityBoardItemProps[] = response.data.posts.map((post) => ({ ...post, image: undefined }));
 
@@ -109,13 +109,13 @@ export const CommunityAPI = {
       data: CommunityPostItemResponse;
     }
     
-    // const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}`);
-    const response = await fetch('http://localhost:3000/mock/CommunityPostDetailResponse.json',
-      {
-        cache: "no-store",
-        next: { revalidate: 0 },
-      }
-    ).then((res) => res.json());
+    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}`);
+    // const response = await fetch('http://localhost:3000/mock/CommunityPostDetailResponse.json',
+    //   {
+    //     cache: "no-store",
+    //     next: { revalidate: 0 },
+    //   }
+    // ).then((res) => res.json());
     
     const communityPostDetailData = response.data;
     

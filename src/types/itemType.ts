@@ -7,7 +7,7 @@ import React from 'react'
  * @description 메인 페이지에서 표시되는 포스트 카드 아이템 타입
  */
 export interface PostCardItemProps {
-  id: string
+  postId: number
   title: string
   hashtags: string[]
   category: string
@@ -71,7 +71,7 @@ export interface CommunityBoardItemProps {
  * @description 커뮤니티 플로팅 아이템 타입 (인기글)
  */
 export interface CommunityFloatingItemProps {
-  id: string
+  postId: number
   title: string
   hashtags: string[]
   image: string
@@ -99,13 +99,14 @@ export interface PostingFloatingItemProps {
  */
 export interface ContestCardItemProps {
   contestId: number
+  host: string
+  profileUrl: string
   title: string
-  image: string
-  participantCount: number
-  deadline?: string
-  status: 'SCHEDULED' | 'ONGOING' | 'VOTING' | 'FINISHED' // 백엔드 ENUM과 동일하게
-  tags: string[]
-  startDate: string
+  startAt: string
+  endAt: string
+  status: string // "개최전", "종료" 등 한글
+  createdAt: string
+  updatedAt: string
 }
 
 // TODO : 삭제 예정입니다.

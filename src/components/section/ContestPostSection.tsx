@@ -5,7 +5,7 @@
 import { useSearchParams } from "next/navigation";
 import { ContestPostItemProps, LeaderboardItemProps, ContestNoticeItemProps, ContestSubmissionItemProps } from "@/types/itemType";
 import CommunityPostUserProfileItem from "@/components/item/CommunityPostUserProfileItem";
-import LeaderboardList from "@/components/list/LeaderboardList";
+// import LeaderboardList from "@/components/list/LeaderboardList";
 import Tag from "@/components/icon/Tag";
 import Calendar from "@/components/icon/Calendar";
 import ContestPostTabs from "@/components/filter/ContestPostTabs";
@@ -19,9 +19,10 @@ import { formatKoreanDate } from "@/utils/formatDate";
  */
 export interface ContestPostSectionProps {
   contestPostData: ContestPostItemProps
-  leaderboardList: LeaderboardItemProps[]
+  // leaderboardList: LeaderboardItemProps[]
   ContestNoticeList: ContestNoticeItemProps[]
   contestSubmissionList: ContestSubmissionItemProps[]
+  // contestMySubmissionList: ContestSubmissionItemProps[]
 }
 
 /**
@@ -29,7 +30,8 @@ export interface ContestPostSectionProps {
  * @description ContestPostSection component is a contest post section component that displays the contest post section content
  * @returns {React.ReactNode}
  */
-export default function ContestPostSection({ contestPostData, leaderboardList, ContestNoticeList, contestSubmissionList }: ContestPostSectionProps) {
+// export default function ContestPostSection({ contestPostData, leaderboardList, ContestNoticeList, contestSubmissionList }: ContestPostSectionProps) {
+export default function ContestPostSection({ contestPostData, ContestNoticeList, contestSubmissionList }: ContestPostSectionProps) {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'detail';
   return (
@@ -104,9 +106,9 @@ export default function ContestPostSection({ contestPostData, leaderboardList, C
           </div>
         )}
 
-        {currentTab === 'leaderboard' && (
+        {/* {currentTab === 'leaderboard' && (
           <LeaderboardList leaderboardList={leaderboardList} />
-        )}
+        )} */}
 
         {currentTab === 'notice' && (
           <ContestNoticeSection ContestNoticeList={ContestNoticeList} />
@@ -115,6 +117,10 @@ export default function ContestPostSection({ contestPostData, leaderboardList, C
         {currentTab === 'submission' && (
           <ContestSubmissionSection contestSubmissionList={contestSubmissionList} />
         )}
+        
+        {/* {currentTab === 'my-submission' && (
+          <ContestSubmissionSection contestSubmissionList={contestMySubmissionList} />
+        )} */}
       </div>
     </div>
   );

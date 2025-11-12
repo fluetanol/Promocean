@@ -19,7 +19,8 @@ export default function ContestPostTabs() {
     { name: "대회상세", tab: "detail" },
     { name: "공지사항", tab: "notice" },
     { name: "산출물", tab: "submission" },
-    { name: "리더보드", tab: "leaderboard" },
+    // { name: "내 산출물", tab: "my-submission" },
+    // { name: "리더보드", tab: "leaderboard" },
   ];
 
   return (

@@ -2,8 +2,8 @@
 
 import ContestHeader from "@/components/layout/ContestHeader";
 import ContestPostSection from "@/components/section/ContestPostSection";
-import ContestInfoSection from "@/components/section/ContestInfoSection";
-import { ContestAPI } from "@/api/contest";
+// import ContestInfoSection from "@/components/section/ContestInfoSection";
+import { ContestAPI } from "@/api/contest"; 
 
 interface ContestPostPageProps {
   params: Promise<{ contestId: string }>;
@@ -16,16 +16,17 @@ interface ContestPostPageProps {
  */
 export default async function ContestPostPage({ params }: ContestPostPageProps) {
   const { contestId: contestIdStr } = await params;
-  const postId = parseInt(contestIdStr, 10);
+  const contestId = parseInt(contestIdStr, 10);
 
   const {
     contestPostData,
-    leaderboardList,
-    contestInfoData,
-    contestInfoTitles,
+    // leaderboardList,
+    // contestInfoData,
+    // contestInfoTitles,
     contestNoticeList,
     contestSubmissionList,
-  } = await ContestAPI.getContestPostPageData(postId);
+    // contestMySubmissionList,
+  } = await ContestAPI.getContestPostPageData(contestId);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,19 +39,20 @@ export default async function ContestPostPage({ params }: ContestPostPageProps) 
         <div className="flex-1 flex flex-col gap-6 bg-white rounded-lg shadow-md">
           <ContestPostSection
             contestPostData={contestPostData}
-            leaderboardList={leaderboardList}
+            // leaderboardList={leaderboardList} TODO : 삭제
             ContestNoticeList={contestNoticeList}
             contestSubmissionList={contestSubmissionList}
+            // contestMySubmissionList={contestMySubmissionList}
           />
         </div>
 
         {/* 오른쪽: 플로팅 정보 섹션 */}
-        <div className="hidden lg:block w-64 flex-shrink-0">
+        {/* <div className="hidden lg:block w-64 flex-shrink-0">
           <ContestInfoSection
             titles={contestInfoTitles}
             items={contestInfoData}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

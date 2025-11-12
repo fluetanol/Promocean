@@ -16,9 +16,9 @@ import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
 export default function ContestSubmissionItem({ submissionId, author, profileUrl, description, type, submissionUrl, voteCnt }: ContestSubmissionItemProps) {
 
   const router = useRouter();
-  const postId = useParams().postId;
+  const contestId = useParams().contestId;
   const handleClick = (submissionId: number) => {
-    router.push(`/contest/${postId}/submission/${submissionId}`);
+    router.push(`/contest/${contestId}/submission/${submissionId}`);
   }
   return (
     <div className="flex items-start w-full bg-white border-b border-gray-200 py-4 gap-4 cursor-pointer" onClick={() => handleClick(submissionId)}>

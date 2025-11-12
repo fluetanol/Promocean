@@ -3,34 +3,59 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ContestCardItemProps } from '@/types/itemType'
+import UserSimpleProfile from '@/components/etc/UserSimpleProfile'
+import { Calendar } from 'lucide-react'
 
 /**
  * ContestCardItem component
  * @description ContestCardItem component is a contest card item component that displays the contest card item content
  * @returns {React.ReactNode}
  */
-export default function ContestCardItem({ contestId, title, image, participantCount, deadline, status, tags, startDate }: ContestCardItemProps) {
-  const statusText = {
-    SCHEDULED: '개최전',
-    ONGOING: deadline ? `종료까지 D-${deadline}` : '진행중',
-    VOTING: '투표중',
-    FINISHED: '종료'
-  }
+export default function ContestCardItem({ contestId, host, profileUrl, title, startAt, endAt, status, createdAt, updatedAt }: ContestCardItemProps) {
   
+  // status 한글을 영문 ENUM으로 변환 (UserSimpleProfile용)
+  const statusMap: Record<string, 'SCHEDULED' | 'ONGOING' | 'VOTING' | 'FINISHED'> = {
+    '개최전': 'SCHEDULED',
+    '진행중': 'ONGOING',
+    '투표중': 'VOTING',
+    '종료': 'FINISHED',
+  };
+
+  // D-day 계산
+  const endDate = new Date(endAt);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+  const diffTime = endDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const deadline = diffDays.toString(); // 항상 표시 (음수도 포함)
+
+  // endAt 포맷팅 (YYYY.MM.DD)
+  const endDateObj = new Date(endAt);
+  const formattedEndDate = `${endDateObj.getFullYear()}.${String(endDateObj.getMonth() + 1).padStart(2, '0')}.${String(endDateObj.getDate()).padStart(2, '0')}`;
+
   return (
     <Link href={`/contest/${contestId}?tab=detail`} className="block group">
       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
+
         {/* Image Section */}
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={image}
+            src={profileUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          {/* Participant Badge */}
-          <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-medium">
-            {participantCount}명 참여중
+          {/* Status Pill - 왼쪽 상단 */}
+          <div className="absolute top-3 left-3">
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              status === '진행중' ? 'bg-primary/90 text-white' :
+              status === '투표중' ? 'bg-primary/90 text-white' :
+              status === '개최전' ? 'bg-gray-500/90 text-white' :
+              'bg-gray-400/90 text-white'
+            }`}>
+              {status}
+            </span>
           </div>
         </div>
 
@@ -41,33 +66,33 @@ export default function ContestCardItem({ contestId, title, image, participantCo
             {title}
           </h3>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1 mb-4">
-            {tags.map((tag, index) => (
-              <span
-                key={index}
-                className="text-sm text-gray-500 hover:text-primary transition-colors"
-              >
-                #{tag}
+
+          {/* 종료날짜 + D-day */}
+          <div className="flex flex-row items-center justify-between mb-4">
+            {/* 왼쪽: 아이콘 + 날짜 */}
+            <div className="flex flex-row items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-600" />
+              <span className="text-sm text-gray-600">
+                {formattedEndDate}
               </span>
-            ))}
-          </div>
-
-          {/* etc */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            {/* Status */}
-            <span className={`text-xs font-medium ${
-              status === 'ONGOING' ? 'text-primary' :
-              status === 'VOTING' ? 'text-primary' :
-              status === 'SCHEDULED' ? 'text-gray-500' :
-              'text-gray-400'
-            }`}>
-              {statusText[status]}
+            </div>
+            
+            {/* 오른쪽: D-day */}
+            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
+              D-{deadline}
             </span>
-
-            {/* Date */}
-            <span className="text-sm text-gray-500">{startDate}</span>
           </div>
+            
+          {/* Host */}
+          {/* <div className="mb-4">
+            <UserSimpleProfile
+              profileUrl={profileUrl}
+              nickname={host}
+              imageSize="sm"
+              textSize="xs"
+              showName={true}
+            />
+          </div> */}
         </div>
       </div>
     </Link>

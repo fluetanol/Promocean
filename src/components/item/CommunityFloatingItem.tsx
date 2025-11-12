@@ -12,9 +12,9 @@ import ChatBubbleBottomCenterText from '../icon/ChatBubbleBottomCenterText'
  * @description CommunityFloatingItem component is a community floating item component that displays the community floating item content
  * @returns {React.ReactNode}
  */
-export default function CommunityFloatingItem({ id, title, hashtags, image, likeCount, commentCount }: CommunityFloatingItemProps) {
+export default function CommunityFloatingItem({ postId, title, hashtags, image, likeCount, commentCount }: CommunityFloatingItemProps) {
   return (
-    <Link href={`/community/${id}`} className="block group">
+    <Link href={`/community/${postId}`} className="block group">
       <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
 
         {/* Image Section */}

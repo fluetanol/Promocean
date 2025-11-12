@@ -17,7 +17,7 @@ export default function CommunityFloatingList({ popularPosts }: CommunityFloatin
     <div className="space-y-3">
       {popularPosts.map((item) => (
         <CommunityFloatingItem
-          key={item.id}
+          key={item.postId}
           {...item}
         />
       ))}

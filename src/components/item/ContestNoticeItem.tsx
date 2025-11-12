@@ -16,9 +16,9 @@ export default function ContestNoticeItem({ noticeId, title, createdAt, updatedA
   // TODO : 업데이트 날짜는 필요 없을 것 같아서 일단 보류. 추후에 결정하기
   // const isUpdated = createdAt !== updatedAt;
   const router = useRouter();
-  const postId = useParams().postId;
+  const contestId = useParams().contestId;
   const handleClick = (noticeId: number) => {
-    router.push(`/contest/${postId}/notice/${noticeId}`);
+    router.push(`/contest/${contestId}/notice/${noticeId}`);
   }
 
   return (

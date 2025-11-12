@@ -1,18 +1,46 @@
 // frontend/src/app/contest/page.tsx
 
-import ContestHeroSection from "@/components/section/ContestHeroSection";
+// import ContestHeroSection from "@/components/section/ContestHeroSection";
+import ContestHeader from "@/components/layout/ContestHeader";
 import ContestCardSection from "@/components/section/ContestCardSection";
-import { ContestCardItemProps } from "@/types/itemType";
+import ContestFooter from "@/components/layout/ContestFooter";
 import { ContestAPI } from "@/api/contest";
 
-export default async function ContestPage() {
+interface ContestPageProps {
+  searchParams: Promise<{
+    page?: string;
+    sorter?: string;
+    title?: string;
+    status?: string;
+    tag?: string;
+  }>;
+}
 
-  const { contestCardList }: { contestCardList: ContestCardItemProps[] } = await ContestAPI.getContestCardList(0, 10, "", "", "", "");
+/**
+ * ContestPage component
+ * @description ContestPage component is a contest page component that displays the contest page content
+ * @returns {React.ReactNode}
+ */
+export default async function ContestPage({ searchParams }: ContestPageProps) {
+  const params = await searchParams;
+  
+  // 쿼리 파라미터를 API 파라미터로 변환
+  const apiParams = {
+    ...(params.page && { page: parseInt(params.page, 10) }),
+    ...(params.sorter && { sorter: params.sorter }),
+    ...(params.title && { title: params.title }),
+    ...(params.status && { status: params.status }),
+    ...(params.tag && { tag: params.tag }),
+  };
+
+  const { contestCardList } = await ContestAPI.getContestCardList(apiParams);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ContestHeroSection />
+      {/* <ContestHeroSection /> */}
+      <ContestHeader />
       <ContestCardSection contestCardList={contestCardList} />
+      <ContestFooter />
     </div>
   );
 }
