@@ -3,6 +3,7 @@ package com.ssafy.a208.domain.member.controller;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
+import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.service.MemberService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인 API가 담겨있어요")
+@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인, 남은토큰 확인 API가 담겨있어요")
 public class MemberRestController {
 
     private final MemberService memberService;
@@ -64,6 +65,15 @@ public class MemberRestController {
             @RequestParam(required = false) String nickname
     ) {
         CheckDuplicateRes res = memberService.checkDuplicate(email, nickname);
+        return ApiResponse.ok(res);
+    }
+
+    @GetMapping("/token")
+    @Operation(summary = "남은 토큰 확인 API", description = "생성형 AI를 사용할 때 필요한 토큰 잔량을 확인하는 API입니다")
+    public ResponseEntity<ApiResponse<UsableTokenRes>> getUsableToken(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        UsableTokenRes res = memberService.getUsableToken(userDetails);
         return ApiResponse.ok(res);
     }
 
