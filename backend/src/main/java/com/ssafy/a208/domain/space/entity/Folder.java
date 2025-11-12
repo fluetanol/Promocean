@@ -48,6 +48,10 @@ public class Folder extends BaseEntity {
         this.space = space;
     }
 
+    public void updateColor(String color){
+        this.color = color;
+    }
+
     public void updateFolder(String name, String color) {
         this.name = name;
         this.color = color;
