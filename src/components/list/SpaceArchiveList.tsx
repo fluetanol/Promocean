@@ -4,11 +4,13 @@ import { useState } from "react";
 import SpaceArchiveItem from "../item/SpaceArchiveItem";
 import SpaceArchiveAddModal from "../modal/SpaceArchiveAddModal";
 import { SpaceArchiveData } from "@/app/my-space/page";
+import { useAuthStore } from "@/store/authStore";
 
 export interface SpaceArchiveListProps {
   isPinnedList?: boolean;
   isTeamSpace: boolean;
   teamName?: string;
+  spaceId?: number;
   archiveItemListState: SpaceArchiveData[];
   setArchiveItemListState: (newState: SpaceArchiveData[]) => void;
   pinnedItemListState: SpaceArchiveData[];
@@ -27,6 +29,7 @@ export default function SpaceArchiveList({
     isPinnedList,
     isTeamSpace,
     teamName,
+    spaceId,
     archiveItemListState,
     setArchiveItemListState,
     pinnedItemListState,
@@ -49,10 +52,11 @@ export default function SpaceArchiveList({
         }, 300);
     };
 
-    console.log("isPinnedList:", isPinnedList);
+
+    // console.log("isPinnedList:", isPinnedList);
     
     const displayList = isPinnedList ? pinnedItemListState : archiveItemListState;
-    console.log("displayList:", displayList);
+    // console.log("displayList:", displayList);
 
     return (
         <div className="flex flex-wrap flex-row p-7 gap-4">
@@ -79,14 +83,16 @@ export default function SpaceArchiveList({
                 </button>
             )}
 
-            {displayList.map((item) => (
+            {displayList.map((item, index) => (
                 <SpaceArchiveItem
-                    key={item.title}
-                    title={item.title}
-                    bgColor={item.bgColor}
+                    key={item.folderId ?? index}
+                    folderId={item.folderId}
+                    name={item.name}
+                    color={item.color}
                     isPinned={item.isPinned}
                     isTeamSpace={isTeamSpace}
                     teamName={teamName}
+                    spaceId={spaceId}
                     archiveItemListState={archiveItemListState}
                     setArchiveItemListState={setArchiveItemListState}
                     pinnedItemListState={pinnedItemListState}
@@ -95,7 +101,10 @@ export default function SpaceArchiveList({
             ))}
 
             {shouldRenderModalState && (
-                <SpaceArchiveAddModal isOpen={isModalOpenState} onCloseAddModal={onCloseAddModal}
+                <SpaceArchiveAddModal 
+                    isOpen={isModalOpenState} 
+                    onCloseAddModal={onCloseAddModal}
+                    spaceId={spaceId!}
                     archiveItemListState={archiveItemListState}
                     setArchiveItemListState={setArchiveItemListState}
                 />

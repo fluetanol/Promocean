@@ -1,54 +1,56 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import MySpaceTabs from "@/components/filter/MySpaceTabs";
-import SearchBar from "@/components/filter/SearchBar";
-import SpaceArchiveItem from "@/components/item/SpaceArchiveItem";
-import MySpaceHeader from "@/components/layout/SpaceHeader";
 import SpaceCardHeader from "@/components/layout/SpaceCardHeader";
 import SpaceArchiveList from "@/components/list/SpaceArchiveList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
+import { useAuthStore } from "@/store/authStore";
+import { SpaceAPI } from "@/api/space";
 
 export interface SpaceArchiveData {
-  title: string;
-  bgColor: string;
+  folderId : number;
+  name: string;
+  color: string;
   isPinned: boolean;
 }
-
-/**
- * MySpaceArchiveDataResponse 인터페이스
- * @property {SpaceArchiveData[]} pinned - Pinned 항목들의 배열
- * @property {SpaceArchiveData[]} normal - Normal 항목들의 배열
- * 
- * (이런 식으로 dto를 묶어서 관리하는 게 항상 더 좋아요)
- * */
-export interface MySpaceArchiveDataResponse{
-  pinned: SpaceArchiveData[];
-  normal: SpaceArchiveData[];
-}
-
-
 
 export default function MySpacePage() {
   const [archiveItemListState, setArchiveItemListState] = useState<SpaceArchiveData[]>([]);
   const [pinnedItemListState, setPinnedItemListState] = useState<SpaceArchiveData[]>([]);
   const [isLoadingState, setIsLoadingState] = useState(true);
 
+  //부분적 구독을 하고 싶으면 이런 구문을 쓰자.
+  const personalSpaceIdState = useAuthStore((state)=>state.user?.personalSpaceId);
+  // console.log("렌더링?")
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const res = await SpaceAPI.getSpaceArchiveFoldersData(personalSpaceIdState);
+
+        if(!res){ 
+          return;
+        }
         
-        //TODO : 백엔드 API 연결 후 수정 필요
-        const mySpaceArchiveRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/mock/MySpaceArchiveData.json`,
-          { cache: "no-store" }
-        );
+        console.log("data!! ", res);
 
-        const mySpaceData = await mySpaceArchiveRes.json() as MySpaceArchiveDataResponse;
-        console.log("data ", mySpaceData);
+        //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.
 
-        setPinnedItemListState(mySpaceData.pinned || []);
-        setArchiveItemListState(mySpaceData.normal || []);
+        const newArchiveItemListState : SpaceArchiveData[] = [];
+        const newPinnedItemListState : SpaceArchiveData[] = [];
+
+        for(const folder of res.folders){
+          folder.color = `#${folder.color}`;
+          if(folder.isPinned){
+            newPinnedItemListState.push(folder);
+          } else {
+            newArchiveItemListState.push(folder);
+          }
+        }
+        // const mySpaceData = await mySpaceArchiveRes.json() as MySpaceArchiveDataResponse;
+        // console.log("data ", mySpaceData);
+        setPinnedItemListState(newPinnedItemListState || []);
+        setArchiveItemListState(newArchiveItemListState || []);
         setIsLoadingState(false);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -57,7 +59,7 @@ export default function MySpacePage() {
     };
 
     fetchData();
-  }, []);
+  }, [personalSpaceIdState]);
 
   if (isLoadingState) {
     return (
@@ -81,6 +83,7 @@ export default function MySpacePage() {
           <SpaceArchiveList 
             isPinnedList={true}
             isTeamSpace={false}
+            spaceId={personalSpaceIdState!}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}
@@ -95,6 +98,7 @@ export default function MySpacePage() {
           <SpaceArchiveList 
             isPinnedList={false}
             isTeamSpace={false}
+            spaceId={personalSpaceIdState!}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}

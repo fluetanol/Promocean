@@ -2,22 +2,28 @@ import { useEffect, useState } from "react"
 import { HexColorPicker } from "react-colorful";
 import ColorPickerModal from "./ColorPickerModal";
 import { SpaceArchiveData } from "@/app/my-space/page";
+import { useAuthStore } from "@/store/authStore";
+import SpaceAPI, { PostMySpaceArchiveFolderRequest } from "@/api/space";
+import { Space } from "lucide-react";
+import { colorCodeBackToFront } from "@/utils/colorController";
 
 
 export interface SpaceArchiveAddModalProps{
     isOpen : boolean,
+    spaceId : number,
     onCloseAddModal : () => void
     archiveItemListState: SpaceArchiveData[];
     setArchiveItemListState: (newState: SpaceArchiveData[]) => void;
 }
 
-export default function SpaceArchiveAddModal({ isOpen, onCloseAddModal, archiveItemListState, setArchiveItemListState }: SpaceArchiveAddModalProps) {
+export default function SpaceArchiveAddModal({ isOpen, spaceId, onCloseAddModal, archiveItemListState, setArchiveItemListState }: SpaceArchiveAddModalProps) {
     
     const [selectedColorState, setSelectedColorState] = useState("#000000")
     const [showColorPickerState, setShowColorPickerState] = useState(false);
     const [titleState, setTitleState] = useState("");
     const [titleErrorState, setTitleErrorState] = useState(false);
     const [descriptionState, setDescriptionState] = useState("");
+
 
     const onToggleColorPicker = () => {
         setShowColorPickerState(!showColorPickerState);
@@ -27,7 +33,7 @@ export default function SpaceArchiveAddModal({ isOpen, onCloseAddModal, archiveI
         setShowColorPickerState(false);
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if(titleState.trim() === ""){
@@ -35,24 +41,34 @@ export default function SpaceArchiveAddModal({ isOpen, onCloseAddModal, archiveI
             return;
         }
 
-        // 여기에 카테고리 추가 로직 추가
-        console.log("카테고리 추가:", {
-            title: titleState,
-            description: descriptionState,
-            bgColor: selectedColorState
-        });
+        const req : PostMySpaceArchiveFolderRequest={
+            name : titleState,
+            color : selectedColorState.replace("#","")
+        }
+        console.log("Request Data:", req);
 
-        // 새로운 카테고리 데이터를 기존 리스트에 추가
-        const newCategory: SpaceArchiveData = {
-            title: titleState,
-            bgColor: selectedColorState,
-            isPinned: false
-        };
+        
+        const res = await SpaceAPI.postMySpaceArchiveFolderData(spaceId, req);
+        if(!res){
+            console.error("Failed to add new archive folder");
+                return;
+            }
+            else{
+                console.log("Successfully added new archive folder:", res);
+            }
+            
+            console.log("Response Datazz:", res);
+            
+        const newArchiveData : SpaceArchiveData = {
+            folderId : res.folderId, // 임시 ID, 실제로는 백엔드에서 받아와야 함
+            name: res.name,
+            color: colorCodeBackToFront(res.color),
+            isPinned: res.isPinned
+            };
 
-        console.log("bgcolor : ", newCategory.bgColor);
+        setArchiveItemListState([...archiveItemListState, newArchiveData]);
 
-        setArchiveItemListState([...archiveItemListState, newCategory]);
-
+        // setArchiveItemListState([]);
         // 추가 후 모달 닫기 및 상태 초기화
         setTitleState("");
         setDescriptionState("");

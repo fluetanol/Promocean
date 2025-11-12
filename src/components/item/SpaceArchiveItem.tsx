@@ -6,23 +6,51 @@ import { SpaceArchiveData } from "@/app/my-space/page";
 import Pin from "../icon/Pin";
 import SpaceArchiveDeleteModal from "../modal/SpaceArchiveDeleteModal";
 import SpaceArchiveEditModal from "../modal/SpaceArchiveEditModal";
+import SpaceAPI from "@/api/space";
+import { colorCodeFrontToBack } from "@/utils/colorController";
 
 export interface SpaceArchiveItemProps {
-    title: string;
-    bgColor: string;
+    folderId : number;
+    name : string;
+    color: string;
     isPinned: boolean;
     isTeamSpace :boolean;
     teamName?: string;
+    spaceId? : number;
     archiveItemListState: SpaceArchiveData[];
     setArchiveItemListState: (newState: SpaceArchiveData[]) => void;
     pinnedItemListState: SpaceArchiveData[];
     setPinnedItemListState: (newState: SpaceArchiveData[]) => void;
 }
 
+
+/**
+ * Space Archive의 Folder 아이템 컴포넌트
+ * 
+ * 
+ * @param param0 SpaceArchiveItemProps
+ * - folderId : 폴더 ID
+ * - name : 폴더 이름
+ * - color : 폴더 배경색
+ * - isPinned : 폴더 pinned 상태
+ * - isTeamSpace : 팀 스페이스 여부
+ * - teamName : 팀 스페이스 이름 (팀 스페이스인 경우에만 필요)
+ * - spaceId : 스페이스 ID (수정, 삭제 필요 시 선택)
+ * - archiveItemListState : 아카이브 일반 폴더 리스트 상태
+ * - setArchiveItemListState : 아카이브 일반 폴더 리스트 상태 업데이트 함수
+ * - pinnedItemListState : 아카이브 pinned 폴더 리스트 상태
+ * - setPinnedItemListState : 아카이브 pinned 폴더 리스트 상태 업데이트 함수
+ * 
+ * 
+ * @returns 
+ */
+
 export default function SpaceArchiveItem({
-    title,
-    bgColor,
+    folderId,
+    name,
+    color,
     isPinned,
+    spaceId,
     isTeamSpace,
     teamName,
     archiveItemListState,
@@ -37,68 +65,101 @@ export default function SpaceArchiveItem({
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const handleArchiveRoute = () => {
-        console.log(`${title} 아카이브 아이템 클릭됨`);
+        console.log(`${name} 아카이브 아이템 클릭됨`);
         if(isTeamSpace && teamName) {
-          router.push(`/team-space/${encodeURIComponent(teamName)}/archive/${encodeURIComponent(title)}`);
+          router.push(`/team-space/${spaceId}/archive/${folderId}`);
         } else {
-          router.push('/my-space/archive/' + encodeURIComponent(title));
+          router.push('/my-space/archive/' + folderId);
         }
     }
 
-    const handlePinnedClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePinnedClick = async (e: React.ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
+        const res = await SpaceAPI.patchMySpaceArchiveFolderPinStatus(spaceId!, folderId);
 
+        
         const newPinnedState = !isPinnedState;
         setIsPinnedState(newPinnedState);
+        
 
         // false → true (일반 폴더 → Pinned)
         if (newPinnedState) {
             // 일반 리스트에서 제거
-            const updatedArchiveList = archiveItemListState.filter(item => item.title !== title);
+            const updatedArchiveList = archiveItemListState.filter(item => item.name !== name);
             setArchiveItemListState(updatedArchiveList);
 
             // Pinned 리스트에 추가
-            setPinnedItemListState([...pinnedItemListState, { title, bgColor, isPinned: true }]);
+            setPinnedItemListState([...pinnedItemListState, { folderId, name, color, isPinned: true }]);
         }
         // true → false (Pinned → 일반 폴더)
         else {
             // Pinned 리스트에서 제거
-            const updatedPinnedList = pinnedItemListState.filter(item => item.title !== title);
+            const updatedPinnedList = pinnedItemListState.filter(item => item.name !== name);
             setPinnedItemListState(updatedPinnedList);
 
             // 일반 리스트에 추가
-            setArchiveItemListState([...archiveItemListState, { title, bgColor, isPinned: false }]);
+            setArchiveItemListState([...archiveItemListState, { folderId, name, color, isPinned: false }]);
         }
+        
+        const res2 = await SpaceAPI.getSpaceArchiveFoldersData(spaceId!);
+        
 
-        console.log(`${title} 아카이브 폴더 pinned ${newPinnedState ? '설정' : '해제'}됨`);
+        
+        // setArchiveItemListState([]);
+        // setPinnedItemListState([]);
+
+        console.log("pin res " ,res);
+        console.log(`${name} 아카이브 폴더 pinned ${newPinnedState ? '설정' : '해제'}됨`);
+
+    console.log("폴더 데이터 재조회 ",res2);
     }
 
-    const handleDelete = () => {
+    const handleDelete = async() => {
         // Pinned 상태에 따라 해당 리스트에서 삭제
+        const res = await SpaceAPI.deleteMySpaceArchiveFolderData(spaceId!, folderId);
+
         if (isPinnedState) {
-            const updatedPinnedList = pinnedItemListState.filter(item => item.title !== title);
+            const updatedPinnedList = pinnedItemListState.filter(item => item.name !== name);
             setPinnedItemListState(updatedPinnedList);
         } else {
-            const updatedArchiveList = archiveItemListState.filter(item => item.title !== title);
+            const updatedArchiveList = archiveItemListState.filter(item => item.name !== name);
             setArchiveItemListState(updatedArchiveList);
         }
-        console.log(`${title} 아카이브 폴더 삭제됨`);
+        
+
+    //   setArchiveItemListState([]);
+    //     setPinnedItemListState([]);
+
+
+        console.log(`${name} 아카이브 폴더 삭제됨`);
     }
 
-    const handleEdit = (newTitle: string, newBgColor: string) => {
+    const handleEdit = async (newTitle: string, newBgColor: string) => {
+        console.log("id ",spaceId, folderId)
+
+        const res = await SpaceAPI.patchMySpaceArchiveFolderData(spaceId!, folderId, {
+            name: newTitle,
+            color: colorCodeFrontToBack(newBgColor),
+        });
+
         // Pinned 상태에 따라 해당 리스트에서 업데이트
         if (isPinnedState) {
             const updatedPinnedList = pinnedItemListState.map(item =>
-                item.title === title ? { ...item, title: newTitle, bgColor: newBgColor } : item
+                item.folderId === folderId ? { ...item, name: newTitle, color: newBgColor } : item
             );
             setPinnedItemListState(updatedPinnedList);
         } else {
             const updatedArchiveList = archiveItemListState.map(item =>
-                item.title === title ? { ...item, title: newTitle, bgColor: newBgColor } : item
+                item.folderId === folderId ? { ...item, name: newTitle, color: newBgColor } : item
             );
             setArchiveItemListState(updatedArchiveList);
         }
-        console.log(`${title} 아카이브 폴더 수정됨:`, { newTitle, newBgColor });
+
+
+        // setArchiveItemListState([]);
+        // setPinnedItemListState([]);
+
+        console.log(`${name} 아카이브 폴더 수정됨:`, { newTitle, newBgColor });
     }
 
     return (
@@ -112,12 +173,12 @@ export default function SpaceArchiveItem({
                     active:translate-y-0 active:scale-95 active:shadow-sm
                     cursor-pointer
                 `}
-                style={{ backgroundColor: bgColor }}  // inline style로 배경색 적용
+                style={{ backgroundColor: color }}  // inline style로 배경색 적용
                 onClick={handleArchiveRoute}
             >
                 <div className="w-full h-20 p-2.5 left-0 top-40 absolute bg-white inline-flex justify-center items-center">
                     <div className="text-center justify-center text-(--text-color) text-2xl font-medium leading-9">
-                        {title}
+                        {name}
                     </div>
                 </div>
 
@@ -128,7 +189,7 @@ export default function SpaceArchiveItem({
                             type="checkbox"
                             checked={isPinnedState}
                             className="absolute opacity-0 w-7 h-7 cursor-pointer"
-                            aria-label={`${title} 아카이브 폴더 pinned 설정`}
+                            aria-label={`${name} 아카이브 폴더 pinned 설정`}
                             onChange={handlePinnedClick}
                         />
                         <Pin
@@ -171,15 +232,15 @@ export default function SpaceArchiveItem({
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDelete}
-                title={title}
+                title={name}
             />
 
             {/* 수정 모달 */}
             <SpaceArchiveEditModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
-                currentTitle={title}
-                currentBgColor={bgColor}
+                currentTitle={name}
+                currentBgColor={color}
                 onSave={handleEdit}
             />
         </>

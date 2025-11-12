@@ -6,10 +6,13 @@ import SpaceCardHeader from "@/components/layout/SpaceCardHeader";
 import SpaceArchiveList from "@/components/list/SpaceArchiveList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
 import { SpaceArchiveData } from "@/app/my-space/page";
+import SpaceAPI from "@/api/space";
 
 export default function TeamSpaceArchivePage() {
   const params = useParams();
-  const teamName = decodeURIComponent(params["team-archive"] as string);
+  const spaceIdParams = params["team-archive"];
+  const spaceId = Number(spaceIdParams);
+  console.log("스페이스 id ", spaceId);
 
   const [archiveItemListState, setArchiveItemListState] = useState<SpaceArchiveData[]>([]);
   const [pinnedItemListState, setPinnedItemListState] = useState<SpaceArchiveData[]>([]);
@@ -18,22 +21,33 @@ export default function TeamSpaceArchivePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mySpaceArchiveRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/mock/MySpaceArchiveData.json`,
-          { cache: "no-store" }
-        );
+        console.log("스페이스 아이디 useEffect ", spaceId);
+        const res = await SpaceAPI.getSpaceArchiveFoldersData(spaceId);
 
-        const mySpaceData = await mySpaceArchiveRes.json();
-        console.log("data ", mySpaceData);
+        const spaceData = res?.folders;
+        console.log("data ", spaceData);
 
-        setPinnedItemListState(mySpaceData.pinned || []);
-        setArchiveItemListState(mySpaceData.normal || []);
+        const newArchiveItemListState : SpaceArchiveData[] = [];
+        const newPinnedItemListState : SpaceArchiveData[] = [];
+
+        for(const folder of spaceData || []){
+          folder.color = `#${folder.color}`;
+          if(folder.isPinned){
+            newPinnedItemListState.push(folder);
+          } else {
+            newArchiveItemListState.push(folder);
+          }
+        }
+
+        setPinnedItemListState(newPinnedItemListState);
+        setArchiveItemListState(newArchiveItemListState);
         setIsLoadingState(false);
-      } catch (error) {
+        }
+       catch (error) {
         console.error("Failed to fetch data:", error);
         setIsLoadingState(false);
       }
-    };
+    }
 
     fetchData();
   }, []);
@@ -60,7 +74,8 @@ export default function TeamSpaceArchivePage() {
           <SpaceArchiveList
             isPinnedList={true}
             isTeamSpace={true}
-            teamName={teamName}
+            teamName={"teamName"}
+            spaceId={spaceId}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}
@@ -75,7 +90,8 @@ export default function TeamSpaceArchivePage() {
           <SpaceArchiveList
             isPinnedList={false}
             isTeamSpace={true}
-            teamName={teamName}
+            teamName={"teamName"}
+            spaceId={spaceId}
             archiveItemListState={archiveItemListState}
             setArchiveItemListState={setArchiveItemListState}
             pinnedItemListState={pinnedItemListState}

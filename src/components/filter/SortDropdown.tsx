@@ -37,7 +37,7 @@ export default function SortDropdown({ defaultValue = "최신순", onChange }: S
         className="flex items-center justify-between w-32 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
       >
         <span>{selected}</span>
-        <ChevronDown className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown  />
       </button>
 
       {/* 드롭다운 */}

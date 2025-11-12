@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -9,6 +10,7 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { EditorState } from 'lexical';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
@@ -31,6 +33,8 @@ interface LexicalEditorProps {
   placeholder?: string;
   isSubmitButton?: boolean;
   handleSubmit?: () => void;
+  isLoading?: boolean;
+  value?: string; // Lexical JSON 문자열
 }
 
 function EditorErrorBoundary({ children }: { children: React.ReactNode }) {
@@ -46,12 +50,50 @@ function EditorErrorBoundary({ children }: { children: React.ReactNode }) {
  * @property placeholder?: string - 에디터의 플레이스홀더 텍스트
  * @returns JSX.Element
  */
+// 외부에서 에디터 상태를 업데이트하는 플러그인
+function UpdateEditorPlugin({ value }: { value?: string }) {
+  const [editor] = useLexicalComposerContext();
+  const prevValueRef = React.useRef<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    // value가 없으면 아무것도 하지 않음
+    if (!value) return;
+
+    // 이전 값과 같으면 업데이트하지 않음 (onChange로 인한 업데이트 방지)
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    // 현재 에디터 상태와 비교
+    const currentEditorState = JSON.stringify(editor.getEditorState().toJSON());
+
+    // 현재 에디터 상태와 동일하면 업데이트하지 않음 (포커스 유지)
+    if (currentEditorState === value) {
+      prevValueRef.current = value;
+      return;
+    }
+
+    // 외부에서 값이 변경된 경우에만 업데이트
+    try {
+      const editorState = editor.parseEditorState(value);
+      editor.setEditorState(editorState);
+      prevValueRef.current = value;
+    } catch (error) {
+      console.error('Failed to parse editor state:', error);
+    }
+  }, [value, editor]);
+
+  return null;
+}
+
 export default function LexicalEditor({
   onChange,
   title,
   placeholder = '내용을 입력하세요...',
   isSubmitButton,
   handleSubmit,
+  isLoading = false,
+  value,
 }: LexicalEditorProps) {
   const initialConfig = {
     namespace: 'PromoceanEditor',
@@ -122,13 +164,29 @@ export default function LexicalEditor({
             }
             ErrorBoundary={EditorErrorBoundary}
           />
-          {isSubmitButton && (    
-          <button type="button" className="absolute right-5 bottom-5
-          w-14 h-14 bg-primary rounded-full text-white 
-          hover:bg-primary/70 
-          active:bg-primary/90
-          transition-colors duration-200
-          " onClick={handleSubmit}>테스트</button>
+          {isSubmitButton && (
+          <button
+            type="button"
+            className="absolute right-5 bottom-5
+            w-14 h-14 bg-primary rounded-full text-white
+            hover:bg-primary/70
+            active:bg-primary/90
+            transition-colors duration-200
+            disabled:bg-gray-400 disabled:cursor-not-allowed
+            flex items-center justify-center
+            "
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              '테스트'
+            )}
+          </button>
           )}
         </div>
 
@@ -138,6 +196,7 @@ export default function LexicalEditor({
         <TabIndentationPlugin />
         <MarkdownShortcutPlugin transformers={CUSTOM_TRANSFORMERS} />
         <OnChangePlugin onChange={handleChange} />
+        <UpdateEditorPlugin value={value} />
       </div>
     </LexicalComposer>
   );

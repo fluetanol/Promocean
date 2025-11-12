@@ -9,6 +9,8 @@ interface PostingWriteSectionProps {
   isSubmitButton?: boolean;
   onSubmit?: () => void;
   onChange: (content: string) => void;
+  isLoading?: boolean;
+  value?: string;
 }
 
 export default function PostingWriteSection({
@@ -17,11 +19,14 @@ export default function PostingWriteSection({
   isSubmitButton,
   onSubmit,
   onChange,
+  isLoading = false,
+  value,
 }: PostingWriteSectionProps) {
   return (
     <section className="flex flex-col gap-1 border-gray-200 rounded-lg py-4 px-2">
-      <LexicalEditor onChange={onChange} placeholder={placeholder} title={title} 
-        isSubmitButton={isSubmitButton} handleSubmit={onSubmit}
+      <LexicalEditor onChange={onChange} placeholder={placeholder} title={title}
+        isSubmitButton={isSubmitButton} handleSubmit={onSubmit} isLoading={isLoading}
+        value={value}
       />
     </section>
   );

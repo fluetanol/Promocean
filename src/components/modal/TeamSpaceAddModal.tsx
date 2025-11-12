@@ -1,16 +1,25 @@
 import { useState } from "react";
-import SpaceAddMemberItem, { SpaceAddMemberItemProps } from "../item/SpaceAddMemberItem";
+import Image from "next/image";
+import { SpaceAddMemberItemProps } from "../item/SpaceAddMemberItem";
 import TeamSpaceAddMemberList from "../list/TeamSpaceAddMemberList";
 import TeamSpaceTeamChoiceLabelList from "../list/TeamSpaceTeamChoiceLabelList";
-import { TeamSpaceTeamChoiceItemProps } from "../item/TeamSpaceTeamChoiceItem";
+import { TeamSpaceChoiceItemProps } from "../item/TeamSpaceTeamChoiceItem";
+import { TeamSpaceRole } from "../item/TeamSpaceRoleItem";
+import SpaceAPI from "@/api/space";
+
+export interface SelectedMember {
+    name: string;
+    email: string;
+    role: TeamSpaceRole;
+}
 
 
 export interface TeamSpaceAddModalProps{
     //추가 필요시 여기에 작성
     isModalState: boolean;
     setIsModalState: (state: boolean) => void;
-    teamSpaceTeamChoiceList?: TeamSpaceTeamChoiceItemProps[];
-    setTeamSpaceTeamChoiceList: (list: TeamSpaceTeamChoiceItemProps[]) => void;
+    teamSpaceTeamChoiceList?: TeamSpaceChoiceItemProps[];
+    setTeamSpaceTeamChoiceList: (list: TeamSpaceChoiceItemProps[]) => void;
 }
 
 
@@ -19,43 +28,15 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
 
     const [isMemberExistState, setIsMemberExistState] = useState(false);
     const [searchSpaceMemberListState, setSearchSpaceMemberListState] = useState<SpaceAddMemberItemProps[]>([])
-    const [selectedMemberSetState, setSelectedMemberSetState] = useState<Set<string>>(new Set());
+    const [selectedMembersState, setSelectedMembersState] = useState<Map<string, SelectedMember>>(new Map());
     const [spaceNameState, setSpaceNameState] = useState("");
     const [spaceNameErrorState, setSpaceNameErrorState] = useState(false);
-    
-    const mockMemberList : SpaceAddMemberItemProps[] =[
-        {name : "홍길동", email : "hong@example.com"},
-        {name : "김철수", email : "kim@example.com"},
-        {name : "이영희", email : "lee@example.com"},
-        {name : "박영수", email : "park@example.com"},
-        {name : "정민수", email : "choi@example.com"},
-        {name : "장미란", email : "jang@example.com"},
-        {name : "오세훈", email : "oh@example.com"},
-        {name : "한지민", email : "han@example.com"},
-        {name : "서강준", email : "seo@example.com"},
-        {name : "정우성", email : "jung@example.com"},
-    ]
+    const [spaceImageState, setSpaceImageState] = useState<File | null>(null);
 
-    const handleMemberSearch = (query : string) => {
-        if(query.trim() === ""){
-            setSearchSpaceMemberListState([]);
-            setIsMemberExistState(false);
-            return;
-        }
-        const filteredMembers = mockMemberList.filter((member) =>
-            member.name.includes(query) || member.email.includes(query)
-        );
-        console.log("filteredMembers ",filteredMembers, " query : ", query);
 
-        if(filteredMembers.length > 0) setIsMemberExistState(true);
-        else setIsMemberExistState(false);
-    
-        setSearchSpaceMemberListState([...filteredMembers]);
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if(spaceNameState.trim() === ""){
             setSpaceNameErrorState(true);
             return;
@@ -63,16 +44,30 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
         // 여기에 팀 스페이스 생성 로직 추가
         console.log("팀 스페이스 생성:", {
             name: spaceNameState,
-            members: Array.from(selectedMemberSetState)
+            image: spaceImageState,
+            members: Array.from(selectedMembersState.values())
         });
+
         
+
+        const res = await SpaceAPI.postTeamSpaceCreate({
+            name: spaceNameState,
+            participants: [...Array.from(selectedMembersState.values()).map((member) => ({
+                email: member.email,
+                role: member.role
+            }))]
+        })
+
+
         setTeamSpaceTeamChoiceList([
             ...teamSpaceTeamChoiceList!,
             {
-            image : "/images/default_space_image.png",
-            title : spaceNameState,
-            description : "새로 생성된 팀 스페이스입니다."        
-            }])
+                name: res!.name,
+                participantCnt: res!.participantsCnt,
+                spaceCoverUrl: res!.spaceCoverUrl,
+                spaceId: res!.spaceId
+            }
+        ])
 
         // 생성 후 모달 닫기
         setIsModalState(false);
@@ -87,21 +82,24 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
                 >
                     <form 
                         onSubmit={handleSubmit} 
-                        className={`flex flex-col bg-white p-10 rounded-lg w-1/3 justify-between h-[680px]
+                        className={`flex flex-col bg-white p-10 rounded-lg w-[450px]  h-[680px] justify-between
                             transition-all duration-300 ease-out
                             ${isModalState ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-4'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-4xl font-bold pb-4">팀 스페이스 생성</h2>
+                            <h2 className="text-3xl font-bold pb-2">팀 스페이스 생성</h2>
                             {/* 팀 스페이스 생성 폼 내용 */}
-                        
-                            <div>
-                                <input 
-                                    type="text" 
-                                    placeholder="팀 스페이스 이름을 입력하세요" 
-                                    className={`w-full border rounded-[10px] p-3 ${
+
+
+                            {/* 팀 스페이스 이름 및 팀원 추가 */}
+
+                            <div className = "flex flex-col">
+                                <input
+                                    type="text"
+                                    placeholder="팀 스페이스 이름을 입력하세요"
+                                    className={` w-full border rounded-[10px] p-3 ${
                                         spaceNameErrorState ? 'border-red-500' : 'border-gray-300'
                                     }`}
                                     value={spaceNameState}
@@ -111,43 +109,40 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
                                     }}
                                 />
                                 {spaceNameErrorState && (
-                                    <p className="text-red-500 text-sm mt-1">팀 스페이스 이름을 입력해주세요</p>
+                                    <div className="text-red-500 text-sm mt-1">팀 스페이스 이름을 입력해주세요</div>
                                 )}
                             </div>
-                            
-                            <div>
-                         
-                                {
-                                    <TeamSpaceTeamChoiceLabelList
-                                        labelNameList={Array.from(selectedMemberSetState)}
-                                        selectedMemberSetState={selectedMemberSetState}
-                                        setSelectedMemberSetState={setSelectedMemberSetState}
-                                    />
-                                }
-                         
 
+
+                            <div>
                                 <div className="relative">
-                                <input type="text" 
-                                    placeholder="팀원 닉네임 또는 이메일을 입력하세요" 
+                                <input type="text"
+                                    placeholder="팀원 닉네임 또는 이메일을 입력하세요"
                                     className = "w-full border border-gray-300 rounded-[10px] p-3"
-                                    onChange={(e) => handleMemberSearch(e.target.value)}
+                                    onKeyDown={(e)=>{
+                                              if(e.key === '\n' || e.key === 'Enter'){
+                                            console.log("zz");
+                                        }
+                                    }}
                                 />
-                                
+
                                 {isMemberExistState &&
-                                    <TeamSpaceAddMemberList 
-                                    searchSpaceMemberListState={searchSpaceMemberListState} 
-                                    selectedMemberSetState={selectedMemberSetState} 
-                                    setSelectedMemberSetState={setSelectedMemberSetState} />
+                                    <TeamSpaceAddMemberList
+                                    searchSpaceMemberListState={searchSpaceMemberListState}
+                                    selectedMembersState={selectedMembersState}
+                                    setSelectedMembersState={setSelectedMembersState} />
                                 }
                                 </div>
+
+                                <TeamSpaceTeamChoiceLabelList
+                                    selectedMembersState={selectedMembersState}
+                                    setSelectedMembersState={setSelectedMembersState}
+                                />
+
                             </div>
                         </div>
 
-                        { !isMemberExistState &&
-                            <div>
-                                <label className="text-3xl text-gray-300 block mb-2 font-medium text-center">아직 검색한 팀원이 없어요</label>
-                            </div>
-                        }
+        
                         
                         <div className="flex flex-row gap-8 justify-center-safe w-full">
                             <button 

@@ -27,7 +27,7 @@ export default async function MySpaceMyPostPage() {
       <MySpaceArchiveFilterSection buttonMode="write"/>
 
       <SpaceArchiveBoardList
-        mySpaceBoardList={mySpaceBoardList}
+        folderId ={0}
         />
 
     </div>

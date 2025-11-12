@@ -3,16 +3,19 @@
 // frontend/src/app/post/page.tsx
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useRef, useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import PostingFloatingSection from "@/components/section/PostingFloatingSection";
 import PostingWriteSection from "@/components/section/PostingWriteSection";
 import PostingFooter from "@/components/layout/PostingFooter";
 import PostingMetaFormSection from "@/components/section/PostingMetaFormSection";
 import PostingArchiveFolderSection, { ArchiveFolderItem } from "@/components/section/PostingArchiveFolderSection";
 import { PostingFloatingItemProps } from "@/types/itemType";
-import { PostFormData, PostSubmitData } from "@/types/postType";
 import TitleInput from "@/components/editor/TitleInput";
 import HashtagInput from "@/components/editor/HashtagInput";
+import { buildPromptFromLexical, extractTextFromLexical } from "@/utils/lexicalUtils";
+import { PromptAPI } from "@/api/prompt";
+import { PostAPI, PostArticleRequest } from "@/api/post";
+import { categoryStringToEnum, promptTypeStringToEnum } from "@/types/postEnum";
 
 /**
  * PostPageContent component (useSearchParams를 사용하는 내부 컴포넌트)
@@ -22,12 +25,11 @@ function PostPageContent() {
   const searchParams = useSearchParams();
   const postType = searchParams.get("type"); // community, my-space, team-space
   const folderName = searchParams.get("folder"); // 아카이브 폴더 이름
-  const teamName = searchParams.get("name"); // 팀 스페이스 이름
 
   // 폼 상태 관리
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("community");
   const [tags, setTags] = useState<string[]>([]); // 배열로 변경
+  const [descriptionState, setDescriptionState] = useState("");
   const [usedPrompt, setUsedPrompt] = useState("");
   const [examplePrompt, setExamplePrompt] = useState("");
   const [answerPrompt, setAnswerPrompt] = useState("");
@@ -40,8 +42,8 @@ function PostPageContent() {
   const [normalFolders, setNormalFolders] = useState<ArchiveFolderItem[]>([]);
   const [isLoadingFolders, setIsLoadingFolders] = useState(false);
 
-  //최종 gpt API로 제출할 prompt 저장용 ref 변수
-  const submitPrompt = useRef("");
+  // AI 답변 생성 로딩 상태
+  const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
 
   // 아카이브 타입인지 확인
   const isArchiveType = postType === 'my-space' || postType === 'team-space';
@@ -54,14 +56,14 @@ function PostPageContent() {
       setIsLoadingFolders(true);
       try {
         // TODO: 백엔드 API 연결 후 수정 필요
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/mock/MySpaceArchiveData.json`,
-          { cache: "no-store" }
-        );
-        const data = await response.json();
+        // const response = await fetch(
+        //   `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/mock/MySpaceArchiveData.json`,
+        //   { cache: "no-store" }
+        // );
+        // const data = await response.json();
 
-        setPinnedFolders(data.pinned || []);
-        setNormalFolders(data.normal || []);
+        setPinnedFolders([]);
+        setNormalFolders([]);
       } catch (error) {
         console.error("Failed to fetch archive folders:", error);
       } finally {
@@ -84,62 +86,154 @@ function PostPageContent() {
   };
 
   // 제출 핸들러
-  const handleSubmit = () => {
-    // 아카이브 타입인 경우 폴더 선택 확인
-    if ((postType === 'my-space' || postType === 'team-space') && !selectedFolder) {
-      alert('아카이브 폴더를 선택해주세요.');
+  const handleSubmit = async () => {
+    // 필수 입력 검증
+    if (!title.trim()) {
+      alert('제목을 입력해주세요.');
       return;
     }
 
-    // 폼 데이터 수집
-    const formData: PostFormData = {
-      title,
-      category,
-      tags,
-      usedPrompt,
-      examplePrompt,
-      answerPrompt,
-      selectedCategory,
-      selectedPromptType,
-    };
+    if (!descriptionState.trim()) {
+      alert('설명을 입력해주세요.');
+      return;
+    }
 
-    // API 제출용 데이터로 변환
-    const submitData: PostSubmitData = {
-      title: formData.title,
-      category: formData.category,
-      tags: formData.tags, // 이미 배열이므로 그대로 사용
-      content: {
-        usedPrompt: formData.usedPrompt,
-        examplePrompt: formData.examplePrompt,
-        answerPrompt: formData.answerPrompt,
-      },
-      metadata: {
-        category: formData.selectedCategory,
-        promptType: formData.selectedPromptType,
-      },
-    };
+    if (!usedPrompt.trim()) {
+      alert('사용 프롬프트를 입력해주세요.');
+      return;
+    }
 
-    // 아카이브 정보 추가
-    if (postType === 'my-space' || postType === 'team-space') {
-      submitData.archiveFolder = selectedFolder;
-      if (postType === 'team-space' && teamName) {
-        submitData.teamName = teamName;
+    if (selectedPromptType === 'text') {
+      if (!examplePrompt.trim()) {
+        alert('예시 질문 프롬프트를 입력해주세요.');
+        return;
+      }
+
+      if (!answerPrompt.trim()) {
+        alert('답변 프롬프트를 입력해주세요.');
+        return;
       }
     }
 
-    // TODO: API 호출
-    console.log('제출 데이터:', submitData);
-    console.log('게시글 타입:', postType);
-    alert('게시글이 제출되었습니다!\n콘솔을 확인하세요.');
+    try {
+      // Lexical JSON에서 텍스트 추출
+      const description = extractTextFromLexical(descriptionState);
+      const prompt = extractTextFromLexical(usedPrompt);
+      const sampleQuestion = extractTextFromLexical(examplePrompt);
+      const sampleAnswer = extractTextFromLexical(answerPrompt);
 
-    // 나중에 여기서 API 호출
-    // await postApi.createPost(submitData);
+      // 길이 검증
+      if (title.length > 100) {
+        alert('제목은 100자 이하로 입력해주세요.');
+        return;
+      }
+
+      if (description.length > 300) {
+        alert('설명은 300자 이하로 입력해주세요.');
+        return;
+      }
+
+      if (sampleQuestion.length > 200) {
+        alert('예시 질문은 200자 이하로 입력해주세요.');
+        return;
+      }
+
+      // API 요청 데이터 구성
+      const requestData: PostArticleRequest = {
+        title: title.trim(),
+        description: description.trim(),
+        category: categoryStringToEnum(selectedCategory),
+        prompt: prompt.trim(),
+        promptType: promptTypeStringToEnum(selectedPromptType),
+        sampleQuestion: sampleQuestion.trim(),
+        sampleAnswer: sampleAnswer.trim(),
+        tags: tags,
+      };
+
+      console.log('제출 데이터:', requestData);
+
+      // API 호출
+      const response = await PostAPI.postArticlePost(requestData);
+
+      console.log('게시글 생성 성공:', response);
+      alert(`게시글이 성공적으로 등록되었습니다!\n게시글 ID: ${response.postId}`);
+
+      // 성공 후 이동 (커뮤니티 페이지 또는 상세 페이지로)
+      router.push(`/community/${response.postId}`);
+
+    } catch (error) {
+      console.error('게시글 등록 실패:', error);
+      alert('게시글 등록에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
-  const handleAISubmit = (s : string) =>{
-    submitPrompt.current = s
-    console.log('AI 생성 요청:', submitPrompt.current);
-    alert('AI 생성 요청이 제출되었습니다!\n콘솔을 확인하세요.');
+  const handleAISubmit = async () => {
+    // 입력 검증
+    if (!usedPrompt || !examplePrompt) {
+      alert('사용 프롬프트와 예시 질문을 모두 입력해주세요.');
+      return;
+    }
+
+    setIsGeneratingAnswer(true);
+
+    try {
+      // Lexical JSON에서 텍스트 추출
+      const { systemMessage, userMessage } = buildPromptFromLexical(usedPrompt, examplePrompt);
+
+      console.log('추출된 텍스트:');
+      console.log('사용 프롬프트:', systemMessage);
+      console.log('예시 질문:', userMessage);
+
+      // PromptAPI를 통해 백엔드 호출
+      const response = await PromptAPI.postTextPrompt({
+        prompt: systemMessage,
+        exampleQuestion: userMessage,
+      });
+
+      console.log('AI 응답:', response.exampleAnswer);
+
+      // 응답을 answerPrompt에 설정 (Lexical JSON 형식으로 변환)
+      const lexicalAnswer = {
+        root: {
+          children: [
+            {
+              children: [
+                {
+                  detail: 0,
+                  format: 0,
+                  mode: 'normal',
+                  style: '',
+                  text: response.exampleAnswer || '',
+                  type: 'text',
+                  version: 1,
+                },
+              ],
+              direction: null,
+              format: '',
+              indent: 0,
+              type: 'paragraph',
+              version: 1,
+              textFormat: 0,
+              textStyle: '',
+            },
+          ],
+          direction: null,
+          format: '',
+          indent: 0,
+          type: 'root',
+          version: 1,
+        },
+      };
+
+      setAnswerPrompt(JSON.stringify(lexicalAnswer));
+      alert('AI 응답이 생성되었습니다!');
+
+    } catch (error) {
+      console.error('AI 생성 요청 실패:', error);
+      alert('AI 응답 생성에 실패했습니다. 콘솔을 확인하세요.');
+    } finally {
+      setIsGeneratingAnswer(false);
+    }
   }
 
 
@@ -230,7 +324,7 @@ function PostPageContent() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-4">
-          <TitleInput value={title} onChange={setTitle} placeholder="제목을 입력하세요" />
+          <TitleInput value={title} onChange={setTitle} placeholder="제목을 입력하세요"/>
         </div>
         <div className="mb-4">
           <HashtagInput tags={tags} onTagsChange={setTags} />
@@ -241,61 +335,54 @@ function PostPageContent() {
 
           {/* 글 작성 컨테이너 (8 비율) */}
           <div className="lg:col-span-4 space-y-4">
+            {/* 사용 프롬프트 */}
+            <PostingWriteSection
+              title="설명"
+              placeholder="텍스트를 입력하세요..."
+              onChange={setDescriptionState}
+              isSubmitButton={selectedPromptType === 'image'}
+            />
 
-            {/* 아카이브 타입일 때는 간단한 에디터만 표시 */}
-            {isArchiveType ? (
-              <PostingWriteSection
-                title="내용"
-                placeholder="내용을 입력하세요..."
-                onChange={setUsedPrompt}
-                isSubmitButton={false}
-              />
-            ) : (
-              // 커뮤니티 타입일 때는 기존 프롬프트 섹션 표시
-              <>
-                {/* 사용 프롬프트 */}
-                <PostingWriteSection
-                  title="사용 프롬프트"
-                  placeholder="사용한 프롬프트를 입력하세요..."
-                  onChange={setUsedPrompt}
-                  isSubmitButton={selectedPromptType === 'image'}
-                />
+            {/* 사용 프롬프트 */}
+            <PostingWriteSection
+              title="사용 프롬프트"
+              placeholder="사용한 프롬프트를 입력하세요..."
+              onChange={setUsedPrompt}
+              isSubmitButton={selectedPromptType === 'image'}
+            />
 
-                {
-                  selectedPromptType === 'text' ? (
-                    <div>
-                          {/* 예시 질문 프롬프트 */}
-                          <PostingWriteSection
-                            title="예시 질문 프롬프트"
-                            placeholder="예시 질문을 입력하세요..."
-                            onChange={setExamplePrompt}
-                            isSubmitButton={true}
-                            onSubmit={()=>
-                              handleAISubmit(usedPrompt)
-                            }
-                          />
+            {
+              selectedPromptType === 'text' ? (
+                <div>
+                      {/* 예시 질문 프롬프트 */}
+                      <PostingWriteSection
+                        title="예시 질문 프롬프트"
+                        placeholder="예시 질문을 입력하세요..."
+                        onChange={setExamplePrompt}
+                        isSubmitButton={true}
+                        onSubmit={handleAISubmit}
+                        isLoading={isGeneratingAnswer}
+                      />
 
-                          {/* 답변 프롬프트 */}
-                          <PostingWriteSection
-                            title="답변 프롬프트"
-                            placeholder="답변을 입력하세요..."
-                            onChange={setAnswerPrompt}
-                          />
-                      </div>
-                  ) : (
-                    <div>
-                          {/* 답변 프롬프트 */}
-                          <PostingWriteSection
-                            title="결과 사진"
-                            placeholder="결과 사진을 첨부하세요..."
-                            onChange={setAnswerPrompt}
-                          />
-                      </div>
-                  )
-                }
-              </>
-            )}
-
+                      {/* 답변 프롬프트 */}
+                      <PostingWriteSection
+                        title="답변 프롬프트"
+                        placeholder="답변을 입력하세요..."
+                        onChange={setAnswerPrompt}
+                        value={answerPrompt}
+                      />
+                  </div>
+              ) : (
+                <div>
+                      {/* 답변 프롬프트 */}
+                      <PostingWriteSection
+                        title="결과 사진"
+                        placeholder="결과 사진을 첨부하세요..."
+                        onChange={setAnswerPrompt}
+                      />
+                  </div>
+              )
+            }
 
             {/* 프롬프트 작성 완료 버튼 */}
             <PostingFooter onSubmit={handleSubmit} />
@@ -304,16 +391,14 @@ function PostPageContent() {
           {/* 플로팅 컨테이너 (2 비율) */}
           <div className="lg:col-span-1 space-y-4">
 
-            {/* 카테고리 선택 - 커뮤니티 타입일 때만 표시 */}
-            {!isArchiveType && (
-              <PostingFloatingSection
-                title="카테고리"
-                items={categoryItems}
-                selectedValue={selectedCategory}
-                onSelect={setSelectedCategory}
-                name="category"
-              />
-            )}
+            {/* 카테고리 선택 */}
+            <PostingFloatingSection
+              title="카테고리"
+              items={categoryItems}
+              selectedValue={selectedCategory}
+              onSelect={setSelectedCategory}
+              name="category"
+            />
 
             {/* 아카이브 폴더 선택 - 아카이브 타입일 때만 표시 */}
             {isArchiveType && (
@@ -331,16 +416,14 @@ function PostPageContent() {
               )
             )}
 
-            {/* 프롬프트 타입 - 커뮤니티 타입일 때만 표시 */}
-            {!isArchiveType && (
-              <PostingFloatingSection
-                title="프롬프트 타입"
-                items={promptTypeItems}
-                selectedValue={selectedPromptType}
-                onSelect={setSelectedPromptType}
-                name="promptType"
-              />
-            )}
+            {/* 프롬프트 타입 */}
+            <PostingFloatingSection
+              title="프롬프트 타입"
+              items={promptTypeItems}
+              selectedValue={selectedPromptType}
+              onSelect={setSelectedPromptType}
+              name="promptType"
+            />
           </div>
         </div>
 
