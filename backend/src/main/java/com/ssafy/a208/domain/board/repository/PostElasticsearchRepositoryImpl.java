@@ -78,7 +78,7 @@ public class PostElasticsearchRepositoryImpl {
                                     .match(m -> m
                                             .field("title")
                                             .query(query.title())
-                                            .analyzer("korean_nori")
+                                            .analyzer("nori")
                                             .boost(2.0f)
                                     )
                             )
