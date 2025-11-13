@@ -2,9 +2,7 @@ package com.ssafy.a208.domain.contest.dto;
 
 import com.ssafy.a208.domain.contest.entity.Contest;
 import java.time.LocalDateTime;
-import lombok.Builder;
 
-@Builder
 public record ContestDetailRes(
     long contestId,
     String author,

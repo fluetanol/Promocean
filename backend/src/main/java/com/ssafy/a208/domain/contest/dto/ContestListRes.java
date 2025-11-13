@@ -1,10 +1,8 @@
 package com.ssafy.a208.domain.contest.dto;
 
 import java.util.List;
-import lombok.Builder;
 import org.springframework.data.domain.Page;
 
-@Builder
 public record ContestListRes(
         List<ContestListItem> contests,
         int itemCnt,
