@@ -15,7 +15,7 @@ interface CommunityBoardSectionProps {
  * @returns {React.ReactNode}
  */
 export default function CommunityBoardSection({ communityBoardList }: CommunityBoardSectionProps) {
-
+  console.log("CommunityBoardSection communityBoardList:", communityBoardList);
   return (
   <div className="py-8">
       <div className="max-w-6xl mx-auto px-4">

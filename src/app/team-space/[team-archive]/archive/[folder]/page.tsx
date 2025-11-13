@@ -9,7 +9,6 @@ import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilt
 
 export default function TeamSpaceArchiveFolderPage() {
 
-
   return (
 
     <div className="min-h-screen bg-gray-50">

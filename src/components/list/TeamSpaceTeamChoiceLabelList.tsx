@@ -1,6 +1,6 @@
 import TeamSpaceTeamChoiceLabelItem from "../item/TeamSpaceTeamChoiceLabelItem";
 import { SelectedMember } from "../modal/TeamSpaceAddModal";
-import { TeamSpaceRole } from "../item/TeamSpaceRoleItem";
+import { TeamSpaceRole } from "@/enum/TeamSpaceRole";
 
 
 

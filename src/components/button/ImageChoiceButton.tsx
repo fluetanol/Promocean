@@ -32,7 +32,7 @@ export default function ImageChoiceButton({ setSpaceImageState }: ImageChoiceBut
     return(
         
     <div className = "w-full">
-        <label className="flex text-sm font-medium text-gray-700 py-2">
+        <label className="flex text-sm font-medium py-1 text-gray-700">
             팀 스페이스 이미지
         </label>
         <div className="flex items-center gap-4 w-full h-32">

@@ -2,8 +2,11 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TeamSpaceManageModal from "../modal/TeamSpaceManageModal";
+import TeamSpaceMyMenuModal from "../modal/TeamSpaceMyMenuModal";
+import SpaceAPI, { SpaceParticipants } from "@/api/space";
+import { useAuthStore } from "@/store/authStore";
 
 /**
  * TeamSpaceHeaderProps 인터페이스
@@ -30,16 +33,15 @@ export default function TeamSpaceHeader(
   {nickname, description, spaceId}: TeamSpaceHeaderProps) {
 
   const [isModalOpenState, setIsModalOpenState] = useState(false);
-  const [modalTabState, setModalTabState] = useState<"권한" | "초대" | "수정" | "삭제">("권한");
-  const [memberListState, setMemberListState] = useState<string[]>([
-    "김철수",
-    "이영희",
-    "박민수",
-    "최지우",
-    "강다은",
-    "이수민",
-    "홍길동"
-  ]);
+  const [isMyMenuModalOpen, setIsMyMenuModalOpen] = useState(false);
+  const [modalTabState, setModalTabState] = useState<"멤버" | "초대" | "수정" | "삭제">("멤버");
+  const [memberListState, setMemberListState] = useState<SpaceParticipants[]>([]);
+  const [ownerMemberState, setOwnerMemberState] = useState<SpaceParticipants | null>(null);
+  const [currentUserSpaceNickname, setCurrentUserSpaceNickname] = useState<string>(nickname);
+  const authStore = useAuthStore();
+  const userNickname = authStore.user?.nickname;
+
+
   // console.log("spaceId in TeamSpaceHeader:", spaceId);
   const handleModalOpen = () => {
     setIsModalOpenState(!isModalOpenState);
@@ -47,6 +49,38 @@ export default function TeamSpaceHeader(
   const handleModalClose = () => {
     setIsModalOpenState(false);
   }
+
+  const handleMyMenuOpen = () => {
+    setIsMyMenuModalOpen(!isMyMenuModalOpen);
+  }
+  const handleMyMenuClose = () => {
+    setIsMyMenuModalOpen(false);
+  }
+
+  useEffect(()=>{
+    const fetchItem = async () =>{  
+      if(!spaceId) return;
+      try {
+        const res = await SpaceAPI.getSpaceParticipants(spaceId);
+        const participants: SpaceParticipants[] =  res.participants;
+        console.log("Space Participants:", participants, "username", userNickname);
+
+        const owner = participants.find(participant => participant.nickname === userNickname) || null;
+        if (owner) {
+          participants.splice(participants.indexOf(owner), 1); // 소유자 제외
+          setCurrentUserSpaceNickname(owner.nickname); // 현재 사용자의 팀 스페이스 별명 설정
+        }
+
+        setOwnerMemberState(owner);
+        setMemberListState(participants);
+     }
+      catch (error) {
+        console.error("Failed to fetch space participants:", error);
+      }
+    }
+    fetchItem();
+  },[spaceId])
+
 
   return (
     <header className="w-full">
@@ -58,7 +92,18 @@ export default function TeamSpaceHeader(
         </div>
 
         <div className="relative flex flex-row gap-3">
+          <button className="cursor-pointer p-2 rounded-md hover:bg-primary/40" onClick={handleMyMenuOpen}>내 메뉴</button>
           <button className="cursor-pointer p-2 rounded-md hover:bg-primary/40" onClick={handleModalOpen}>팀 관리</button>
+
+          {isMyMenuModalOpen && (
+            <TeamSpaceMyMenuModal
+              spaceId={spaceId}
+              isModalOpenState={isMyMenuModalOpen}
+              handleModalClose={handleMyMenuClose}
+              currentNickname={currentUserSpaceNickname}
+              teamName={`${nickname} 님의 팀 스페이스`}
+            />
+          )}
 
           {isModalOpenState && (
             <TeamSpaceManageModal
@@ -68,6 +113,7 @@ export default function TeamSpaceHeader(
               modalTabState={modalTabState}
               setModalTabState={setModalTabState}
               memberListState={memberListState}
+              ownerMemberState={ownerMemberState}
               setMemberListState={setMemberListState}
             />
           )}

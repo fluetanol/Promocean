@@ -2,6 +2,28 @@
 
 import { apiFetch } from "@/api/fetcher";
 import { CommunityBoardItemProps, CommunityBoardItemResponse, CommunityFloatingItemProps, CommunityPostItemResponse } from "@/types/itemType";
+import { ApiResponse } from "@/types/apiTypes/common";
+import { SpaceScrapBoardItemProps } from "@/components/item/SpaceScrapBoardItem";
+
+
+export interface GetPostScrapsRequest{
+  page? :number;
+  size? : number;
+  author? : string;
+  title? : string;
+  tag? : string;
+  sorter? : string;
+  category? : string;
+  type? : string;
+}
+
+export interface GetPostScrapsResponse{
+  posts : SpaceScrapBoardItemProps[];
+  itemCnt : number;
+  totalCnt : number;
+  totalPages : number;
+  currentPage : number;
+}
 
 
 /**
@@ -68,6 +90,9 @@ export const CommunityAPI = {
       message: string | null;
       data: {
         posts: CommunityBoardItemResponse[];
+        totalPages?: number;
+        totalElements?: number;
+        currentPage?: number;
       };
     }
 
@@ -75,9 +100,12 @@ export const CommunityAPI = {
     // const response = await apiFetch<ApiResponse>(`/mock/CommunityBoardListResponse.json`);
 
     const communityBoardList: CommunityBoardItemProps[] = response.data.posts.map((post) => ({ ...post, image: undefined }));
-
+    console.log("board " ,communityBoardList)
     return {
       communityBoardList,
+      totalPages: response.data.totalPages,
+      totalElements: response.data.totalElements,
+      currentPage: response.data.currentPage,
     };
   },
 
@@ -195,6 +223,39 @@ export const CommunityAPI = {
       data: response.data,
     };
   },
+
+
+  /*
+    * 내가 스크랩한 커뮤니티 게시글 스크랩 목록 조회하는 API입니다.
+    */
+  async getPostScraps(params?: GetPostScrapsRequest) : Promise< 
+  GetPostScrapsResponse > {
+    // 쿼리 파라미터 생성 (값이 있는 파라미터만 추가)
+    const queryParams = new URLSearchParams();
+    
+    // 디폴트값 설정
+    const defaultParams = {
+      page: params?.page || 1,
+      size: 10, // 응답이 10개보다 적더라도 항상 10으로 요청
+    };
+    
+    // 디폴트값 추가
+    queryParams.set('page', defaultParams.page.toString());
+    queryParams.set('size', defaultParams.size.toString());
+    
+    // 나머지 파라미터는 값이 있을 때만 추가
+    if (params?.author) queryParams.set('author', params.author);
+    if (params?.title) queryParams.set('title', params.title);
+    if (params?.tag) queryParams.set('tag', params.tag);
+    if (params?.sorter) queryParams.set('sorter', params.sorter);
+    if (params?.category) queryParams.set('category', params.category);
+    if (params?.type) queryParams.set('type', params.type);
+
+    const res = await apiFetch<ApiResponse< GetPostScrapsResponse >>(`/api/v1/posts/scraps?${queryParams.toString()}`);
+
+    return res.data;
+  },
+
 
   /**
    * 커뮤니티 게시글 댓글 작성하는 API입니다.

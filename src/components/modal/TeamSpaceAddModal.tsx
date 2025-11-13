@@ -4,7 +4,7 @@ import { SpaceAddMemberItemProps } from "../item/SpaceAddMemberItem";
 import TeamSpaceAddMemberList from "../list/TeamSpaceAddMemberList";
 import TeamSpaceTeamChoiceLabelList from "../list/TeamSpaceTeamChoiceLabelList";
 import { TeamSpaceChoiceItemProps } from "../item/TeamSpaceTeamChoiceItem";
-import { TeamSpaceRole } from "../item/TeamSpaceRoleItem";
+import { TeamSpaceRole } from "@/enum/TeamSpaceRole";
 import SpaceAPI from "@/api/space";
 
 export interface SelectedMember {

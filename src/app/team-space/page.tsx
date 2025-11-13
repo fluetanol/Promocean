@@ -1,5 +1,5 @@
 
-import { TeamSpaceChoiceItemProps } from "@/components/item/TeamSpaceTeamChoiceItem";
+
 import SpaceHeader from "@/components/layout/SpaceHeader";
 import TeamSpaceChoiceSection from "@/components/section/TeamSpaceChoiceSection";
 

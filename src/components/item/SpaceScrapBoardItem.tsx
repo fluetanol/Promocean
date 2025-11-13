@@ -13,7 +13,6 @@ export interface SpaceScrapBoardItemProps {
   tags: string[];
   likeCnt: number;
   replyCnt: number;
-  
   image: string;
   profileUrl: string;
   author: string;

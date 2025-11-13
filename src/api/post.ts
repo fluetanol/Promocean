@@ -1,4 +1,4 @@
-import { ApiResponse } from "./common";
+import { ApiResponse } from "@/types/apiTypes/common";
 import { apiFetch } from "./fetcher";
 import { PostCategory, PromptType } from "@/types/postEnum";
 

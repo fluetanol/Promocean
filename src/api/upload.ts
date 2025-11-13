@@ -1,18 +1,7 @@
-import { ApiResponse } from "./common";
+import { ApiResponse } from "@/types/apiTypes/common";
 import { apiFetch } from "./fetcher";
-import { NoArgsResponse } from "./space";
+import { getImagesS3UploadResponse, uploadImageToS3Request } from "@/types/apiTypes/upload";
 
-
-export interface getImagesS3UploadResponse{
-    presignedUrl : string;
-    key : string;
-}
-
-
-export interface uploadImageToS3Request{
-    presignedUrl : string;
-    file : File;
-}
 
 export const UploadAPI = {
 

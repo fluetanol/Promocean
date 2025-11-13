@@ -3,9 +3,10 @@ import { HexColorPicker } from "react-colorful";
 import ColorPickerModal from "./ColorPickerModal";
 import { SpaceArchiveData } from "@/app/my-space/page";
 import { useAuthStore } from "@/store/authStore";
-import SpaceAPI, { PostMySpaceArchiveFolderRequest } from "@/api/space";
+import SpaceAPI from "@/api/space";
 import { Space } from "lucide-react";
 import { colorCodeBackToFront } from "@/utils/colorController";
+import { PostMySpaceArchiveFolderRequest } from "@/types/apiTypes/space";
 
 
 export interface SpaceArchiveAddModalProps{
