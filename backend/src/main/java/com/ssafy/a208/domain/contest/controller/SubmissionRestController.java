@@ -2,7 +2,6 @@ package com.ssafy.a208.domain.contest.controller;
 
 import com.ssafy.a208.domain.contest.dto.SubmissionCreateReq;
 import com.ssafy.a208.domain.contest.dto.SubmissionDetailRes;
-import com.ssafy.a208.domain.contest.dto.SubmissionListItem;
 import com.ssafy.a208.domain.contest.dto.SubmissionListRes;
 import com.ssafy.a208.domain.contest.service.SubmissionService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
