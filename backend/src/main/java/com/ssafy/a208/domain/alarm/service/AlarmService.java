@@ -68,6 +68,10 @@ public class AlarmService {
         return redisRepository.findAllByMemberId(userDetails.memberId());
     }
 
+    public void deleteAlarm(CustomUserDetails userDetails, Long alarmId){
+        redisRepository.deleteNotification(userDetails.memberId(), alarmId);
+    }
+
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
         try {
             emitter.send(SseEmitter.event()
