@@ -2,7 +2,6 @@ package com.ssafy.a208.domain.contest.controller;
 
 import com.ssafy.a208.domain.contest.dto.SubmissionCreateReq;
 import com.ssafy.a208.domain.contest.dto.SubmissionDetailRes;
-import com.ssafy.a208.domain.contest.dto.SubmissionListItem;
 import com.ssafy.a208.domain.contest.dto.SubmissionListRes;
 import com.ssafy.a208.domain.contest.service.SubmissionService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
