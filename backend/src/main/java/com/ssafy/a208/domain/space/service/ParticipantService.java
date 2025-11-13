@@ -178,7 +178,7 @@ public class ParticipantService {
         }
 
         // 탈퇴하는 사람이 OWNER인 경우에만 최소인원 검증 실행
-        if (Objects.equals(participant.getRole(), ParticipantRole.OWNER)) {
+        if (participant.getRole().canManage()) {
             validateMinimumOwner(participants);
         }
         participant.deleteParticipant();
