@@ -23,6 +23,7 @@ import com.ssafy.a208.global.common.enums.ParticipantRole;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -175,7 +176,11 @@ public class ParticipantService {
         if (participants.size() < 2) {
             throw new InvalidWithdrawalRequestException();
         }
-        validateMinimumOwner(participants);
+
+        // 탈퇴하는 사람이 OWNER인 경우에만 최소인원 검증 실행
+        if (participant.getRole().canManage()) {
+            validateMinimumOwner(participants);
+        }
         participant.deleteParticipant();
     }
 
@@ -223,6 +228,7 @@ public class ParticipantService {
                 .map(Participant::getRole)
                 .filter(ParticipantRole::canManage)
                 .count();
+
         if (currentOwners < 2) {
             throw new OwnerConstraintViolationException();
         }
