@@ -118,6 +118,24 @@ public class AlarmRedisRepository {
         redisTemplate.opsForList().remove(alarmListKey, 1, alarmId.toString());
     }
 
+    public void deleteAllNotifications(Long memberId) {
+        String alarmListKey = getAlarmListKey(memberId);
+
+        // 1) 리스트 안의 모든 alarmId 가져오기
+        List<Object> ids = redisTemplate.opsForList().range(alarmListKey, 0, -1);
+
+        if (ids != null) {
+            for (Object id : ids) {
+                String alarmKey = getAlarmKey(Long.parseLong(id.toString()));
+                redisTemplate.delete(alarmKey);
+            }
+        }
+
+        // 2) alarm:members:{memberId} 리스트 자체 삭제
+        redisTemplate.delete(alarmListKey);
+    }
+
+
     private String createMessage(AlarmReq alarmReq) {
         AlarmCategory category = alarmReq.category();
 

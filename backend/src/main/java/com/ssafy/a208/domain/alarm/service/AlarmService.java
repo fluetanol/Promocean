@@ -68,6 +68,10 @@ public class AlarmService {
         return redisRepository.findAllByMemberId(userDetails.memberId());
     }
 
+    public void deleteAllAlarms(CustomUserDetails userDetails){
+        redisRepository.deleteAllNotifications(userDetails.memberId());
+    }
+
     public void deleteAlarm(CustomUserDetails userDetails, Long alarmId){
         redisRepository.deleteNotification(userDetails.memberId(), alarmId);
     }

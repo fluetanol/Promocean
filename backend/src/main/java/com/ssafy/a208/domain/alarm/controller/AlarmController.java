@@ -40,6 +40,14 @@ public class AlarmController {
         return ApiResponse.ok(alarms);
     }
 
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteAllAlarms(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        alarmService.deleteAllAlarms(userDetails);
+        return ApiResponse.ok();
+    }
+
     @DeleteMapping("/{alarmId}")
     public ResponseEntity<ApiResponse<Void>> deleteAlarm(
             @AuthenticationPrincipal CustomUserDetails userDetails,
