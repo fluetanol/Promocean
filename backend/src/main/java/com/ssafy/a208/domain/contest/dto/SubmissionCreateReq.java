@@ -1,6 +1,5 @@
 package com.ssafy.a208.domain.contest.dto;
 
-import com.ssafy.a208.global.common.validation.AllowedValues;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 

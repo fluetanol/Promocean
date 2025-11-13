@@ -2,6 +2,7 @@ package com.ssafy.a208.domain.contest.service;
 
 import com.ssafy.a208.domain.contest.dto.ContestCreateReq;
 import com.ssafy.a208.domain.contest.dto.ContestDetailRes;
+import com.ssafy.a208.domain.contest.dto.ContestListItem;
 import com.ssafy.a208.domain.contest.dto.ContestListRes;
 import com.ssafy.a208.domain.contest.entity.Contest;
 import com.ssafy.a208.domain.contest.exception.ContestNotFoundException;
@@ -68,7 +69,7 @@ public class ContestService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ContestListRes> getContestList(
+    public ContestListRes getContestList(
             int page,
             int size,
             String sorter,
@@ -95,7 +96,7 @@ public class ContestService {
             list = contestRepository.findByStatusAndTitleContainingIgnoreCase(pageable, contestStatus, title);
         }
 
-        List<ContestListRes> contestList = list.getContent().stream()
+        List<ContestListItem> contestList = list.getContent().stream()
             .map(contest -> {
                 Long hostId = contest.getHost().getId();
                 Profile profile = profileReader.getProfile(hostId);
@@ -103,11 +104,13 @@ public class ContestService {
                     ? s3Service.getCloudFrontUrl(profile.getFilePath())
                     : null;
 
-                return ContestListRes.from(contest, profileUrl);
+                return ContestListItem.from(contest, profileUrl);
             })
             .toList();
 
-        return new PageImpl<>(contestList, pageable, list.getTotalElements());
+        Page<ContestListItem> contestItems = new PageImpl<>(contestList, pageable, list.getTotalElements());
+
+        return ContestListRes.from(contestItems);
     }
 
     @Transactional(readOnly = true)

@@ -5,16 +5,11 @@ import com.ssafy.a208.domain.contest.dto.ContestDetailRes;
 import com.ssafy.a208.domain.contest.dto.ContestListRes;
 import com.ssafy.a208.domain.contest.service.ContestService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
-import com.ssafy.a208.global.common.enums.ContestStatus;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,14 +35,14 @@ public class ContestRestController {
 
     @GetMapping
     @Operation(summary = "대회 목록조회 API", description = "대회 목록을 조회하는 API입니다.")
-    public ResponseEntity<ApiResponse<Page<ContestListRes>>> getContestList(
+    public ResponseEntity<ApiResponse<ContestListRes>> getContestList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String sorter,
             @RequestParam(defaultValue = "") String status,
             @RequestParam(defaultValue = "") String title
     ) {
-        Page<ContestListRes> res = contestService.getContestList(page, size, sorter, status, title);
+        ContestListRes res = contestService.getContestList(page, size, sorter, status, title);
 
         return ApiResponse.ok(res);
     }

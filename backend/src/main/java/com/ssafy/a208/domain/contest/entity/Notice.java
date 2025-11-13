@@ -1,6 +1,5 @@
 package com.ssafy.a208.domain.contest.entity;
 
-import com.ssafy.a208.domain.contest.dto.NoticeCreateReq;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.global.common.BaseEntity;
 import jakarta.persistence.Column;

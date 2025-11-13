@@ -83,9 +83,6 @@ public class Member extends BaseEntity {
     }
 
     public void decreaseUsableCnt() {
-        if (this.usableCnt <= 0) {
-            throw new UsableCountExceededException();
-        }
         this.usableCnt -= 1;
     }
 

@@ -2,6 +2,7 @@ package com.ssafy.a208.domain.contest.service;
 
 import com.ssafy.a208.domain.contest.dto.SubmissionCreateReq;
 import com.ssafy.a208.domain.contest.dto.SubmissionDetailRes;
+import com.ssafy.a208.domain.contest.dto.SubmissionListItem;
 import com.ssafy.a208.domain.contest.dto.SubmissionListRes;
 import com.ssafy.a208.domain.contest.entity.Contest;
 import com.ssafy.a208.domain.contest.entity.Submission;
@@ -76,7 +77,7 @@ public class SubmissionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<SubmissionListRes> getSubmissionList(
+    public SubmissionListRes getSubmissionList(
             Long contestId,
             int page,
             int size,
@@ -100,7 +101,7 @@ public class SubmissionService {
                 ? submissionRepository.findByContest_Id(contestId, pageable)
                 : submissionRepository.findByContest_IdAndMember_Nickname(contestId, filterAuthor, pageable);
 
-        List<SubmissionListRes> submissionListRes = list.getContent().stream()
+        List<SubmissionListItem> submissionListRes = list.getContent().stream()
                 .map(submission -> {
                     Long authorId = submission.getMember().getId();
                     Profile profile = profileReader.getProfile(authorId);
@@ -119,11 +120,13 @@ public class SubmissionService {
 
                     long voteCnt = voteService.getVoteCount(submission);
 
-                    return SubmissionListRes.from(submission, profileUrl, submissionUrl, voteCnt);
+                    return SubmissionListItem.from(submission, profileUrl, submissionUrl, voteCnt);
                 })
                 .toList();
 
-        return new PageImpl<>(submissionListRes, pageable, list.getTotalElements());
+        Page<SubmissionListItem> submissionItems = new PageImpl<>(submissionListRes, pageable, list.getTotalElements());
+
+        return SubmissionListRes.from(submissionItems);
     }
 
     @Transactional(readOnly = true)
