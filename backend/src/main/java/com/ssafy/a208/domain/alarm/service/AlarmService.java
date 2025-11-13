@@ -5,12 +5,9 @@ import com.ssafy.a208.domain.alarm.dto.AlarmReq;
 import com.ssafy.a208.domain.alarm.repository.EmitterRepository;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.global.common.dto.ApiResponse;
-import com.ssafy.a208.global.common.enums.AlarmCategory;
 import com.ssafy.a208.global.redis.repository.AlarmRedisRepository;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +50,7 @@ public class AlarmService {
 
     public void send(Member receiver, AlarmReq alarmReq) {
         // 알람 정보 redis 저장
-        AlarmDto alarm = createAlarm(receiver, alarmReq);
+        AlarmDto alarm = redisRepository.saveNotification(alarmReq, receiver);
 
         // SSE 알림 전송
         Map<String, SseEmitter> sseEmitters = emitterRepository
@@ -76,40 +73,5 @@ public class AlarmService {
             log.warn("SSE 전송 실패 emitterId={}", emitterId);
         }
     }
-
-    private AlarmDto createAlarm(Member member, AlarmReq alarmReq) {
-        long now = LocalDateTime.now().atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli();
-
-        AlarmDto dto = AlarmDto.builder()
-                .message(createMessage(alarmReq))
-                .createdAt(now)
-                .memberId(member.getId())
-                .category(alarmReq.category())
-
-                .spaceId(alarmReq.spaceId())
-                .contestId(alarmReq.contestId())
-                .noticeId(alarmReq.noticeId())
-                .postId(alarmReq.postId())
-                .replyId(alarmReq.replyId())
-                .build();
-        redisRepository.saveNotification(dto);
-
-        return dto;
-    }
-
-    private String createMessage(AlarmReq alarmReq) {
-        AlarmCategory category = alarmReq.category();
-
-        return switch (category) {
-            case CONTEST_NOTICE -> String.format("%s에 공지가 생성됐습니다. [%s]", alarmReq.contestTitle(),
-                    alarmReq.noticeTitle());
-            case POST_REPLY -> String.format("%s에 댓글이 생성됐습니다. [%s]", alarmReq.postTitle(),
-                    alarmReq.replyContent());
-            case TEAM_INVITATION -> String.format("%s에 초대되었습니다.", alarmReq.spaceName());
-        };
-    }
-
 
 }

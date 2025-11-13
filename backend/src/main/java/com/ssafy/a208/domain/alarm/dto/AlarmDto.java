@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record AlarmDto(
+        Long alarmId,
         Long memberId,
         AlarmCategory category,
         String message,

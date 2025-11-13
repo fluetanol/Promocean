@@ -1,7 +1,12 @@
 package com.ssafy.a208.global.redis.repository;
 
 import com.ssafy.a208.domain.alarm.dto.AlarmDto;
+import com.ssafy.a208.domain.alarm.dto.AlarmReq;
+import com.ssafy.a208.domain.member.entity.Member;
+import com.ssafy.a208.global.common.enums.AlarmCategory;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +31,34 @@ public class AlarmRedisRepository {
         return ALARM_PREFIX + MEMBER_PREFIX + memberId;
     }
 
-    public void saveNotification(AlarmDto alarm) {
+    public AlarmDto saveNotification(AlarmReq alarmReq, Member member) {
         Long alarmId = redisTemplate.opsForValue().increment(ALARM_PREFIX + "seq");
         String key = getAlarmKey(alarmId);
+
+        long now = LocalDateTime.now().atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+
+        AlarmDto alarm = AlarmDto.builder()
+                .alarmId(alarmId)
+                .message(createMessage(alarmReq))
+                .createdAt(now)
+                .memberId(member.getId())
+                .category(alarmReq.category())
+
+                .spaceId(alarmReq.spaceId())
+                .contestId(alarmReq.contestId())
+                .noticeId(alarmReq.noticeId())
+                .postId(alarmReq.postId())
+                .replyId(alarmReq.replyId())
+                .build();
 
         redisTemplate.opsForValue().set(key, alarm, Duration.ofDays(ALARM_TTL_DAYS));
 
         String alarmListKey = getAlarmListKey(alarm.memberId());
         redisTemplate.opsForList().leftPush(alarmListKey, alarmId.toString());
+
+        return alarm;
     }
 
 
@@ -68,6 +93,18 @@ public class AlarmRedisRepository {
 
         String alarmListKey = getAlarmListKey(memberId);
         redisTemplate.opsForList().remove(alarmListKey, 1, alarmId.toString());
+    }
+
+    private String createMessage(AlarmReq alarmReq) {
+        AlarmCategory category = alarmReq.category();
+
+        return switch (category) {
+            case CONTEST_NOTICE -> String.format("%s에 공지가 생성됐습니다. [%s]", alarmReq.contestTitle(),
+                    alarmReq.noticeTitle());
+            case POST_REPLY -> String.format("%s에 댓글이 생성됐습니다. [%s]", alarmReq.postTitle(),
+                    alarmReq.replyContent());
+            case TEAM_INVITATION -> String.format("%s에 초대되었습니다.", alarmReq.spaceName());
+        };
     }
 
 }
