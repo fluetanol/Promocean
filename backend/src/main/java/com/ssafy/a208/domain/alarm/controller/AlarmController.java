@@ -1,5 +1,6 @@
 package com.ssafy.a208.domain.alarm.controller;
 
+import com.ssafy.a208.domain.alarm.dto.AlarmListRes;
 import com.ssafy.a208.domain.alarm.service.AlarmService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -27,6 +28,14 @@ public class AlarmController {
     ) {
         SseEmitter sseEmitter = alarmService.subscribe(userDetails, lastEventId);
         return ApiResponse.ok(sseEmitter);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<AlarmListRes>> getAlarms(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        AlarmListRes alarms = alarmService.getAlarms(userDetails);
+        return ApiResponse.ok(alarms);
     }
 
 }

@@ -1,10 +1,13 @@
 package com.ssafy.a208.global.redis.repository;
 
 import com.ssafy.a208.domain.alarm.dto.AlarmDto;
+import com.ssafy.a208.domain.alarm.dto.AlarmInfoRes;
+import com.ssafy.a208.domain.alarm.dto.AlarmListRes;
 import com.ssafy.a208.domain.alarm.dto.AlarmReq;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.global.common.enums.AlarmCategory;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -62,7 +65,7 @@ public class AlarmRedisRepository {
     }
 
 
-    public List<AlarmDto> findAllByMemberId(Long memberId) {
+    public AlarmListRes findAllByMemberId(Long memberId) {
         String alarmListKey = getAlarmListKey(memberId);
 
         List<Object> ids = redisTemplate.opsForList().range(alarmListKey, 0, -1);
@@ -83,7 +86,27 @@ public class AlarmRedisRepository {
             }
         }
 
-        return result;
+        List<AlarmInfoRes> alarms = new ArrayList<>();
+        for (AlarmDto alarm : result) {
+            LocalDateTime time = Instant.ofEpochMilli(alarm.createdAt())
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            AlarmInfoRes info = AlarmInfoRes.builder()
+                    .alarmId(alarm.alarmId())
+                    .message(alarm.message())
+                    .category(alarm.category().name())
+                    .createdAt(time)
+                    .spaceId(alarm.spaceId())
+                    .contestId(alarm.contestId())
+                    .noticeId(alarm.noticeId())
+                    .postId(alarm.postId())
+                    .replyId(alarm.replyId())
+                    .build();
+            alarms.add(info);
+        }
+
+        return AlarmListRes.builder().alarms(alarms).build();
     }
 
 

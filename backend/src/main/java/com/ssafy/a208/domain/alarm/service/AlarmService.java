@@ -1,6 +1,7 @@
 package com.ssafy.a208.domain.alarm.service;
 
 import com.ssafy.a208.domain.alarm.dto.AlarmDto;
+import com.ssafy.a208.domain.alarm.dto.AlarmListRes;
 import com.ssafy.a208.domain.alarm.dto.AlarmReq;
 import com.ssafy.a208.domain.alarm.repository.EmitterRepository;
 import com.ssafy.a208.domain.member.entity.Member;
@@ -61,6 +62,10 @@ public class AlarmService {
                     sendToClient(emitter, key, new ApiResponse<>(null, alarm));
                 }
         );
+    }
+
+    public AlarmListRes getAlarms(CustomUserDetails userDetails) {
+        return redisRepository.findAllByMemberId(userDetails.memberId());
     }
 
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
