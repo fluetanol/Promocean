@@ -2,6 +2,7 @@ package com.ssafy.a208.domain.prompt.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ssafy.a208.domain.member.entity.Member;
+import com.ssafy.a208.domain.member.exception.UsableCountExceededException;
 import com.ssafy.a208.domain.prompt.dto.*;
 import com.ssafy.a208.domain.prompt.exception.ImageGenerationException;
 import com.ssafy.a208.domain.prompt.exception.PromptProcessingException;
@@ -62,6 +63,10 @@ public class PromptService {
     @Transactional
     public TextPromptRes processTextPrompt(CustomUserDetails userDetails, TextPromptReq request) {
         Member member = memberReader.getMemberById(userDetails.memberId());
+
+        if (member.getUsableCnt() <= 0) {
+            throw new UsableCountExceededException();
+        }
 
         List<GptDto.Message> messages = new ArrayList<>();
 
@@ -131,6 +136,10 @@ public class PromptService {
     @Transactional
     public ImagePromptRes processImagePrompt(CustomUserDetails userDetails, ImagePromptReq request) {
         Member member = memberReader.getMemberById(userDetails.memberId());
+
+        if (member.getUsableCnt() <= 0) {
+            throw new UsableCountExceededException();
+        }
 
         GeminiDto.Request geminiRequest = GeminiDto.Request.builder()
                 .contents(List.of(
