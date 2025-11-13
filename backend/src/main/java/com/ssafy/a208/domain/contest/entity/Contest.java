@@ -1,6 +1,5 @@
 package com.ssafy.a208.domain.contest.entity;
 
-import com.ssafy.a208.domain.contest.dto.ContestCreateReq;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.global.common.BaseEntity;
 import com.ssafy.a208.global.common.enums.ContestStatus;

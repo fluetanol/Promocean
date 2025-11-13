@@ -1,33 +1,22 @@
 package com.ssafy.a208.domain.contest.dto;
 
-import com.ssafy.a208.domain.contest.entity.Submission;
-import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
 
 public record SubmissionListRes(
-        Long submissionId,
-        String author,
-        String profileUrl,
-        String description,
-        String type,
-        String submissionUrl,
-        long voteCnt,
-        LocalDateTime updatedAt
+        List<SubmissionListItem> submissions,
+        int itemCnt,
+        long totalCnt,
+        int totalPages,
+        int currentPage
 ) {
-    public static SubmissionListRes from(
-            Submission submission,
-            String profileUrl,
-            String submissionUrl,
-            long voteCnt
-    ) {
+    public static SubmissionListRes from(Page<SubmissionListItem> page) {
         return new SubmissionListRes(
-                submission.getId(),
-                submission.getMember().getNickname(),
-                profileUrl,
-                submission.getDescription(),
-                submission.getType().getName(),
-                submissionUrl,
-                voteCnt,
-                submission.getUpdatedAt()
+                page.getContent(),
+                page.getNumberOfElements(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber() + 1
         );
     }
 }

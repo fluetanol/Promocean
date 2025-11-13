@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,14 +43,14 @@ public class SubmissionRestController {
 
     @GetMapping
     @Operation(summary = "제출물 목록 조회 API", description = "제출 목록을 조회하는 API입니다.")
-    public ResponseEntity<ApiResponse<Page<SubmissionListRes>>> getSubmissionList(
+    public ResponseEntity<ApiResponse<SubmissionListRes>> getSubmissionList(
             @PathVariable Long contestId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String sorter,
             @RequestParam(defaultValue = "") String author
     ) {
-        Page<SubmissionListRes> res = submissionService.getSubmissionList(contestId, page, size, sorter, author);
+        SubmissionListRes res = submissionService.getSubmissionList(contestId, page, size, sorter, author);
         return ApiResponse.ok(res);
     }
 

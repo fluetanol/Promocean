@@ -1,32 +1,22 @@
 package com.ssafy.a208.domain.contest.dto;
 
-import com.ssafy.a208.domain.contest.entity.Contest;
-import java.time.LocalDateTime;
-import lombok.Builder;
+import java.util.List;
+import org.springframework.data.domain.Page;
 
-@Builder
 public record ContestListRes(
-        Long contestId,
-        String title,
-        String host,
-        String profileUrl,
-        LocalDateTime startAt,
-        LocalDateTime endAt,
-        String status,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        List<ContestListItem> contests,
+        int itemCnt,
+        long totalCnt,
+        int totalPages,
+        int currentPage
 ) {
-    public static ContestListRes from(Contest contest, String profileUrl) {
+    public static ContestListRes from(Page<ContestListItem> page) {
         return new ContestListRes(
-                contest.getId(),
-                contest.getTitle(),
-                contest.getHost().getNickname(),
-                profileUrl,
-                contest.getStartAt(),
-                contest.getEndAt(),
-                contest.getStatus().getName(),
-                contest.getCreatedAt(),
-                contest.getUpdatedAt()
+                page.getContent(),
+                page.getNumberOfElements(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber() + 1
         );
     }
 }
