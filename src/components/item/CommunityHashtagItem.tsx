@@ -1,13 +1,25 @@
 // frontend/src/components/item/CommunityHashtagItem.tsx
 
+'use client';
+
+import { useRouter } from 'next/navigation';
+
 /**
  * CommunityHashtagItem component
- * @description CommunityHashtagItem component is a community hashtag item component that displays the community hashtag item content
+ * @description 각 해시태그를 표시하는 컴포넌트입니다. 해시태그 클릭 시 해시태그 검색 결과 페이지로 이동합니다.
  * @returns {React.ReactNode}
  */
 export default function CommunityHashtagItem( { tag }: { tag: string } ) {
+
+  const router = useRouter();
+  const handleHashtagClick = () => {
+    router.push(`/community?${new URLSearchParams({ tag: tag }).toString()}`);
+  }
   return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs text-gray-500 bg-gray-100 hover:bg-primary hover:text-white transition-colors cursor-pointer">
+    <span
+      className="inline-flex items-center text-sm text-gray-600 hover:text-primary transition-colors cursor-pointer"
+      onClick={handleHashtagClick}
+      >
       #{tag}
     </span>
   )

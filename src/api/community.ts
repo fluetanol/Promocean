@@ -2,6 +2,7 @@
 
 import { apiFetch } from "@/api/fetcher";
 import { CommunityBoardItemProps, CommunityBoardItemResponse, CommunityFloatingItemProps, CommunityPostItemResponse } from "@/types/itemType";
+import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
 import { SpaceScrapBoardItemProps } from "@/components/item/SpaceScrapBoardItem";
 
@@ -24,7 +25,6 @@ export interface GetPostScrapsResponse{
   totalPages : number;
   currentPage : number;
 }
-
 
 /**
  * communityAPI
@@ -84,28 +84,36 @@ export const CommunityAPI = {
     if (params?.title) queryParams.set('title', params.title);
     if (params?.tag) queryParams.set('tag', params.tag);
     if (params?.sorter) queryParams.set('sorter', params.sorter);
-    if (params?.category) queryParams.set('category', params.category);
-
+    
+    // 카테고리 변환 후 추가
+    const convertedCategory = convertCategoryToApiCode(params?.category);
+    if (convertedCategory) {
+      queryParams.set('category', convertedCategory);
+    }
+    
     interface ApiResponse {
       message: string | null;
       data: {
-        posts: CommunityBoardItemResponse[];
-        totalPages?: number;
-        totalElements?: number;
-        currentPage?: number;
+        posts: CommunityBoardItemResponse[],
+        itemCnt: number,
+        totalCnt: number,
+        totalPages: number,
+        currentPage: number,
       };
     }
 
     const response = await apiFetch<ApiResponse>(`/api/v1/posts?${queryParams.toString()}`);
     // const response = await apiFetch<ApiResponse>(`/mock/CommunityBoardListResponse.json`);
 
-    const communityBoardList: CommunityBoardItemProps[] = response.data.posts.map((post) => ({ ...post, image: undefined }));
-    console.log("board " ,communityBoardList)
+    const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
+    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post, image: undefined }));
+
     return {
       communityBoardList,
-      totalPages: response.data.totalPages,
-      totalElements: response.data.totalElements,
-      currentPage: response.data.currentPage,
+      itemCnt,
+      totalCnt,
+      totalPages,
+      currentPage,
     };
   },
 

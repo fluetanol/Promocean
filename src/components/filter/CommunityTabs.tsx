@@ -23,7 +23,7 @@ export default function CommunityTabs() {
   const currentTab = searchParams.get('category') || 'all';
 
   return (
-    <nav className="border-b border-gray-200 bg-white w-full">
+    <nav className="border-b border-gray-200 bg-background w-full">
       <ul className="flex space-x-6 px-8">
         {categories.map((cat) => {
           const href = `/community?category=${cat.category}`;

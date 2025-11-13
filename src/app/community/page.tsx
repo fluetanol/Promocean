@@ -33,12 +33,12 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
     ...(params.tag && { tag: params.tag }),
   };
 
-  const { communityBoardList } = await CommunityAPI.getCommunityBoardList(apiParams);
+  const { communityBoardList, itemCnt, totalCnt, totalPages, currentPage } = await CommunityAPI.getCommunityBoardList(apiParams);
 
   return (
     <div className="flex flex-col">
       <CommunityBoardSection communityBoardList={communityBoardList} />
-      <CommunityFooter />
+      <CommunityFooter itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
     </div>
   );
 }

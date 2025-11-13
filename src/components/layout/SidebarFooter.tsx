@@ -43,13 +43,13 @@ export default function SidebarFooter() {
       )}
 
       {/* Todo: 설정 필요 없으면 제거하기 */}
-      {isLoggedIn && (
+      {/* {isLoggedIn && (
       <SidebarItem 
         icon={<Cog9Tooth />}
         title="설정"
         href="/settings"
       />
-      )}
+      )} */}
       {isLoggedIn && (
         <SidebarItem 
           icon={<ArrowRightStartOnRectangle />}

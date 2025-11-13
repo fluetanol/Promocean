@@ -8,7 +8,7 @@ import SidebarSection from '@/components/section/SidebarSection'
 import SidebarFooter from '@/components/layout/SidebarFooter'
 import MagnifyingGlass from '@/components/icon/MagnifyingGlass'
 import Trophy from '@/components/icon/Trophy'
-import Megaphone from '@/components/icon/Megaphone'
+// import Megaphone from '@/components/icon/Megaphone'
 import User from '@/components/icon/User'
 import UserGroup from '@/components/icon/UserGroup'
 import { SidebarItemProps } from '@/types/itemType'
@@ -36,11 +36,11 @@ export default function Sidebar() {
     'title': '프롬프트 대회',
     'href': '/contest',
   },
-  {
-    'icon': <Megaphone />,
-    'title': '공지사항',
-    'href': '/community',
-  },
+  // {
+  //   'icon': <Megaphone />,
+  //   'title': '공지사항',
+  //   'href': '/community',
+  // },
 ]
 
   // 스페이스 섹션

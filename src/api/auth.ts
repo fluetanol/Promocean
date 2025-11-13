@@ -94,10 +94,13 @@ export const authAPI = {
     }
 
     // 응답 검증
-    if (!payload || (!payload.data && !payload.message)) {
-      throw new Error('회원가입 응답이 올바르지 않습니다.');
+    if (!payload) {
+      throw new Error('회원가입 응답이 없습니다.');
     }
-
+    
+    if (payload.message) {
+      throw new Error(payload.message);
+    }
     return;
   },
 

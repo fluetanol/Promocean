@@ -5,6 +5,7 @@ import { CommunityPostItemProps, HashtagItemProps } from "@/types/itemType";
 import CommunityHashtagSection from "@/components/section/CommunityHashtagSection";
 import CommunityPostUserProfileItem from "@/components/item/CommunityPostUserProfileItem";
 import CommunityPostCategoryTypeBadges from "@/components/item/CommunityPostCategoryTypeBadges";
+import CommunityPostButtonList from "@/components/list/CommunityPostButtonList";
 
 /**
  * CommunityPostDetailSection component
@@ -13,6 +14,7 @@ import CommunityPostCategoryTypeBadges from "@/components/item/CommunityPostCate
  */
 export default function CommunityPostDetailSection( { communityPostData, hashtagList }: { communityPostData: CommunityPostItemProps, hashtagList: HashtagItemProps[] } ) {
 
+
   return (
     <div className="p-8">
       
@@ -20,10 +22,11 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
       <div className="flex flex-col gap-3 border-b border-gray-200 pb-5">
 
         {/* 제목 */}
-        <div className="mb-3">
+        <div className="mb-3 flex flex-row items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">
             {communityPostData.title}
           </h1>
+          <CommunityPostButtonList author={communityPostData.author} />
         </div>
         
         {/* 해시태그, 카테고리/타입 및 사용자 정보 */}
