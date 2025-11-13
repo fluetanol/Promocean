@@ -34,7 +34,7 @@ public class AlarmRedisRepository {
         return ALARM_PREFIX + MEMBER_PREFIX + memberId;
     }
 
-    public AlarmDto saveNotification(AlarmReq alarmReq, Member member) {
+    public AlarmDto saveAlarm(AlarmReq alarmReq, Member member) {
         Long alarmId = redisTemplate.opsForValue().increment(ALARM_PREFIX + "seq");
         String key = getAlarmKey(alarmId);
 
@@ -110,7 +110,7 @@ public class AlarmRedisRepository {
     }
 
 
-    public void deleteNotification(Long memberId, Long alarmId) {
+    public void deleteAlarm(Long memberId, Long alarmId) {
         String alarmKey = getAlarmKey(alarmId);
         redisTemplate.delete(alarmKey);
 
@@ -118,7 +118,7 @@ public class AlarmRedisRepository {
         redisTemplate.opsForList().remove(alarmListKey, 1, alarmId.toString());
     }
 
-    public void deleteAllNotifications(Long memberId) {
+    public void deleteAllAlarms(Long memberId) {
         String alarmListKey = getAlarmListKey(memberId);
 
         // 1) 리스트 안의 모든 alarmId 가져오기

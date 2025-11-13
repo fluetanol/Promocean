@@ -51,7 +51,7 @@ public class AlarmService {
 
     public void send(Member receiver, AlarmReq alarmReq) {
         // 알람 정보 redis 저장
-        AlarmDto alarm = redisRepository.saveNotification(alarmReq, receiver);
+        AlarmDto alarm = redisRepository.saveAlarm(alarmReq, receiver);
 
         // SSE 알림 전송
         Map<String, SseEmitter> sseEmitters = emitterRepository
@@ -69,11 +69,11 @@ public class AlarmService {
     }
 
     public void deleteAllAlarms(CustomUserDetails userDetails){
-        redisRepository.deleteAllNotifications(userDetails.memberId());
+        redisRepository.deleteAllAlarms(userDetails.memberId());
     }
 
     public void deleteAlarm(CustomUserDetails userDetails, Long alarmId){
-        redisRepository.deleteNotification(userDetails.memberId(), alarmId);
+        redisRepository.deleteAlarm(userDetails.memberId(), alarmId);
     }
 
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
