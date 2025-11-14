@@ -49,10 +49,11 @@ public class VoteService {
                 .build();
 
         voteRepository.save(vote);
+        submission.increaseVoteCount();
     }
 
     @Transactional(readOnly = true)
-    public long getVoteCount(Submission submission) {
-        return voteRepository.countBySubmission_Id(submission.getId());
+    public boolean isVoted(Long submissionId, Long memberId) {
+        return voteRepository.existsBySubmission_IdAndMember_Id(submissionId, memberId);
     }
 }

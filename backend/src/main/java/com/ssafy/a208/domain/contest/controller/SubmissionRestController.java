@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,9 +59,10 @@ public class SubmissionRestController {
     @Operation(summary = "제출물 상세 조회 API", description = "제출물 정보를 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<SubmissionDetailRes>> getSubmissionDetail(
             @PathVariable Long contestId,
-            @PathVariable Long submissionId
+            @PathVariable Long submissionId,
+            @Nullable @AuthenticationPrincipal(errorOnInvalidType = false) CustomUserDetails customUserDetails
     ) {
-        SubmissionDetailRes res = submissionService.getSubmissionDetail(contestId, submissionId);
+        SubmissionDetailRes res = submissionService.getSubmissionDetail(contestId, submissionId, customUserDetails);
         return ApiResponse.ok(res);
     }
 
@@ -85,5 +87,15 @@ public class SubmissionRestController {
     ) {
         submissionService.deleteSubmission(contestId, submissionId, customUserDetails);
         return ApiResponse.ok();
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "내 제출물 조회 API", description = "내가 제출한 제출물을 조회하는 API입니다.")
+    public ResponseEntity<ApiResponse<SubmissionDetailRes>> getSubmissionDetail(
+            @PathVariable Long contestId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        SubmissionDetailRes res = submissionService.getMySubmission(contestId, customUserDetails);
+        return ApiResponse.ok(res);
     }
 }

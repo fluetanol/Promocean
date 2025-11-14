@@ -13,13 +13,14 @@ public record SubmissionDetailRes(
         String type,
         String result,
         long voteCnt,
+        boolean isVoted,
         LocalDateTime updatedAt
 ) {
     public static SubmissionDetailRes from(
             Submission submission,
             String fileUrl,
             String profileUrl,
-            long voteCnt
+            boolean isVoted
     ) {
         return new SubmissionDetailRes(
                 submission.getId(),
@@ -31,7 +32,8 @@ public record SubmissionDetailRes(
                 submission.getType() == PromptType.IMAGE
                         ? fileUrl
                         : submission.getResult(),
-                voteCnt,
+                submission.getVoteCount(),
+                isVoted,
                 submission.getUpdatedAt()
         );
     }

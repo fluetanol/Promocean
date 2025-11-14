@@ -8,6 +8,7 @@ import com.ssafy.a208.domain.contest.entity.Contest;
 import com.ssafy.a208.domain.contest.entity.Submission;
 import com.ssafy.a208.domain.contest.entity.SubmissionFile;
 import com.ssafy.a208.domain.contest.exception.ContestNotFoundException;
+import com.ssafy.a208.domain.contest.exception.DuplicateSubmissionException;
 import com.ssafy.a208.domain.contest.exception.SubmissionFileNotFoundException;
 import com.ssafy.a208.domain.contest.exception.SubmissionNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
@@ -56,6 +57,10 @@ public class SubmissionService {
                 .orElseThrow(ContestNotFoundException::new);
         contestValidator.validateSubmissionDate(contest);
 
+        if(submissionRepository.existsByContest_IdAndMember_Id(contestId, member.getId())) {
+            throw new DuplicateSubmissionException();
+        }
+
         PromptType type = contest.getType();
         Submission submission = Submission.builder()
                 .prompt(submissionCreateReq.prompt())
@@ -73,7 +78,7 @@ public class SubmissionService {
 
         submissionRepository.save(submission);
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), 0L);
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), false);
     }
 
     @Transactional(readOnly = true)
@@ -91,9 +96,11 @@ public class SubmissionService {
 
         page = Math.max(0, page - 1);
         Sort sort = switch (sorter) {
-            case "updatedDesc" -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "latest"   -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "oldest"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
             case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCnt");
-            default -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCnt");
+            default         -> Sort.by(Sort.Direction.DESC, "updatedAt");
         };
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -118,9 +125,7 @@ public class SubmissionService {
                                 : null;
                     }
 
-                    long voteCnt = voteService.getVoteCount(submission);
-
-                    return SubmissionListItem.from(submission, profileUrl, submissionUrl, voteCnt);
+                    return SubmissionListItem.from(submission, profileUrl, submissionUrl);
                 })
                 .toList();
 
@@ -130,7 +135,7 @@ public class SubmissionService {
     }
 
     @Transactional(readOnly = true)
-    public SubmissionDetailRes getSubmissionDetail(Long contestId, Long submissionId) {
+    public SubmissionDetailRes getSubmissionDetail(Long contestId, Long submissionId, CustomUserDetails customUserDetails) {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(ContestNotFoundException::new);
         Submission submission = submissionRepository.findById(submissionId)
@@ -146,9 +151,18 @@ public class SubmissionService {
             fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
         }
 
-        long voteCnt = voteService.getVoteCount(submission);
+        boolean isVoted = false;
+        if(customUserDetails != null) {
+            Member member = memberReader.getMemberById(customUserDetails.memberId());
+            isVoted = voteService.isVoted(submissionId, member.getId());
+        }
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), voteCnt);
+        return SubmissionDetailRes.from(
+                submission,
+                fileUrl,
+                s3Service.getCloudFrontUrl(profile.getFilePath()),
+                isVoted
+        );
     }
 
     @Transactional
@@ -202,5 +216,29 @@ public class SubmissionService {
         }
 
         submissionRepository.delete(submission);
+    }
+
+    @Transactional(readOnly = true)
+    public SubmissionDetailRes getMySubmission(Long contestId, CustomUserDetails customUserDetails) {
+        Member member = memberReader.getMemberById(customUserDetails.memberId());
+        Profile profile = profileReader.getProfile(member.getId());
+        Contest contest = contestRepository.findById(contestId)
+                .orElseThrow(ContestNotFoundException::new);
+        Submission submission = submissionRepository.findByContest_IdAndMember_Id(contestId, member.getId())
+                .orElseThrow(SubmissionNotFoundException::new);
+
+        String fileUrl = null;
+        if(submission.getType() == PromptType.IMAGE) {
+            SubmissionFile file = submissionFileService.getSubmissionFile(submission.getId())
+                    .orElseThrow(SubmissionFileNotFoundException::new);
+            fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
+        }
+
+        return SubmissionDetailRes.from(
+                submission,
+                fileUrl,
+                s3Service.getCloudFrontUrl(profile.getFilePath()),
+                voteService.isVoted(submission.getId(), member.getId())
+        );
     }
 }
