@@ -64,6 +64,16 @@ public class JwtProvider {
         return claims.get("email", String.class);
     }
 
+    public Long getMemberId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("id", Long.class);
+    }
+
     private Claims getClaims(Member member) {
         Claims claims = Jwts.claims();
 

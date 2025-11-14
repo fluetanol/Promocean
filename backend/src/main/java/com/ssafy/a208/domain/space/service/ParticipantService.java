@@ -1,5 +1,7 @@
 package com.ssafy.a208.domain.space.service;
 
+import com.ssafy.a208.domain.alarm.dto.AlarmReq;
+import com.ssafy.a208.domain.alarm.service.AlarmService;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.domain.member.service.ProfileService;
@@ -19,6 +21,7 @@ import com.ssafy.a208.domain.space.exception.space.SpaceAccessDeniedException;
 import com.ssafy.a208.domain.space.reader.ParticipantReader;
 import com.ssafy.a208.domain.space.reader.SpaceReader;
 import com.ssafy.a208.domain.space.repository.ParticipantRepository;
+import com.ssafy.a208.global.common.enums.AlarmCategory;
 import com.ssafy.a208.global.common.enums.ParticipantRole;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.List;
@@ -27,15 +30,18 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ParticipantService {
 
     private final SpaceReader spaceReader;
     private final MemberReader memberReader;
+    private final AlarmService alarmService;
     private final ProfileService profileService;
     private final ParticipantReader participantReader;
     private final ParticipantRepository participantRepository;
@@ -71,12 +77,22 @@ public class ParticipantService {
         List<Participant> participants = participantReqs.stream().map(
                         participant -> {
                             Member member = memberReader.getMemberByEmail(participant.email());
-                            return Participant.builder()
+                            Participant newParticipant = Participant.builder()
                                     .nickname(member.getNickname())
                                     .role(ParticipantRole.valueOf(participant.role()))
                                     .member(member)
                                     .space(space)
                                     .build();
+
+                            // 알림 전송
+                            AlarmReq req = AlarmReq.builder()
+                                    .category(AlarmCategory.TEAM_INVITATION)
+                                    .spaceId(space.getId())
+                                    .spaceName(space.getName()).build();
+                            alarmService.send(member, req);
+                            log.debug("{}에게 팀 초대 알림 전송 완료", member.getNickname());
+
+                            return newParticipant;
                         })
                 .toList();
         participantRepository.saveAll(participants);
