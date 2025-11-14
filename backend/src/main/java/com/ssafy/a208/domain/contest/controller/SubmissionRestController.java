@@ -86,4 +86,14 @@ public class SubmissionRestController {
         submissionService.deleteSubmission(contestId, submissionId, customUserDetails);
         return ApiResponse.ok();
     }
+
+    @GetMapping("/me")
+    @Operation(summary = "내 제출물 조회 API", description = "내가 제출한 제출물을 조회하는 API입니다.")
+    public ResponseEntity<ApiResponse<SubmissionDetailRes>> getSubmissionDetail(
+            @PathVariable Long contestId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        SubmissionDetailRes res = submissionService.getMySubmission(contestId, customUserDetails);
+        return ApiResponse.ok(res);
+    }
 }

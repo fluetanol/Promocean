@@ -203,4 +203,24 @@ public class SubmissionService {
 
         submissionRepository.delete(submission);
     }
+
+    @Transactional(readOnly = true)
+    public SubmissionDetailRes getMySubmission(Long contestId, CustomUserDetails customUserDetails) {
+        Member member = memberReader.getMemberById(customUserDetails.memberId());
+        Profile profile = profileReader.getProfile(member.getId());
+        Contest contest = contestRepository.findById(contestId)
+                .orElseThrow(ContestNotFoundException::new);
+        Submission submission = submissionRepository.findByContest_IdAndMember_Id(contestId, member.getId())
+                .orElseThrow(SubmissionNotFoundException::new);
+        long voteCnt = voteService.getVoteCount(submission);
+
+        String fileUrl = null;
+        if(submission.getType() == PromptType.IMAGE) {
+            SubmissionFile file = submissionFileService.getSubmissionFile(submission.getId())
+                    .orElseThrow(SubmissionFileNotFoundException::new);
+            fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
+        }
+
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), voteCnt);
+    }
 }
