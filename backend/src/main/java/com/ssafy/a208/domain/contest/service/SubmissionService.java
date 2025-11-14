@@ -96,11 +96,11 @@ public class SubmissionService {
 
         page = Math.max(0, page - 1);
         Sort sort = switch (sorter) {
-            case "updatedDesc"  -> Sort.by(Sort.Direction.DESC, "updatedAt");
-            case "updatedAsc"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
-            case "voteDesc"     -> Sort.by(Sort.Direction.DESC, "voteCnt");
-            case "voteAsc"      -> Sort.by(Sort.Direction.ASC, "voteCnt");
-            default             -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "latest"   -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "oldest"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
+            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCnt");
+            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCnt");
+            default         -> Sort.by(Sort.Direction.DESC, "updatedAt");
         };
         Pageable pageable = PageRequest.of(page, size, sort);
 
