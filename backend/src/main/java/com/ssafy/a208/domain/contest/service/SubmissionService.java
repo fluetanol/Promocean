@@ -78,7 +78,7 @@ public class SubmissionService {
 
         submissionRepository.save(submission);
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), false);
     }
 
     @Transactional(readOnly = true)
@@ -135,7 +135,7 @@ public class SubmissionService {
     }
 
     @Transactional(readOnly = true)
-    public SubmissionDetailRes getSubmissionDetail(Long contestId, Long submissionId) {
+    public SubmissionDetailRes getSubmissionDetail(Long contestId, Long submissionId, CustomUserDetails customUserDetails) {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(ContestNotFoundException::new);
         Submission submission = submissionRepository.findById(submissionId)
@@ -151,7 +151,18 @@ public class SubmissionService {
             fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
         }
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
+        boolean isVoted = false;
+        if(customUserDetails != null) {
+            Member member = memberReader.getMemberById(customUserDetails.memberId());
+            isVoted = voteService.isVoted(submissionId, member.getId());
+        }
+
+        return SubmissionDetailRes.from(
+                submission,
+                fileUrl,
+                s3Service.getCloudFrontUrl(profile.getFilePath()),
+                isVoted
+        );
     }
 
     @Transactional
@@ -223,6 +234,11 @@ public class SubmissionService {
             fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
         }
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
+        return SubmissionDetailRes.from(
+                submission,
+                fileUrl,
+                s3Service.getCloudFrontUrl(profile.getFilePath()),
+                voteService.isVoted(submission.getId(), member.getId())
+        );
     }
 }
