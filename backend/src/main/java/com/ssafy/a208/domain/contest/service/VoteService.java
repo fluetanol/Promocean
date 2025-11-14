@@ -52,6 +52,7 @@ public class VoteService {
         submission.increaseVoteCount();
     }
 
+    @Transactional(readOnly = true)
     public boolean isVoted(Long submissionId, Long memberId) {
         return voteRepository.existsBySubmission_IdAndMember_Id(submissionId, memberId);
     }
