@@ -63,8 +63,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     //redis
-    implementation 'org.springframework.data:spring-data-redis'
-    implementation 'io.lettuce:lettuce-core'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 sourceSets {
