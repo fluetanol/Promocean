@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public record ContestListItem(
         Long contestId,
         String title,
-        String host,
+        String author,
         String profileUrl,
         LocalDateTime startAt,
         LocalDateTime endAt,
