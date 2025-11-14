@@ -78,7 +78,7 @@ public class SubmissionService {
 
         submissionRepository.save(submission);
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), 0L);
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
     }
 
     @Transactional(readOnly = true)
@@ -96,9 +96,11 @@ public class SubmissionService {
 
         page = Math.max(0, page - 1);
         Sort sort = switch (sorter) {
-            case "updatedDesc" -> Sort.by(Sort.Direction.DESC, "updatedAt");
-            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCnt");
-            default -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "updatedDesc"  -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "updatedAsc"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
+            case "voteDesc"     -> Sort.by(Sort.Direction.DESC, "voteCnt");
+            case "voteAsc"      -> Sort.by(Sort.Direction.ASC, "voteCnt");
+            default             -> Sort.by(Sort.Direction.DESC, "updatedAt");
         };
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -123,9 +125,7 @@ public class SubmissionService {
                                 : null;
                     }
 
-                    long voteCnt = voteService.getVoteCount(submission);
-
-                    return SubmissionListItem.from(submission, profileUrl, submissionUrl, voteCnt);
+                    return SubmissionListItem.from(submission, profileUrl, submissionUrl);
                 })
                 .toList();
 
@@ -151,9 +151,7 @@ public class SubmissionService {
             fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
         }
 
-        long voteCnt = voteService.getVoteCount(submission);
-
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), voteCnt);
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
     }
 
     @Transactional
@@ -217,7 +215,6 @@ public class SubmissionService {
                 .orElseThrow(ContestNotFoundException::new);
         Submission submission = submissionRepository.findByContest_IdAndMember_Id(contestId, member.getId())
                 .orElseThrow(SubmissionNotFoundException::new);
-        long voteCnt = voteService.getVoteCount(submission);
 
         String fileUrl = null;
         if(submission.getType() == PromptType.IMAGE) {
@@ -226,6 +223,6 @@ public class SubmissionService {
             fileUrl = s3Service.getCloudFrontUrl(file.getFilePath());
         }
 
-        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), voteCnt);
+        return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()));
     }
 }

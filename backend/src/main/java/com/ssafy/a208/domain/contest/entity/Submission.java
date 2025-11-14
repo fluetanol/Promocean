@@ -44,6 +44,10 @@ public class Submission extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PromptType type;
 
+    @Comment("받은 투표 수")
+    @Column(nullable = false)
+    private long voteCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id", nullable = false)
     private Contest contest;
@@ -67,4 +71,6 @@ public class Submission extends BaseEntity {
         this.description = description;
         this.result = result;
     }
+
+    public void increaseVoteCount() { this.voteCount++; }
 }

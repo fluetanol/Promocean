@@ -16,8 +16,7 @@ public record SubmissionListItem(
     public static SubmissionListItem from(
             Submission submission,
             String profileUrl,
-            String submissionUrl,
-            long voteCnt
+            String submissionUrl
     ) {
         return new SubmissionListItem(
                 submission.getId(),
@@ -26,7 +25,7 @@ public record SubmissionListItem(
                 submission.getDescription(),
                 submission.getType().getName(),
                 submissionUrl,
-                voteCnt,
+                submission.getVoteCount(),
                 submission.getUpdatedAt()
         );
     }
