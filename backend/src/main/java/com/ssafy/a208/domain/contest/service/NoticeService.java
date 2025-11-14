@@ -1,5 +1,7 @@
 package com.ssafy.a208.domain.contest.service;
 
+import com.ssafy.a208.domain.alarm.dto.AlarmReq;
+import com.ssafy.a208.domain.alarm.service.AlarmService;
 import com.ssafy.a208.domain.contest.dto.NoticeCreateReq;
 import com.ssafy.a208.domain.contest.dto.NoticeDetailRes;
 import com.ssafy.a208.domain.contest.dto.NoticeListRes;
@@ -9,9 +11,11 @@ import com.ssafy.a208.domain.contest.exception.ContestNotFoundException;
 import com.ssafy.a208.domain.contest.exception.NoticeNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
 import com.ssafy.a208.domain.contest.repository.NoticeRepository;
+import com.ssafy.a208.domain.contest.repository.SubmissionRepository;
 import com.ssafy.a208.domain.contest.util.ContestValidator;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.reader.MemberReader;
+import com.ssafy.a208.global.common.enums.AlarmCategory;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NoticeService {
 
+    private final AlarmService alarmService;
     private final NoticeRepository noticeRepository;
     private final ContestRepository contestRepository;
     private final MemberReader memberReader;
+    private final SubmissionRepository submissionRepository;
 
     private final ContestValidator contestValidator;
 
@@ -49,6 +55,18 @@ public class NoticeService {
                 .build();
 
         noticeRepository.save(notice);
+
+        // 알림 전송
+        AlarmReq req = AlarmReq.builder().category(AlarmCategory.CONTEST_NOTICE)
+                .contestId(contestId)
+                .contestTitle(contest.getTitle())
+                .noticeId(notice.getId())
+                .noticeTitle(notice.getTitle())
+                .build();
+        List<Member> members = submissionRepository.findAllMemberByContest(contestId);
+        for (Member member : members) {
+            alarmService.send(member, req);
+        }
 
         return NoticeDetailRes.from(notice);
     }

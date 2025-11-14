@@ -4,6 +4,7 @@ package com.ssafy.a208.global.security.config;
 import com.ssafy.a208.global.security.filter.JwtFilter;
 import com.ssafy.a208.global.security.handler.JwtAccessDeniedHandler;
 import com.ssafy.a208.global.security.handler.JwtAuthenticationEntryPoint;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -46,12 +46,14 @@ public class SecurityConfig {
     };
     private static final String MIGRATION_URL = "/api/v1/admin/**";
     private static final String TAG_URL = "/api/v1/tags/**";
+    private static final String CONNECT_ALARM_URL = "/api/v1/alarms/connect";
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http)
             throws Exception {
@@ -82,6 +84,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, POST_URLS).permitAll()
                 .requestMatchers(MIGRATION_URL).permitAll()
                 .requestMatchers(TAG_URL).permitAll()
+                .requestMatchers(CONNECT_ALARM_URL).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated());
@@ -89,19 +92,21 @@ public class SecurityConfig {
         return http.build();
     }
 
-        @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
                 "https://promocean.co.kr",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://localhost:5500"
         ));
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         configuration.setAllowedHeaders(List.of("*"));
-        
+
         configuration.setExposedHeaders(List.of("Authorization"));
 
         configuration.setAllowCredentials(true);

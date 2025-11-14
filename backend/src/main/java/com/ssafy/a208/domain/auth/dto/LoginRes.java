@@ -8,7 +8,8 @@ public record LoginRes(
         String nickname,
         String email,
         String profileUrl,
-        Long personalSpaceId
+        Long personalSpaceId,
+        boolean isRead
 ) {
 
 }
