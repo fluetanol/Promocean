@@ -11,6 +11,7 @@ import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
 export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, image }: CommunityBoardItemProps) {
   
   const imgUrl = image || `/assets/img_random${postId % 21}.png`;
+  const limitCnt = 99;
 
   return (
     <Link
@@ -73,11 +74,17 @@ export default function CommunityBoardItem({ postId, author, profileUrl, title, 
           <div className="flex flex-row items-center gap-2 mt-2">
             <div className="flex items-center gap-1 transition-colors">
               <Heart />
+              {likeCnt > limitCnt ?
+              <span className="text-sm">+{limitCnt}</span> :
               <span className="text-sm">{likeCnt}</span>
+              }
             </div>
             <div className="flex items-center gap-1 transition-colors">
               <ChatBubbleBottomCenterText />
+              {replyCnt > limitCnt ?
+              <span className="text-sm">+{limitCnt}</span> :
               <span className="text-sm">{replyCnt}</span>
+              }
             </div>
           </div>
         </div>

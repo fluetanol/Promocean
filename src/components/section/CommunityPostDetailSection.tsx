@@ -6,6 +6,7 @@ import CommunityHashtagSection from "@/components/section/CommunityHashtagSectio
 import CommunityPostUserProfileItem from "@/components/item/CommunityPostUserProfileItem";
 import CommunityPostCategoryTypeBadges from "@/components/item/CommunityPostCategoryTypeBadges";
 import CommunityPostButtonList from "@/components/list/CommunityPostButtonList";
+import MarkdownViewer from "@/components/etc/MarkdownViewer";
 
 /**
  * CommunityPostDetailSection component
@@ -13,7 +14,6 @@ import CommunityPostButtonList from "@/components/list/CommunityPostButtonList";
  * @returns {React.ReactNode}
  */
 export default function CommunityPostDetailSection( { communityPostData, hashtagList }: { communityPostData: CommunityPostItemProps, hashtagList: HashtagItemProps[] } ) {
-
 
   return (
     <div className="p-8">
@@ -55,7 +55,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {communityPostData.description && (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">설명</h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{communityPostData.description}</p>
+            <MarkdownViewer content={communityPostData.description} />
           </div>
         )}
 
@@ -63,7 +63,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {communityPostData.prompt && (
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-1">프롬프트</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{communityPostData.prompt}</p>
+            <MarkdownViewer content={communityPostData.prompt} />
           </div>
         )}
 
@@ -71,16 +71,18 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {(communityPostData.sampleQuestion || communityPostData.sampleAnswer) && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-gray-900">예시</h2>
+
             {communityPostData.sampleQuestion && (
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="text-sm font-medium text-blue-900 mb-1">질문</h3>
-                <p className="text-gray-700">{communityPostData.sampleQuestion}</p>
+                <MarkdownViewer content={communityPostData.sampleQuestion} />
               </div>
             )}
+
             {communityPostData.sampleAnswer && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <h3 className="text-sm font-medium text-green-900 mb-1">답변</h3>
-                <p className="text-gray-700">{communityPostData.sampleAnswer}</p>
+                <MarkdownViewer content={communityPostData.sampleAnswer} />
               </div>
             )}
           </div>
