@@ -8,6 +8,7 @@ import com.ssafy.a208.domain.contest.entity.Contest;
 import com.ssafy.a208.domain.contest.entity.Submission;
 import com.ssafy.a208.domain.contest.entity.SubmissionFile;
 import com.ssafy.a208.domain.contest.exception.ContestNotFoundException;
+import com.ssafy.a208.domain.contest.exception.DuplicateSubmissionException;
 import com.ssafy.a208.domain.contest.exception.SubmissionFileNotFoundException;
 import com.ssafy.a208.domain.contest.exception.SubmissionNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
@@ -55,6 +56,10 @@ public class SubmissionService {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(ContestNotFoundException::new);
         contestValidator.validateSubmissionDate(contest);
+
+        if(submissionRepository.existsByContest_IdAndMember_Id(contestId, member.getId())) {
+            throw new DuplicateSubmissionException();
+        }
 
         PromptType type = contest.getType();
         Submission submission = Submission.builder()

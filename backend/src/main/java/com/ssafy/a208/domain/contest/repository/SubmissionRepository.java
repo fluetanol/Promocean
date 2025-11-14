@@ -15,4 +15,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     Page<Submission> findByContest_IdAndMember_Nickname(Long contestId, String nickname, Pageable pageable);
 
     Optional<Submission> findByContest_IdAndMember_Id(Long contestId, Long memberId);
+
+    boolean existsByContest_IdAndMember_Id(Long contestId, Long memberId);
 }
