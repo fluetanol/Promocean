@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,6 +51,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    @Comment("알림 조회 시각")
+    @Column(nullable = false)
+    private LocalDateTime readTime;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personal_space_id", nullable = false)
     private Space personalSpace;
@@ -66,6 +71,11 @@ public class Member extends BaseEntity {
         this.usableCnt = usableCnt;
         this.role = MemberRole.USER;
         this.personalSpace = personalSpace;
+        this.readTime = LocalDateTime.now();
+    }
+
+    public void updateReadTime(){
+        this.readTime = LocalDateTime.now();
     }
 
     public void updateNickname(String nickname) {

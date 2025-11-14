@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -107,6 +109,48 @@ public class AlarmRedisRepository {
         }
 
         return AlarmListRes.builder().alarms(alarms).build();
+    }
+
+    public Optional<AlarmInfoRes> findLatestAlarm(Long memberId) {
+        String alarmListKey = getAlarmListKey(memberId);
+
+        List<Object> ids = redisTemplate.opsForList().range(alarmListKey, 0, -1);
+        AlarmDto result = null;
+
+        for (Object idObj : ids) {
+            String id = idObj.toString();
+            String alarmKey = getAlarmKey(Long.parseLong(id));
+
+            Object alarmObj = redisTemplate.opsForValue().get(alarmKey);
+
+            if (alarmObj != null) {
+                result = (AlarmDto) alarmObj;
+                break;
+            } else {
+                redisTemplate.opsForList().remove(alarmListKey, 1, id);
+            }
+        }
+
+        if (Objects.isNull(result)) {
+            return Optional.empty();
+        }
+
+        LocalDateTime time = Instant.ofEpochMilli(result.createdAt())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        return Optional.of(AlarmInfoRes.builder()
+                .alarmId(result.alarmId())
+                .message(result.message())
+                .category(result.category().name())
+                .createdAt(time)
+                .spaceId(result.spaceId())
+                .contestId(result.contestId())
+                .noticeId(result.noticeId())
+                .postId(result.postId())
+                .replyId(result.replyId())
+                .build()
+        );
     }
 
 

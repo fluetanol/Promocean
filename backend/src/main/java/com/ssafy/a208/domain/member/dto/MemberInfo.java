@@ -7,7 +7,8 @@ public record MemberInfo(
         String nickname,
         String email,
         String profileUrl,
-        Long personalSpaceId
+        Long personalSpaceId,
+        boolean isRead
 ) {
 
 }

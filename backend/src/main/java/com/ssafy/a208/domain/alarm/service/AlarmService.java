@@ -5,6 +5,7 @@ import com.ssafy.a208.domain.alarm.dto.AlarmListRes;
 import com.ssafy.a208.domain.alarm.dto.AlarmReq;
 import com.ssafy.a208.domain.alarm.repository.EmitterRepository;
 import com.ssafy.a208.domain.member.entity.Member;
+import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.global.common.dto.ApiResponse;
 import com.ssafy.a208.global.redis.repository.AlarmRedisRepository;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -26,6 +27,7 @@ public class AlarmService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private final JwtProvider jwtProvider;
+    private final MemberReader memberReader;
 
     public SseEmitter subscribe(String token, String lastEventId) {
         //회원 찾기
@@ -33,7 +35,6 @@ public class AlarmService {
 
         // 고유한 아이디 생성
         String emitterId = memberId + "_" + System.currentTimeMillis();
-        log.info(emitterId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         //시간 초과나 비동기 요청이 안되면 자동으로 삭제
@@ -70,6 +71,10 @@ public class AlarmService {
     }
 
     public AlarmListRes getAlarms(CustomUserDetails userDetails) {
+        //읽은 시간 업데이트
+        Member member = memberReader.getMemberById(userDetails.memberId());
+        member.updateReadTime();
+
         return redisRepository.findAllByMemberId(userDetails.memberId());
     }
 
