@@ -11,7 +11,7 @@ import { Calendar } from 'lucide-react'
  * @description ContestCardItem component is a contest card item component that displays the contest card item content
  * @returns {React.ReactNode}
  */
-export default function ContestCardItem({ contestId, host, profileUrl, title, startAt, endAt, status, createdAt, updatedAt }: ContestCardItemProps) {
+export default function ContestCardItem({ contestId, author, profileUrl, title, startAt, endAt, status, createdAt, updatedAt }: ContestCardItemProps) {
   
   // status 한글을 영문 ENUM으로 변환 (UserSimpleProfile용)
   const statusMap: Record<string, 'SCHEDULED' | 'ONGOING' | 'VOTING' | 'FINISHED'> = {
@@ -33,7 +33,7 @@ export default function ContestCardItem({ contestId, host, profileUrl, title, st
   // endAt 포맷팅 (YYYY.MM.DD)
   const endDateObj = new Date(endAt);
   const formattedEndDate = `${endDateObj.getFullYear()}.${String(endDateObj.getMonth() + 1).padStart(2, '0')}.${String(endDateObj.getDate()).padStart(2, '0')}`;
-
+  const imgUrl = `/assets/img_random${contestId % 21}.png`;
   return (
     <Link href={`/contest/${contestId}?tab=detail`} className="block group">
       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
@@ -41,7 +41,7 @@ export default function ContestCardItem({ contestId, host, profileUrl, title, st
         {/* Image Section */}
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={profileUrl}
+            src={imgUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -83,11 +83,11 @@ export default function ContestCardItem({ contestId, host, profileUrl, title, st
             </span>
           </div>
             
-          {/* Host */}
+          {/* Author */}
           {/* <div className="mb-4">
             <UserSimpleProfile
               profileUrl={profileUrl}
-              nickname={host}
+              nickname={author}
               imageSize="sm"
               textSize="xs"
               showName={true}

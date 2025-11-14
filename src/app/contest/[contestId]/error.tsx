@@ -25,7 +25,6 @@ export default function Error({ error, reset }: ErrorProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ContestHeader />
       <div className="max-w-7xl mx-auto px-8 py-16">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <div className="mb-6">

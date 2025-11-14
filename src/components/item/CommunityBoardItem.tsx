@@ -8,9 +8,9 @@ import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
 import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
 
-export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, image }: CommunityBoardItemProps) {
+export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
   
-  const imgUrl = image || `/assets/img_random${postId % 21}.png`;
+  const imgUrl = fileUrl || `/assets/img_random${postId % 21}.png`;
   const limitCnt = 99;
 
   return (

@@ -93,7 +93,7 @@ export const ContestAPI = {
 
     interface ContestApiResponse {
       contestId: number;
-      host: string;
+      author: string;
       profileUrl: string;
       title: string;
       startAt: string;
@@ -107,41 +107,31 @@ export const ContestAPI = {
       message: string | null;
       data: {
         contests: ContestApiResponse[];
+        itemCnt: number;
+        totalCnt: number;
+        totalPages: number;
+        currentPage: number;
       };
     }
 
-    const response = await fetch(`http://localhost:3000/mock/ContestCardList.json`, {
-      cache: "no-store",
-    }).then(res => res.json());
-    return {
-      contestCardList: response.data.contests,
-    };
+    const response = await apiFetch<ApiResponse>(`/api/v1/contests?${queryParams.toString()}`);
+    
+    
+    const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data;
 
-    try {
-      const response = await apiFetch<ApiResponse>(`/api/v1/contests?${queryParams.toString()}`);
-      
-      // API 응답을 그대로 반환 (필드명 변경 없이)
-      const contestCardList: ContestCardItemProps[] = (response.data.contests || []).map((contest) => ({
-        contestId: contest.contestId,
-        host: contest.host,
-        profileUrl: contest.profileUrl,
-        title: contest.title,
-        startAt: contest.startAt,
-        endAt: contest.endAt,
-        status: contest.status,
-        createdAt: contest.createdAt,
-        updatedAt: contest.updatedAt,
-      }));
+    const contestCardList: ContestCardItemProps[] = contests.map((contest) => ({
+      contestId: contest.contestId,
+      author: contest.author,
+      profileUrl: contest.profileUrl,
+      title: contest.title,
+      startAt: contest.startAt,
+      endAt: contest.endAt,
+      status: contest.status,
+      createdAt: contest.createdAt,
+      updatedAt: contest.updatedAt,
+    }));
 
-      return {
-        contestCardList,
-      };
-    } catch (error) {
-      console.error('대회 목록 조회 실패:', error);
-      return {
-        contestCardList: [],
-      };
-    }
+    return { contestCardList, itemCnt, totalCnt, totalPages, currentPage };
   },
 
   /**

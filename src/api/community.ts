@@ -106,7 +106,7 @@ export const CommunityAPI = {
     // const response = await apiFetch<ApiResponse>(`/mock/CommunityBoardListResponse.json`);
 
     const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
-    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post, image: undefined }));
+    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post, fileUrl: undefined }));
 
     return {
       communityBoardList,

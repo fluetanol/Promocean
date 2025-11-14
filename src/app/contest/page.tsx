@@ -33,14 +33,12 @@ export default async function ContestPage({ searchParams }: ContestPageProps) {
     ...(params.tag && { tag: params.tag }),
   };
 
-  const { contestCardList } = await ContestAPI.getContestCardList(apiParams);
+  const { contestCardList, itemCnt, totalCnt, totalPages, currentPage } = await ContestAPI.getContestCardList(apiParams);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* <ContestHeroSection /> */}
-      <ContestHeader />
+    <>
       <ContestCardSection contestCardList={contestCardList} />
-      <ContestFooter />
-    </div>
+      <ContestFooter itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
+    </>
   );
 }

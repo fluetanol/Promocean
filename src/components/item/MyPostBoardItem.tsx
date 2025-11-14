@@ -12,7 +12,7 @@ import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenter
  * @description 내 글 목록에서 사용하는 게시글 아이템 컴포넌트 (프로필 정보 제외)
  * @returns {React.ReactNode}
  */
-export default function MyPostBoardItem({ postId, title, category, tags, likeCnt, replyCnt, image }: CommunityBoardItemProps) {
+export default function MyPostBoardItem({ postId, title, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
   return (
     <Link
       href={`/community/${postId}`}
@@ -20,9 +20,9 @@ export default function MyPostBoardItem({ postId, title, category, tags, likeCnt
     >
       {/* 왼쪽 : 이미지 영역 */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-100">
-        {image ? (
+        {fileUrl ? (
           <Image
-            src={image}
+            src={fileUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"

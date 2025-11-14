@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "typeRoots": ["./types", "./node_modules/@types"],
+    "types": ["react", "react-dom", "node", "next"],
     "target": "ES2017",
     "lib": [
       "dom",

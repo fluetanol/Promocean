@@ -30,10 +30,10 @@ export default function CommunityFooter({ itemCnt, totalCnt, totalPages, current
 
   const params = {
     page: currentPage,
-    ...Object.fromEntries(
+      ...Object.fromEntries(
       ["category", "sorter", "author", "title", "tag"]
         .map((key) => [key, searchParams.get(key)])
-        .filter(([_, value]) => value)
+        .filter(([, value]) => value)
     ),
   };
 
@@ -65,10 +65,10 @@ export default function CommunityFooter({ itemCnt, totalCnt, totalPages, current
 
       {/* 중앙: 페이지네이션 */}
       <div className="flex justify-center">
-        <div className="join overflow-hidden rounded-lg border border-gray-300">
+        <div className="flex overflow-hidden rounded-lg border border-gray-300">
           {/* 이전 */}
           <button
-            className={`join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none ${
+            className={`px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 border-r border-gray-300 transition-colors ${
               startPage === 1 ? "opacity-50 cursor-not-allowed" : ""
             }`}
             onClick={handlePreviousPage}
@@ -80,24 +80,25 @@ export default function CommunityFooter({ itemCnt, totalCnt, totalPages, current
           {/* 페이지 번호 */}
           {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
             (pageNum) => (
-              <input
+              <button
                 key={pageNum}
-                type="radio"
-                name="page"
+                type="button"
                 aria-label={pageNum.toString()}
-                className={`join-item btn btn-square bg-background text-text hover:bg-gray-100 border-none ${
+                className={`w-10 h-10 flex items-center justify-center border-r border-gray-300 last:border-r-0 transition-colors ${
                   pageNum === currentPage
-                    ? "btn-active bg-primary text-white rounded-md"
-                    : "rounded-none"
+                    ? "bg-primary text-white font-medium"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
                 }`}
                 onClick={() => handlePageChange(pageNum)}
-              />
+              >
+                {pageNum}
+              </button>
             )
           )}
 
           {/* 다음 */}
           <button
-            className={`join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none ${
+            className={`px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 border-l border-gray-300 transition-colors ${
               endPage >= totalPages ? "opacity-50 cursor-not-allowed" : ""
             }`}
             onClick={handleNextPage}
