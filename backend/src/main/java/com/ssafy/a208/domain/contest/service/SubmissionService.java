@@ -87,7 +87,8 @@ public class SubmissionService {
             int page,
             int size,
             String sorter,
-            String filterAuthor
+            String filterAuthor,
+            String filterKeyword
     ) {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(ContestNotFoundException::new);
@@ -104,9 +105,22 @@ public class SubmissionService {
         };
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Submission> list = (filterAuthor == null || filterAuthor.trim().isEmpty())
-                ? submissionRepository.findByContest_Id(contestId, pageable)
-                : submissionRepository.findByContest_IdAndMember_Nickname(contestId, filterAuthor, pageable);
+        Page<Submission> list;
+        String author = filterAuthor.trim();
+        String keyword = filterKeyword.trim();
+        boolean authorFlag = !author.isEmpty();
+        boolean keywordFlag = !keyword.isEmpty();
+
+        if(authorFlag && keywordFlag) {
+            list = submissionRepository.findByContest_IdAndMember_NicknameAndDescriptionContainingIgnoreCase(
+                    contestId, author, keyword, pageable);
+        } else if(!authorFlag && keywordFlag) {
+            list = submissionRepository.findByContest_IdAndDescriptionContainingIgnoreCase(contestId, keyword, pageable);
+        } else if(authorFlag) {
+            list = submissionRepository.findByContest_IdAndMember_Nickname(contestId, author, pageable);
+        } else {
+            list = submissionRepository.findByContest_Id(contestId, pageable);
+        }
 
         List<SubmissionListItem> submissionListRes = list.getContent().stream()
                 .map(submission -> {

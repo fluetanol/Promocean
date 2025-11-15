@@ -18,6 +18,19 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     Page<Submission> findByContest_IdAndMember_Nickname(Long contestId, String nickname, Pageable pageable);
 
+    Page<Submission> findByContest_IdAndDescriptionContainingIgnoreCase(
+            Long contestId,
+            String keyword,
+            Pageable pageable
+    );
+
+    Page<Submission> findByContest_IdAndMember_NicknameAndDescriptionContainingIgnoreCase(
+            Long contestId,
+            String nickname,
+            String keyword,
+            Pageable pageable
+    );
+
     Optional<Submission> findByContest_IdAndMember_Id(Long contestId, Long memberId);
 
     boolean existsByContest_IdAndMember_Id(Long contestId, Long memberId);
