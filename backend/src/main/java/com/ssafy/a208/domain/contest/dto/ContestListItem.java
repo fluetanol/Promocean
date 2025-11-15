@@ -10,6 +10,7 @@ public record ContestListItem(
         String profileUrl,
         LocalDateTime startAt,
         LocalDateTime endAt,
+        LocalDateTime voteEndAt,
         String status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -22,6 +23,7 @@ public record ContestListItem(
                 profileUrl,
                 contest.getStartAt(),
                 contest.getEndAt(),
+                contest.getVoteEndAt(),
                 contest.getStatus().getName(),
                 contest.getCreatedAt(),
                 contest.getUpdatedAt()
