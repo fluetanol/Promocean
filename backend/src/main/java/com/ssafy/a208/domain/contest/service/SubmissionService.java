@@ -1,5 +1,6 @@
 package com.ssafy.a208.domain.contest.service;
 
+import com.ssafy.a208.domain.contest.document.SubmissionDocument;
 import com.ssafy.a208.domain.contest.dto.SubmissionCreateReq;
 import com.ssafy.a208.domain.contest.dto.SubmissionDetailRes;
 import com.ssafy.a208.domain.contest.dto.SubmissionListItem;
@@ -12,12 +13,14 @@ import com.ssafy.a208.domain.contest.exception.DuplicateSubmissionException;
 import com.ssafy.a208.domain.contest.exception.SubmissionFileNotFoundException;
 import com.ssafy.a208.domain.contest.exception.SubmissionNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
+import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.contest.repository.SubmissionRepository;
 import com.ssafy.a208.domain.contest.util.ContestValidator;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.entity.Profile;
 import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.domain.member.reader.ProfileReader;
+import com.ssafy.a208.domain.member.repository.MemberRepository;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.image.service.S3Service;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -36,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
+    private final SubmissionElasticsearchRepositoryImpl submissionSearchRepository;
     private final ContestRepository contestRepository;
     private final MemberReader memberReader;
     private final ProfileReader profileReader;
@@ -81,8 +85,9 @@ public class SubmissionService {
         return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), false);
     }
 
+    @Deprecated
     @Transactional(readOnly = true)
-    public SubmissionListRes getSubmissionList(
+    public SubmissionListRes getSubmissionListLegacy(
             Long contestId,
             int page,
             int size,
@@ -99,8 +104,8 @@ public class SubmissionService {
         Sort sort = switch (sorter) {
             case "latest"   -> Sort.by(Sort.Direction.DESC, "updatedAt");
             case "oldest"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
-            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCnt");
-            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCnt");
+            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCount");
+            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCount");
             default         -> Sort.by(Sort.Direction.DESC, "updatedAt");
         };
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -139,11 +144,43 @@ public class SubmissionService {
                                 : null;
                     }
 
-                    return SubmissionListItem.from(submission, profileUrl, submissionUrl);
+                    return SubmissionListItem.fromLegacy(submission, profileUrl, submissionUrl);
                 })
                 .toList();
 
         Page<SubmissionListItem> submissionItems = new PageImpl<>(submissionListRes, pageable, list.getTotalElements());
+
+        return SubmissionListRes.from(submissionItems);
+    }
+
+    @Transactional(readOnly = true)
+    public SubmissionListRes getSubmissionList(
+            Long contestId,
+            int page,
+            int size,
+            String sorter,
+            String filterAuthor,
+            String filterKeyword
+    ) {
+        Contest contest = contestRepository.findById(contestId)
+                .orElseThrow(ContestNotFoundException::new);
+
+        contestValidator.validateViewDate(contest);
+
+        Page<SubmissionDocument> submissionDocuments = submissionSearchRepository.searchSubmissions(
+                contestId, page, size, sorter, filterAuthor, filterKeyword
+        );
+
+        Page<SubmissionListItem> submissionItems = submissionDocuments.map(doc -> {
+            String profileUrl = s3Service.getCloudFrontUrl(doc.getProfilePath());
+
+            String submissionUrl = null;
+            if (doc.getType() == PromptType.IMAGE) {
+                submissionUrl = s3Service.getCloudFrontUrl(doc.getFilePath());
+            }
+
+            return SubmissionListItem.from(doc, profileUrl, submissionUrl);
+        });
 
         return SubmissionListRes.from(submissionItems);
     }
