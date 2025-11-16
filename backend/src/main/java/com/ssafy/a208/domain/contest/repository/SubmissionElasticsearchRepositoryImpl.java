@@ -8,16 +8,20 @@ import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.elasticsearch.core.document.Document;
+import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Repository
 @RequiredArgsConstructor
-public class SubmissionElasticsearchRepositoryImpl {
+public class SubmissionElasticsearchRepositoryImpl implements SubmissionElasticsearchRepositoryCustom {
 
     private final ElasticsearchOperations operations;
 
+    @Override
     public Page<SubmissionDocument> searchSubmissions(
             Long contestId,
             int page,
@@ -94,5 +98,30 @@ public class SubmissionElasticsearchRepositoryImpl {
         long totalHits = hits.getTotalHits();
 
         return new PageImpl<>(contents, pageable, totalHits);
+    }
+
+    @Override
+    public void updateSubmission(
+            Long submissionId,
+            String prompt,
+            String description,
+            String result,
+            String filePath,
+            LocalDateTime updatedAt
+    ) {
+        Map<String, Object> fieldsToUpdate = new HashMap<>();
+        fieldsToUpdate.put("prompt", prompt);
+        fieldsToUpdate.put("description", description);
+        fieldsToUpdate.put("result", result);
+        fieldsToUpdate.put("filePath", filePath);
+        fieldsToUpdate.put("updatedAt", updatedAt);
+
+        Document partialDoc = Document.from(fieldsToUpdate);
+
+        UpdateQuery query = UpdateQuery.builder(submissionId.toString())
+                .withDocument(partialDoc)
+                .build();
+
+        operations.update(query, operations.getIndexCoordinatesFor(SubmissionDocument.class));
     }
 }

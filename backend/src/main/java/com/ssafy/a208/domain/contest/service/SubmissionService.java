@@ -13,14 +13,13 @@ import com.ssafy.a208.domain.contest.exception.DuplicateSubmissionException;
 import com.ssafy.a208.domain.contest.exception.SubmissionFileNotFoundException;
 import com.ssafy.a208.domain.contest.exception.SubmissionNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
-import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepositoryImpl;
+import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepository;
 import com.ssafy.a208.domain.contest.repository.SubmissionRepository;
 import com.ssafy.a208.domain.contest.util.ContestValidator;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.entity.Profile;
 import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.domain.member.reader.ProfileReader;
-import com.ssafy.a208.domain.member.repository.MemberRepository;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.image.service.S3Service;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -39,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
-    private final SubmissionElasticsearchRepositoryImpl submissionSearchRepository;
+    private final SubmissionElasticsearchRepository submissionSearchRepository;
     private final ContestRepository contestRepository;
     private final MemberReader memberReader;
     private final ProfileReader profileReader;
@@ -81,6 +80,23 @@ public class SubmissionService {
         }
 
         submissionRepository.save(submission);
+
+        SubmissionDocument document = SubmissionDocument.builder()
+                .id(submission.getId())
+                .prompt(submission.getPrompt())
+                .description(submission.getDescription())
+                .result(submission.getResult())
+                .type(submission.getType())
+                .voteCount(submission.getVoteCount())
+                .filePath(fileUrl)
+                .createdAt(submission.getCreatedAt())
+                .updatedAt(submission.getUpdatedAt())
+                .contestId(contestId)
+                .memberId(member.getId())
+                .memberNickname(member.getNickname())
+                .profilePath(profile.getFilePath())
+                .build();
+        submissionSearchRepository.save(document);
 
         return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), false);
     }
@@ -238,15 +254,25 @@ public class SubmissionService {
                 submissionCreateReq.result()
         );
 
+        String filePath = null;
         if(submission.getType() == PromptType.IMAGE) {
             SubmissionFile oldFile = submissionFileService.getSubmissionFile(submission.getId()).orElse(null);
 
             if(oldFile == null) {
-                submissionFileService.createSubmissionFile(submission);
+                filePath = submissionFileService.createSubmissionFile(submission);
             } else {
-                submissionFileService.updateSubmissionFile(oldFile, submissionCreateReq.result());
+                filePath = submissionFileService.updateSubmissionFile(oldFile, submissionCreateReq.result());
             }
         }
+
+        submissionSearchRepository.updateSubmission(
+                submission.getId(),
+                submission.getPrompt(),
+                submission.getDescription(),
+                submission.getResult(),
+                filePath,
+                submission.getUpdatedAt()
+        );
     }
 
     @Transactional
@@ -267,6 +293,7 @@ public class SubmissionService {
         }
 
         submissionRepository.delete(submission);
+        submissionSearchRepository.deleteById(submissionId);
     }
 
     @Transactional(readOnly = true)
