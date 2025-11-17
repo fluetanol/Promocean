@@ -1,61 +1,65 @@
-'use client';
-
 // frontend/src/components/section/ContestPostSection.tsx
 
+'use client';
+
 import { useSearchParams } from "next/navigation";
-import { ContestPostItemProps, LeaderboardItemProps, ContestNoticeItemProps, ContestSubmissionItemProps } from "@/types/itemType";
+import { ContestPostItemProps, ContestNoticeItemProps, ContestSubmissionItemProps } from "@/types/itemType";
 import CommunityPostUserProfileItem from "@/components/item/CommunityPostUserProfileItem";
-// import LeaderboardList from "@/components/list/LeaderboardList";
 import Tag from "@/components/icon/Tag";
 import Calendar from "@/components/icon/Calendar";
 import ContestPostTabs from "@/components/filter/ContestPostTabs";
 import ContestNoticeSection from "@/components/section/ContestNoticeSection";
 import ContestSubmissionSection from "@/components/section/ContestSubmissionSection";
 import { formatKoreanDate } from "@/utils/formatDate";
+import ContestPostButtonList from "@/components/list/ContestPostButtonList";
 
-/**
- * ContestPostSectionProps interface
- * @description ContestPostSection component props
- */
 export interface ContestPostSectionProps {
   contestPostData: ContestPostItemProps
-  // leaderboardList: LeaderboardItemProps[]
   ContestNoticeList: ContestNoticeItemProps[]
   contestSubmissionList: ContestSubmissionItemProps[]
-  // contestMySubmissionList: ContestSubmissionItemProps[]
 }
 
 /**
  * ContestPostSection component
- * @description ContestPostSection component is a contest post section component that displays the contest post section content
+ * @description 컨테스트 글 상세 페이지 섹션 컴포넌트
  * @returns {React.ReactNode}
  */
-// export default function ContestPostSection({ contestPostData, leaderboardList, ContestNoticeList, contestSubmissionList }: ContestPostSectionProps) {
 export default function ContestPostSection({ contestPostData, ContestNoticeList, contestSubmissionList }: ContestPostSectionProps) {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'detail';
   return (
     <div className="p-8">
+
       {/* 메타 데이터 섹션 */}
       <div className="flex flex-col gap-3 border-gray-200 pb-5">
+
         {/* 제목 */}
-        <div className="mb-3">
+        <div className="mb-3 flex flex-row items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">
             {contestPostData.title}
           </h1>
+
+          {/* 컨테스트 글 수정/삭제 버튼 */}
+          <ContestPostButtonList author={contestPostData.author} contestPostData={contestPostData} />
         </div>
 
         {/* 대회 정보 및 사용자 정보 */}
         <div className="flex items-end justify-between">
+
           {/* 왼쪽: 대회 타입 및 날짜 정보 */}
           <div className="flex flex-col gap-3">
+
             {/* 대회 타입 및 상태 */}
             <div className="flex flex-row items-center gap-4">
-              <div className="flex flex-row items-center gap-1">
+
+              {/* 대회 타입 */}
+              <div className="flex flex-row items-center gap-2">
                 <Tag />
-                <span className="text-gray-500">대회 타입</span>
+                <span className="text-sm font-medium text-gray-700">대회 타입</span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+
+              {/* 상태 */}
+              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700">
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
                   {contestPostData.type}
                 </span>
@@ -66,20 +70,18 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
             </div>
 
             {/* 날짜 정보 */}
-            <div className="flex items-center gap-4">
-              <div className="flex flex-row items-center gap-1">
-                <Calendar />
-                <span className="text-sm font-medium text-gray-700">대회 기간</span>
+            {[
+              { label: '대회 기간', value: `${formatKoreanDate(contestPostData.startAt)} ~ ${formatKoreanDate(contestPostData.endAt)}` },
+              { label: '투표 종료', value: formatKoreanDate(contestPostData.voteEndAt) },
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div className="flex flex-row items-center gap-2">
+                  <Calendar />
+                  <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                </div>
+                <span className="text-sm text-gray-700">{item.value}</span>
               </div>
-              <span className="text-sm text-gray-600">{formatKoreanDate(contestPostData.startAt)} ~ {formatKoreanDate(contestPostData.endAt)}</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex flex-row items-center gap-1">
-                <Calendar />
-                <span className="text-sm font-medium text-gray-700">투표 종료일</span>
-              </div>
-              <span className="text-sm text-gray-600">{formatKoreanDate(contestPostData.voteEndAt)}</span>
-            </div>
+            ))}
           </div>
 
           {/* 오른쪽: 사용자 정보 및 날짜 */}
@@ -106,21 +108,19 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
           </div>
         )}
 
-        {/* {currentTab === 'leaderboard' && (
-          <LeaderboardList leaderboardList={leaderboardList} />
-        )} */}
-
+        {/* 공지사항 */}
         {currentTab === 'notice' && (
           <ContestNoticeSection ContestNoticeList={ContestNoticeList} />
         )}
         
+        {/* 산출물 */}
         {currentTab === 'submission' && (
-          <ContestSubmissionSection contestSubmissionList={contestSubmissionList} />
+          <ContestSubmissionSection 
+            contestSubmissionList={contestSubmissionList} 
+            voteEndAt={contestPostData.voteEndAt}
+          />
         )}
         
-        {/* {currentTab === 'my-submission' && (
-          <ContestSubmissionSection contestSubmissionList={contestMySubmissionList} />
-        )} */}
       </div>
     </div>
   );

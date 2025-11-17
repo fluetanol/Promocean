@@ -1,5 +1,6 @@
+// frontend/src/app/community/[postId]/not-found.tsx
+
 import Link from 'next/link';
-import CommunityHeader from '@/components/layout/CommunityHeader';
 
 /**
  * CommunityPostPage Not Found
@@ -8,7 +9,6 @@ import CommunityHeader from '@/components/layout/CommunityHeader';
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <CommunityHeader />
       <div className="max-w-7xl mx-auto px-8 py-16">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <div className="mb-6">

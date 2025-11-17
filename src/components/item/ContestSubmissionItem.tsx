@@ -7,10 +7,11 @@ import { ContestSubmissionItemProps } from "@/types/itemType";
 import { useRouter, useParams } from "next/navigation";
 import Heart from "@/components/icon/Heart";
 import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
+import { getContestImageUrl } from "@/utils/imageUtils";
 
 /**
  * ContestSubmissionItem component
- * @description ContestSubmissionItem component is a contest submission item component that displays the contest submission item content
+ * @description 컨테스트 제출 아이템 컴포넌트
  * @returns {React.ReactNode}
  */
 export default function ContestSubmissionItem({ submissionId, author, profileUrl, description, type, submissionUrl, voteCnt }: ContestSubmissionItemProps) {
@@ -20,21 +21,19 @@ export default function ContestSubmissionItem({ submissionId, author, profileUrl
   const handleClick = (submissionId: number) => {
     router.push(`/contest/${contestId}/submission/${submissionId}`);
   }
+  const imgUrl = getContestImageUrl(null, submissionId);
   return (
     <div className="flex items-start w-full bg-white border-b border-gray-200 py-4 gap-4 cursor-pointer" onClick={() => handleClick(submissionId)}>
 
       {/* 왼쪽 : 제출 이미지 */}
       <div className="relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden bg-gray-100">
-        {submissionUrl ? (
           <Image
-            src={submissionUrl}
+          // 이미지 속성 없어서 랜덤으로
+            src={imgUrl}
             alt={description}
             fill
             className="object-cover"
           />
-        ) : (
-          <div className="w-full h-full bg-gray-200" />
-        )}
       </div>
       
       {/* 중앙 : 타이틀, 타입 */}

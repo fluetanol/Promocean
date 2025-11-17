@@ -1,9 +1,8 @@
+// frontend/src/app/community/[postId]/error.tsx
+
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import CommunityHeader from '@/components/layout/CommunityHeader';
-
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -16,16 +15,10 @@ interface ErrorProps {
 export default function Error({ error, reset }: ErrorProps) {
   const router = useRouter();
 
-  useEffect(() => {
-    // 에러 로깅 (선택적)
-    console.error('Community post page error:', error);
-  }, [error]);
-
   const isNotFound = error.message.includes('404') || error.message.includes('찾을 수 없습니다');
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <CommunityHeader />
       <div className="max-w-7xl mx-auto px-8 py-16">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <div className="mb-6">

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { CommunityBoardItemProps } from "@/types/itemType";
 import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
-import { CommunityAPI } from "@/api/community";
+import { ScrapAPI } from "@/api/community";
 
 export interface SpaceScrapItemProps {
   postId: string;
@@ -51,7 +51,7 @@ export default function SpaceScrapItem({
         try {
             setIsLoading(true);
             // postId를 number로 변환하여 API 호출
-            await CommunityAPI.deletePostScrap(Number(postId));
+            await ScrapAPI.delete(Number(postId));
 
             // 스크랩 상태 업데이트
             setIsScrapped(false);

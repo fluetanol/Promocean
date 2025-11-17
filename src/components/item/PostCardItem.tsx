@@ -2,16 +2,18 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { PostCardItemProps } from '@/types/itemType'
+import { CommunityFloatingItemProps } from '@/types/itemType'
 import Heart from '../icon/Heart'
 import ChatBubbleBottomCenterText from '../icon/ChatBubbleBottomCenterText'
+import { getPostImageUrl } from '@/utils/imageUtils'
 
 /**
  * PostCardItem component
  * @description PostCardItem component is a post card item component that displays the post card item content
  * @returns {React.ReactNode}
  */
-export default function PostCardItem({ postId, title, hashtags, category, likeCount, commentCount, image }: PostCardItemProps) {
+export default function PostCardItem({ postId, title, tags, category, likeCnt, replyCnt, fileUrl }: CommunityFloatingItemProps & { category: string }) {
+  const imgUrl = getPostImageUrl(fileUrl, postId);
   return (
     <Link href={`/community/${postId}`} className="block group">
       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
@@ -19,7 +21,7 @@ export default function PostCardItem({ postId, title, hashtags, category, likeCo
         {/* Image Section */}
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={image}
+            src={imgUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-300"
@@ -36,7 +38,7 @@ export default function PostCardItem({ postId, title, hashtags, category, likeCo
 
           {/* Hashtags */}
           <div className="flex flex-wrap gap-1 mb-4">
-            {hashtags.map((tag, index) => (
+            {tags.map((tag, index) => (
               <span
                 key={index}
                 className="text-sm text-gray-500 hover:text-primary transition-colors"
@@ -60,13 +62,13 @@ export default function PostCardItem({ postId, title, hashtags, category, likeCo
               {/* Likes */}
               <div className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors">
                 <Heart />
-                <span className="text-sm font-medium">{likeCount}</span>
+                <span className="text-sm font-medium">{likeCnt}</span>
               </div>
 
               {/* Comments */}
               <div className="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
                 <ChatBubbleBottomCenterText />
-                <span className="text-sm font-medium">{commentCount}</span>
+                <span className="text-sm font-medium">{replyCnt}</span>
               </div>
             </div>
           </div>

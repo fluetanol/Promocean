@@ -73,10 +73,10 @@ export interface CommunityBoardItemProps {
 export interface CommunityFloatingItemProps {
   postId: number
   title: string
-  hashtags: string[]
-  image: string
-  likeCount: number
-  commentCount: number
+  tags: string[]
+  fileUrl: string | null
+  likeCnt: number
+  replyCnt: number
 }
 
 /**
@@ -104,6 +104,7 @@ export interface ContestCardItemProps {
   title: string
   startAt: string
   endAt: string
+  voteEndAt: string
   status: string // "개최전", "종료" 등 한글
   createdAt: string
   updatedAt: string

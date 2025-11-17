@@ -1,8 +1,7 @@
 // frontend/src/app/community/page.tsx
 
 import CommunityBoardSection from "@/components/section/CommunityBoardSection";
-import CommunityFooter from "@/components/layout/CommunityFooter";
-import { CommunityAPI } from "@/api/community";
+import { PostAPI } from "@/api/community";
 
 interface CommunityPageProps {
   searchParams: Promise<{
@@ -33,12 +32,11 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
     ...(params.tag && { tag: params.tag }),
   };
 
-  const { communityBoardList, itemCnt, totalCnt, totalPages, currentPage } = await CommunityAPI.getCommunityBoardList(apiParams);
+  const { communityBoardList, itemCnt, totalCnt, totalPages, currentPage } = await PostAPI.getList(apiParams);
 
   return (
     <div className="flex flex-col">
-      <CommunityBoardSection communityBoardList={communityBoardList} />
-      <CommunityFooter itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
+      <CommunityBoardSection communityBoardList={communityBoardList} itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
     </div>
   );
 }

@@ -9,14 +9,35 @@ import ContestSubmissionButtonSection from "@/components/section/ContestSubmissi
  * @description ContestSubmissionSection component is a contest submission section component that displays the contest submission section content
  * @returns {React.ReactNode}
 */
-export default function ContestSubmissionSection({ contestSubmissionList }: { contestSubmissionList: ContestSubmissionItemProps[] }) {
+export default function ContestSubmissionSection({ 
+  contestSubmissionList, 
+  voteEndAt 
+}: { 
+  contestSubmissionList: ContestSubmissionItemProps[]
+  voteEndAt: string
+}) {
+  // 투표 종료 여부 확인
+  const voteEnd = new Date(voteEndAt);
+  const now = new Date();
+  const isVoteEnded = now >= voteEnd;
+
   return (
     <div>
       <div className="flex flex-row items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">제출 목록</h2>
         <ContestSubmissionButtonSection />
       </div>
-      <ContestSubmissionList contestSubmissionList={contestSubmissionList} />
+      {!isVoteEnded ? (
+        <div className="mt-8 text-center py-12">
+          <p className="text-gray-500 text-lg">대회가 종료된 이후에 산출물을 확인할 수 있습니다.</p>
+        </div>
+      ) : contestSubmissionList.length === 0 ? (
+        <div className="mt-8 text-center py-12">
+          <p className="text-gray-500 text-lg">제출된 산출물이 없습니다.</p>
+        </div>
+      ) : (
+        <ContestSubmissionList contestSubmissionList={contestSubmissionList} />
+      )}
     </div>
   )
 }

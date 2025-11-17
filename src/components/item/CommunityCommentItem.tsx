@@ -7,7 +7,7 @@ import { CommunityCommentItemProps } from "@/types/itemType";
 import { formatKoreanDateTime } from "@/utils/formatDate";
 import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
-import { CommunityAPI } from "@/api/community";
+import { ReplyAPI } from "@/api/community";
 import { useRouter } from "next/navigation";
 
 interface CommunityCommentItemWithPostIdProps extends CommunityCommentItemProps {
@@ -49,7 +49,7 @@ export default function CommunityCommentItem({ replyId, author, profileUrl, cont
     }
 
     try {
-      await CommunityAPI.updateReply(postId, replyId, editContent.trim());
+      await ReplyAPI.update(postId, replyId, editContent.trim());
       setIsEditing(false);
       onUpdate?.();
       router.refresh();
@@ -81,7 +81,7 @@ export default function CommunityCommentItem({ replyId, author, profileUrl, cont
     setIsDeleting(true);
 
     try {
-      await CommunityAPI.deleteReply(postId, replyId);
+      await ReplyAPI.delete(postId, replyId);
       onUpdate?.();
       router.refresh();
     } catch (error) {

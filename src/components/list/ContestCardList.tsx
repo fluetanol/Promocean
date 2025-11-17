@@ -7,11 +7,6 @@ interface ContestCardListProps {
   contestCards: ContestCardItemProps[]
 }
 
-/**
- * ContestCardList component
- * @description ContestCardList component is a contest card list component that displays the contest card list content
- * @returns {React.ReactNode}
- */
 export default function ContestCardList({ contestCards }: ContestCardListProps) {
   if (!contestCards || contestCards.length === 0) {
     return (
@@ -24,7 +19,7 @@ export default function ContestCardList({ contestCards }: ContestCardListProps) 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
       {contestCards.map((contestCard) => (
         <ContestCardItem
           key={contestCard.contestId}

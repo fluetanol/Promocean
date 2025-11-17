@@ -5,7 +5,7 @@
 import Heart from "@/components/icon/Heart";
 import Bookmark from "@/components/icon/Bookmark";
 import ArrayDownTray from "@/components/icon/ArrayDownTray";
-import { CommunityAPI } from "@/api/community";
+import { LikeAPI, ScrapAPI } from "@/api/community";
 import { useState } from "react";
 
 /**
@@ -29,7 +29,7 @@ export default function CommunityLikeShareSection({ likeCnt: initialLikeCnt, isL
     if (isLiked) return;
 
     try {
-      await CommunityAPI.createPostLike(postId);
+      await LikeAPI.create(postId);
       setIsLiked(true);
       setLikeCnt(prev => prev + 1);
     } catch (error) {
@@ -59,11 +59,11 @@ export default function CommunityLikeShareSection({ likeCnt: initialLikeCnt, isL
     try {
       if (isScraped) {
         // 스크랩 해제
-        await CommunityAPI.deletePostScrap(postId);
+        await ScrapAPI.delete(postId);
         setIsScraped(false);
       } else {
         // 스크랩 추가
-        await CommunityAPI.createPostScrap(postId);
+        await ScrapAPI.create(postId);
         setIsScraped(true);
       }
     } catch (error) {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import SpaceScrapItem from "../item/SpaceScrapItem";
 import { SpaceScrapBoardItemProps } from "../item/SpaceScrapBoardItem";
-import { CommunityAPI } from "@/api/community";
+import { ScrapAPI } from "@/api/community";
 import SpaceAPI from "@/api/space";
 
 
@@ -16,7 +16,7 @@ export default function SpaceScrapBoardList(){
 
         const fetchData = async() => {
             try{
-                const res = await CommunityAPI.getPostScraps();
+                const res = await ScrapAPI.list();
                 if(!res){
                     return;
                 }

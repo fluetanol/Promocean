@@ -3,11 +3,10 @@
 'use client';
 
 import { useParams, useRouter } from "next/navigation";
-import { ContestAPI } from "@/api/contest";
 
 /**
  * ContestSubmissionButtonSection component
- * @description ContestSubmissionButtonSection component is a contest submission button section component that displays the contest submission button section content
+ * @description 내 제출물 보기 및 제출하기 버튼을 포함하는 컴포넌트입니다.
  * @returns {React.ReactNode}
  */
 export default function ContestSubmissionButtonSection() {
@@ -16,15 +15,8 @@ export default function ContestSubmissionButtonSection() {
   const params = useParams();
   const contestId = Number(params.contestId);
 
-  const handleViewMySubmission = async () => {
-    try {
-      const { contestMySubmissionItem } = await ContestAPI.getContestMySubmissionItem(contestId);
-      if (contestMySubmissionItem?.submissionId) {
-        router.push(`/contest/${contestId}/submission/${contestMySubmissionItem.submissionId}`);
-      }
-    } catch (error) {
-      console.error('내 산출물 조회 실패:', error);
-    }
+  const handleViewMySubmission = () => {
+    router.push(`/contest/${contestId}/my-submission`);
   }
 
   const handleSubmitSubmission = () => {

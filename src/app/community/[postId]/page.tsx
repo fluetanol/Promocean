@@ -4,7 +4,7 @@ import CommunityPostDetailSection from "@/components/section/CommunityPostDetail
 import CommunityLikeShareSection from "@/components/section/CommunityLikeShareSection";
 import CommunityCommentSection from "@/components/section/CommunityCommentSection";
 import { CommunityPostItemProps, HashtagItemProps, CommunityCommentItemProps } from "@/types/itemType";
-import { CommunityAPI } from "@/api/community";
+import { PostAPI } from "@/api/community";
 
 interface CommunityPostPageProps {
   params: Promise<{ postId: string }>;
@@ -20,7 +20,7 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
   const postId = parseInt(postIdStr, 10);
 
   try {
-    const { communityPostDetailData } = await CommunityAPI.getCommunityPostDetailData(postId);
+    const { communityPostDetailData } = await PostAPI.getDetail(postId);
 
     const hashtagList: HashtagItemProps[] = communityPostDetailData.tags.map((tag: string) => ({ tag }));
     

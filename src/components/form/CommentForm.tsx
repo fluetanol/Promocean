@@ -3,7 +3,7 @@
 // frontend/src/components/form/CommentForm.tsx
 
 import { useState } from 'react';
-import { CommunityAPI } from '@/api/community';
+import { ReplyAPI } from '@/api/community';
 
 interface CommentFormProps {
   postId: number;
@@ -29,7 +29,7 @@ export default function CommentForm({ postId, onSuccess }: CommentFormProps) {
     setIsSubmitting(true);
 
     try {
-      await CommunityAPI.createReply(postId, comment.trim());
+      await ReplyAPI.create(postId, comment.trim());
       setComment('');
       onSuccess?.();
     } catch (error) {

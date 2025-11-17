@@ -2,8 +2,7 @@
 
 import HeroSection from "@/components/section/HeroSection";
 import PostCardSection from "@/components/section/PostCardSection";
-import { PostCardItemProps, CommunityFloatingItemProps } from "@/types/itemType";
-import { CommunityAPI } from "@/api/community";
+import { PostAPI } from "@/api/community";
 
 /**
  * Home component
@@ -12,26 +11,14 @@ import { CommunityAPI } from "@/api/community";
  */
 export default async function Home() {
 
-  const { popularPosts: popularPostsRaw } = await CommunityAPI.getPopularPosts();
-  
-  // TODO : API 만들어야함?
-  // CommunityFloatingItemProps를 PostCardItemProps로 변환
-  const popularPosts: PostCardItemProps[] = (popularPostsRaw as CommunityFloatingItemProps[]).map(item => ({
-    ...item,
-    category: "AI", // 기본값 또는 실제 category 값
-  }));
+  // TODO : 카테고리 렌더링 할거면 요청해야함
+  const { popularPosts } = await PostAPI.getPopular();
 
   return (
     <>
       <HeroSection />
-
       <PostCardSection
         postSectionTitle="인기 프롬프트"
-        postCardList={popularPosts}
-      />
-
-      <PostCardSection
-        postSectionTitle="추천 프롬프트"
         postCardList={popularPosts}
       />
     </>

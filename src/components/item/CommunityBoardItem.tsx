@@ -7,10 +7,11 @@ import { CommunityBoardItemProps } from "@/types/itemType";
 import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
 import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
+import { getPostImageUrl } from "@/utils/imageUtils";
 
 export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
   
-  const imgUrl = fileUrl || `/assets/img_random${postId % 21}.png`;
+  const imgUrl = getPostImageUrl(fileUrl, postId);
   const limitCnt = 99;
 
   return (

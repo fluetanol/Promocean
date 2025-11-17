@@ -1,7 +1,6 @@
 // frontend/src/app/contest/page.tsx
 
 // import ContestHeroSection from "@/components/section/ContestHeroSection";
-import ContestHeader from "@/components/layout/ContestHeader";
 import ContestCardSection from "@/components/section/ContestCardSection";
 import ContestFooter from "@/components/layout/ContestFooter";
 import { ContestAPI } from "@/api/contest";
@@ -33,12 +32,11 @@ export default async function ContestPage({ searchParams }: ContestPageProps) {
     ...(params.tag && { tag: params.tag }),
   };
 
-  const { contestCardList, itemCnt, totalCnt, totalPages, currentPage } = await ContestAPI.getContestCardList(apiParams);
+  const { contestCardList, itemCnt, totalCnt, totalPages, currentPage } = await ContestAPI.getList(apiParams);
 
   return (
     <>
-      <ContestCardSection contestCardList={contestCardList} />
-      <ContestFooter itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
+      <ContestCardSection contestCardList={contestCardList} itemCnt={itemCnt} totalCnt={totalCnt} totalPages={totalPages} currentPage={currentPage} />
     </>
   );
 }

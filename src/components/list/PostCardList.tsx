@@ -1,10 +1,10 @@
 // frontend/src/components/list/PostCardList.tsx
 
 import PostCardItem from '@/components/item/PostCardItem'
-import { PostCardItemProps } from '@/types/itemType'
+import { CommunityFloatingItemProps } from '@/types/itemType'
 
 interface PostCardListProps {
-  posts: PostCardItemProps[]
+  posts: (CommunityFloatingItemProps & { category: string })[]
 }
 
 /**
@@ -15,9 +15,9 @@ interface PostCardListProps {
 export default function PostCardList({ posts }: PostCardListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <PostCardItem
-          key={post.postId}
+          key={index}
           {...post}
         />
       ))}

@@ -1,11 +1,11 @@
 // frontend/src/components/section/PostCardSection.tsx
 
 import PostCardList from '@/components/list/PostCardList'
-import { PostCardItemProps } from '@/types/itemType'
+import { CommunityFloatingItemProps } from '@/types/itemType'
 
 interface PostCardSectionProps {
   postSectionTitle : string
-  postCardList : PostCardItemProps[]
+  postCardList : CommunityFloatingItemProps[]
 }
 
 /**
@@ -15,6 +15,11 @@ interface PostCardSectionProps {
  * @param {PostCardSectionProps} props - The props for the PostCardSection component
  */
 export default function PostCardSection({postSectionTitle, postCardList }: PostCardSectionProps) {
+  const posts = postCardList.map(item => ({
+    ...item,
+    category: "AI"
+  }));
+
   return (
     <div className="py-8 px-6">
       <div className="max-w-7xl mx-auto">
@@ -24,7 +29,7 @@ export default function PostCardSection({postSectionTitle, postCardList }: PostC
         </div>
         
         {/* Post Cards Grid */}
-        <PostCardList posts={postCardList} />
+        <PostCardList posts={posts} />
 
       </div>
     </div>

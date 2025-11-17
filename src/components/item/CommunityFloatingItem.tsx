@@ -6,13 +6,15 @@ import Link from 'next/link'
 import { CommunityFloatingItemProps } from '@/types/itemType'
 import Heart from '../icon/Heart'
 import ChatBubbleBottomCenterText from '../icon/ChatBubbleBottomCenterText'
+import { getPostImageUrl } from '@/utils/imageUtils'
 
 /**
  * CommunityFloatingItem component
  * @description CommunityFloatingItem component is a community floating item component that displays the community floating item content
  * @returns {React.ReactNode}
  */
-export default function CommunityFloatingItem({ postId, title, hashtags, image, likeCount, commentCount }: CommunityFloatingItemProps) {
+export default function CommunityFloatingItem({ postId, title, tags, fileUrl, likeCnt, replyCnt }: CommunityFloatingItemProps) {
+  const imgUrl = getPostImageUrl(fileUrl, postId);
   return (
     <Link href={`/community/${postId}`} className="block group">
       <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
@@ -20,7 +22,7 @@ export default function CommunityFloatingItem({ postId, title, hashtags, image, 
         {/* Image Section */}
         <div className="relative w-full h-32 overflow-hidden">
           <Image
-            src={image}
+            src={imgUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -37,7 +39,7 @@ export default function CommunityFloatingItem({ postId, title, hashtags, image, 
 
           {/* Hashtags */}
           <div className="flex flex-wrap gap-1 mb-2">
-            {hashtags.map((tag, index) => (
+            {tags.map((tag, index) => (
               <span
                 key={index}
                 className="text-xs text-gray-500 hover:text-primary transition-colors"
@@ -53,13 +55,13 @@ export default function CommunityFloatingItem({ postId, title, hashtags, image, 
             {/* 좋아요 */}
             <div className="flex items-center gap-1 text-gray-500 transition-colors">
               <Heart />
-              <span className="text-xs font-medium">{likeCount}</span>
+              <span className="text-xs font-medium">{likeCnt}</span>
             </div>
 
             {/* 댓글 */}
             <div className="flex items-center gap-1 text-gray-500 transition-colors">
               <ChatBubbleBottomCenterText />
-              <span className="text-xs font-medium">{commentCount}</span>
+              <span className="text-xs font-medium">{replyCnt}</span>
             </div>
           </div>
         </div>

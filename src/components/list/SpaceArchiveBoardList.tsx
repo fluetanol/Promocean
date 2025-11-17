@@ -5,10 +5,15 @@ import { useEffect, useState } from "react";
 import SpaceAPI, { searchParamsType } from "@/api/space";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 import { useSpaceStore } from "@/store/spaceStore";
+<<<<<<< src/components/list/SpaceArchiveBoardList.tsx
+import { PostAPI } from "@/api/community";
+import { ArticleData } from "@/types/apiTypes/space";
+=======
 import { CommunityAPI } from "@/api/community";
 import { ArticleData, GetArchiveArticlesResponse } from "@/types/apiTypes/space";
 import { useRouter, useSearchParams } from "next/navigation";
 import SpaceArchiveFilter from "../filter/SpaceArchiveFilter";
+>>>>>>> src/components/list/SpaceArchiveBoardList.tsx
 
 
 export default function SpaceArchiveBoardList(
