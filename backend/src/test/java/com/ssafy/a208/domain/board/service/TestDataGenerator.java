@@ -32,6 +32,7 @@ import java.util.*;
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
+@Disabled("테스트 데이터 생성 방지")
 public class TestDataGenerator {
 
     @Autowired
