@@ -13,6 +13,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query(""" 
             SELECT m FROM Member m LEFT JOIN FETCH m.profile 
+                        WHERE m.nickname = :nickname AND m.deletedAt IS NULL
+            """)
+    Optional<Member> findByNicknameAndDeletedAtIsNull(String nickname);
+
+    @Query(""" 
+            SELECT m FROM Member m LEFT JOIN FETCH m.profile 
                         WHERE m.email = :email AND m.deletedAt IS NULL
             """)
     Optional<Member> findByEmailAndDeletedAtIsNull(String email);
