@@ -81,6 +81,8 @@ public class MemberService {
 
         if(updated) {
             submissionElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
+            postElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
+            scrapElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
         }
     }
 
