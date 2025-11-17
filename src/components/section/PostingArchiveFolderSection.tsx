@@ -2,6 +2,7 @@
 
 import React from "react";
 import Pin from "@/components/icon/Pin";
+import { SpaceArchiveData } from "@/app/my-space/page";
 
 export interface ArchiveFolderItem {
   title: string;
@@ -11,9 +12,9 @@ export interface ArchiveFolderItem {
 
 export interface PostingArchiveFolderSectionProps {
   selectedFolder: string;
-  onFolderChange: (folder: string) => void;
-  pinnedFolders: ArchiveFolderItem[];
-  normalFolders: ArchiveFolderItem[];
+  onFolderChange: (folder: string, folderId :number) => void;
+  pinnedFolders: SpaceArchiveData[];
+  normalFolders: SpaceArchiveData[];
 }
 
 /**
@@ -42,7 +43,7 @@ export default function PostingArchiveFolderSection({
               <label
                 key={`pinned-${index}`}
                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border
-                  ${selectedFolder === folder.title
+                  ${selectedFolder === folder.name
                     ? 'bg-primary/10 border-primary shadow-sm'
                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                   }`}
@@ -50,17 +51,17 @@ export default function PostingArchiveFolderSection({
                 <input
                   type="radio"
                   name="archive-folder"
-                  value={folder.title}
-                  checked={selectedFolder === folder.title}
-                  onChange={(e) => onFolderChange(e.target.value)}
+                  value={folder.name}
+                  checked={selectedFolder === folder.name}
+                  onChange={(e) => onFolderChange(e.target.value, folder.folderId)}
                   className="w-4 h-4 text-primary focus:ring-primary focus:ring-2"
                 />
                 <div className="flex items-center gap-2 flex-1">
                   <div
                     className="w-4 h-4 rounded"
-                    style={{ backgroundColor: folder.bgColor }}
+                    style={{ backgroundColor: folder.color }}
                   />
-                  <span className="font-medium text-gray-800">{folder.title}</span>
+                  <span className="font-medium text-gray-800">{folder.name}</span>
                   <Pin className="w-4 h-4 fill-red-400 stroke-gray-800 ml-auto" />
                 </div>
               </label>
@@ -80,7 +81,7 @@ export default function PostingArchiveFolderSection({
               <label
                 key={`normal-${index}`}
                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border
-                  ${selectedFolder === folder.title
+                  ${selectedFolder === folder.name
                     ? 'bg-primary/10 border-primary shadow-sm'
                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                   }`}
@@ -88,17 +89,17 @@ export default function PostingArchiveFolderSection({
                 <input
                   type="radio"
                   name="archive-folder"
-                  value={folder.title}
-                  checked={selectedFolder === folder.title}
-                  onChange={(e) => onFolderChange(e.target.value)}
+                  value={folder.name}
+                  checked={selectedFolder === folder.name}
+                  onChange={(e) => onFolderChange(e.target.value, folder.folderId)}
                   className="w-4 h-4 text-primary focus:ring-primary focus:ring-2"
                 />
                 <div className="flex items-center gap-2 flex-1">
                   <div
                     className="w-4 h-4 rounded"
-                    style={{ backgroundColor: folder.bgColor }}
+                    style={{ backgroundColor: folder.color }}
                   />
-                  <span className="font-medium text-gray-800">{folder.title}</span>
+                  <span className="font-medium text-gray-800">{folder.name}</span>
                 </div>
               </label>
             ))}

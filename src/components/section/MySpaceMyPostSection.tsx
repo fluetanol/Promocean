@@ -6,6 +6,7 @@ import { CommunityAPI } from "@/api/community";
 import { useAuthStore } from "@/store/authStore";
 import { CommunityBoardItemProps } from "@/types/itemType";
 import MyPostBoardItem from "@/components/item/MyPostBoardItem";
+import MySpaceMyPostFilter from "@/components/filter/MySpaceMyPostFilter";
 
 /**
  * MySpaceMyPostSection component
@@ -23,6 +24,12 @@ export default function MySpaceMyPostSection() {
   const currentPage = parseInt(searchParams.get("page") || "1");
   const PAGE_GROUP_SIZE = 5;
 
+  // URL 파라미터에서 필터 정보 가져오기
+  const sorter = searchParams.get("sorter") || "latest";
+  const title = searchParams.get("title") || undefined;
+  const tag = searchParams.get("tag") || undefined;
+  const category = searchParams.get("category") || undefined;
+
   useEffect(() => {
     const fetchMyPosts = async () => {
       if (!user?.nickname) {
@@ -32,11 +39,21 @@ export default function MySpaceMyPostSection() {
 
       try {
         setIsLoading(true);
-        const response = await CommunityAPI.getCommunityBoardList({
+
+        // API 호출 파라미터 구성
+        const apiParams: any = {
           page: currentPage,
           size: 10,
           author: user.nickname,
-        });
+          sorter: sorter,
+        };
+
+        // 검색 조건 추가 (값이 있을 때만)
+        if (title) apiParams.title = title;
+        if (tag) apiParams.tag = tag;
+        if (category) apiParams.category = category;
+
+        const response = await CommunityAPI.getCommunityBoardList(apiParams);
         setPosts(response.communityBoardList);
         // totalPages가 없으면 최소 1페이지로 설정
         setTotalPages(response.totalPages || 1);
@@ -55,7 +72,7 @@ export default function MySpaceMyPostSection() {
     };
 
     fetchMyPosts();
-  }, [currentPage, user?.nickname, router]);
+  }, [currentPage, user?.nickname, router, sorter, title, tag, category]);
 
   const currentPageGroup = Math.floor((currentPage - 1) / PAGE_GROUP_SIZE);
   const startPage = currentPageGroup * PAGE_GROUP_SIZE + 1;
@@ -94,7 +111,10 @@ export default function MySpaceMyPostSection() {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-6">
+      {/* 필터 섹션 */}
+      <MySpaceMyPostFilter />
+
       {/* 게시글 목록 */}
       <div className="flex flex-col divide-y divide-gray-100 space-y-4">
         {posts.length === 0 ? (

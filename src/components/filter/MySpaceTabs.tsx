@@ -24,7 +24,7 @@ export default function MySpaceTabs() {
             <li key={cat.name}>
               <Link
                 href={cat.href[0]}
-                className={`inline-block py-3 text-lg font-medium transition-colors ${
+                className={`inline-block py-1 text-[16px] font-medium transition-colors ${
                   isActive
                     ? "text-primary border-b-2 border-primary"
                     : "text-gray-600 hover:text-primary"

@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import SpaceCardHeader from "@/components/layout/SpaceCardHeader";
 import SpaceArchiveList from "@/components/list/SpaceArchiveList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
 import { useAuthStore } from "@/store/authStore";
 import { SpaceAPI } from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 
 export interface SpaceArchiveData {
   folderId : number;
@@ -26,6 +27,7 @@ export default function MySpacePage() {
 
   const authStore = useAuthStore();
   const spaceStore = useSpaceStore();
+  const folderStore = useArchiveFolderStore();
   const user = authStore.user;
   const personalSpaceId = user?.personalSpaceId;
   const name = user?.nickname || "나의 스페이스";
@@ -49,6 +51,9 @@ export default function MySpacePage() {
         });
         }
         
+        folderStore.setAllFolderList(res.folders);
+
+
         console.log("data!! ", res);
 
         //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.

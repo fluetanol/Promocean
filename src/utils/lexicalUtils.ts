@@ -142,13 +142,20 @@ export function convertLexicalToMarkdown(lexicalJsonString: string): string {
  */
 export function buildPromptFromLexical(
   usedPrompt: string,
-  examplePrompt: string
+  examplePrompt?: string
 ): { systemMessage: string; userMessage: string } {
   const systemText = extractTextFromLexical(usedPrompt);
-  const userText = extractTextFromLexical(examplePrompt);
 
+  if (examplePrompt) {
+    const userText = extractTextFromLexical(examplePrompt);
+    return {
+      systemMessage :systemText,
+      userMessage: userText,
+    }
+  }
+  
   return {
     systemMessage: systemText,
-    userMessage: userText,
+    userMessage: ''
   };
 }

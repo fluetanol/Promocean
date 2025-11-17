@@ -11,6 +11,7 @@ import { ChangeSpaceRoleToValue, SpaceRole, TeamSpaceRole } from "@/enum/TeamSpa
 import { Space } from "lucide-react";
 import { authAPI } from "@/api/auth";
 import { useAuthStore } from "@/store/authStore";
+import { useSpaceStore } from "@/store/spaceStore";
 
 export interface TeamSpacePageProps {
     spaceId? : number;
@@ -31,8 +32,12 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
     console.log("spaceId in TeamSpaceManageModal:", spaceId);
     const router = useRouter();
     const { user } = useAuthStore();
-
     const userNickname = useAuthStore((state) => state.user?.nickname);
+
+    const spaceStore = useSpaceStore();
+    const currentSpace = spaceStore.currentSpace;
+    const setCurrentSpace = spaceStore.setCurrentSpace;
+    
     const [addMemberListState, setAddMemberListState] = useState<SpaceParticipants[]>([]);
     const [searchInputState, setSearchInputState] = useState("");
     const [searchMode, setSearchMode] = useState<"email" | "nickname">("email");
@@ -59,10 +64,8 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
     };
 
     const handleInsertionTeam = async () => {
-
+        
         const s3res =await UploadAPI.getImagesS3Upload(editSpaceImageState ? editSpaceImageState.name : "default.png");
-        console.log("s3Res ", s3res);
-
         const presignedUrl = s3res?.presignedUrl;
         const key = s3res?.key;
 
@@ -81,9 +84,26 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
             });
 
             alert(`${teamName}이 수정되었습니다`);
+            const file = editSpaceImageState;
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setCurrentSpace({
+                        ...currentSpace!,
+                        name : editSpaceNameState,
+                        spaceCoverUrl :reader.result as string
+                    })
+                };
+            reader.readAsDataURL(file);
+            }
             handleModalClose();
         }
         else{
+            setCurrentSpace({
+                ...currentSpace!,
+                name : editSpaceNameState,
+            })
+            alert(`${teamName}이 수정되었습니다`);
             console.log("No image to upload, just update name");
             handleModalClose();
         }

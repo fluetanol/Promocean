@@ -10,6 +10,11 @@ import TeamSpaceHeader from "@/components/layout/TeamSpaceHeader";
 import { useSpaceStore } from "@/store/spaceStore";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 
+
+/**
+ * 특정 팀 스페이스의 아카이브 폴더 리스트가 표시되는 페이지
+ * @returns 
+ */
 export default function TeamSpaceArchivePage() {
   const [archiveItemListState, setArchiveItemListState] = useState<SpaceArchiveData[]>([]);
   const [pinnedItemListState, setPinnedItemListState] = useState<SpaceArchiveData[]>([]);
@@ -21,6 +26,7 @@ export default function TeamSpaceArchivePage() {
   const currentSpace = spaceStore.currentSpace;
   const spaceId = currentSpace?.spaceId;
   const name  = currentSpace?.name;
+  const coverImageUrl = currentSpace?.spaceCoverUrl;
 
   console.log("스페이스 ",currentSpace);
 
@@ -71,7 +77,6 @@ export default function TeamSpaceArchivePage() {
 
   return (
     <>
-    <TeamSpaceHeader nickname={name||"팀 이름"} spaceId={spaceId}/>
     <div className="min-h-screen bg-gray-50">
       <div className="flex justify-end-safe">
         <div className="shrink-0 min-w-[380px]">

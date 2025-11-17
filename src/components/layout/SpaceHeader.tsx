@@ -3,6 +3,8 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import path from "path";
 import React from "react";
 
 /**
@@ -34,16 +36,32 @@ export default function SpaceHeader(
     const authStore = useAuthStore();
     const nickname = authStore.user?.nickname || "익명의 사용자";
 
+    const params = useParams();
+    const pathname =  usePathname();
+    console.log("SpaceHeader params:", JSON.stringify(params));
+    console.log("SpaceHeader pathname:", pathname.split("/").splice(1,pathname.length));
+    const pathSegments = pathname.split("/").splice(1,pathname.length);
+    const router = useRouter();
+
+    const handleButtonClick = () => {
+      console.log("Button clicked!");
+      router.push(`/post?type=my-space&folder=${pathSegments[2]}`);
+    }
 
   return (
-    <header className="w-full">
+    <header className=" w-full">
       {/* 상단 영역 - 전체 너비 */}
-      <div className="flex flex-row justify-between items-center bg-primary text-white px-8 py-6 w-full">
+      <div className="flex flex-row justify-between items-center bg-primary text-white px-8 h-32 w-full">
         <div>
           <h1 className="text-3xl font-semibold">{nickname} 님의
             {isTeamSpace ? ' 팀 스페이스' : ' 마이 스페이스'}</h1>
           <p className="text-white/80 text-sm">{description}</p>
         </div>
+
+        <button className={` ${pathSegments[1] == "archive" && pathSegments[2] != undefined ? "visible" : "invisible"} px-3 py-2 rounded-2xl hover:bg-slate-400 hover:cursor-pointer`}
+          onClick={handleButtonClick}
+        >아카이브 글쓰기</button>
+
       </div>
     </header>
   );

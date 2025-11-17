@@ -4,6 +4,16 @@ import { ArticleData, DeleteTeamSpaceResponse, GetArchiveArticlesResponse, GetSp
 import { SpaceRole, TeamSpaceRole } from "@/enum/TeamSpaceRole";
 
 
+export interface searchParamsType{
+    folderId : number, 
+    type? : number, 
+    tag? : string, 
+    title? : string, 
+    page? : number, 
+    size? : number, 
+    sort? : "latest"|"oldest"
+}
+
 export const SpaceAPI = {
 
     /**
@@ -171,7 +181,7 @@ export const SpaceAPI = {
         * 아카이브 아티클을 삭제하는 API입니다.
     */
     async deleteArchiveArticle(spaceId : number, folderId : number, articleId : number) : Promise<NoArgsResponse | null> {
-        const res = await apiFetch<NoArgsResponse>(`/api/v1/articles/${articleId}`, {
+        const res = await apiFetch<NoArgsResponse>(`/api/v1/spaces/${spaceId}/folders/${folderId}/articles/${articleId}`, {
             method: "DELETE",
         });
 
@@ -194,23 +204,31 @@ export const SpaceAPI = {
     /*
         * 아카이브 아티클 목록을 조회하는 API입니다.
     */
-    async getArchiveArticles(spaceId : number, folderId : number, type? : number, tag? : string, title? : string, page : number=1, size : number=10, sort : "latest"|"oldest" ="latest") : Promise<GetArchiveArticlesResponse | null> {
+    async getArchiveArticles(spaceId : number, params?:searchParamsType) : Promise<GetArchiveArticlesResponse | null> {
        
-       const params=  new URLSearchParams();
-        params.append("folderId", folderId.toString());
-        if(type) params.append("type", type.toString());
-        if(tag) params.append("tag", tag);
-        if(title) params.append("title", title);
-        params.append("page", page.toString());
-        params.append("size", size.toString());
-        params.append("sort", sort);
+        //page default : 1, size default : 10, sort default : "latest"
 
-        console.log(`/api/v1/spaces/${spaceId}/articles?${params.toString()}`)
+       const queryParams =  new URLSearchParams();
+
+        // 기본값 설정
+        if(!params){
+            params = {folderId: 0, page: 1, size: 10, sort: "latest"};
+        }
+
+        queryParams.append("folderId", params.folderId.toString());
+        if(params.type) queryParams.append("type", params.type.toString());
+        if(params.tag) queryParams.append("tag", params.tag);
+        if(params.title) queryParams.append("title", params.title);
+        queryParams.append("page", params.page?.toString() || "1");
+        queryParams.append("size", params.size?.toString() || "10");
+        queryParams.append("sort", params.sort || "latest");
+
+        console.log(`/api/v1/spaces/${spaceId}/articles?${queryParams.toString()}`)
 
     //    ?type=${type}&tag=${tag}&title=${title}&page=${page}&size=${size}&sort=${sort}
     //    folders/${folderId}/
 
-       const res = await apiFetch<ApiResponse<GetArchiveArticlesResponse>>(`/api/v1/spaces/${spaceId}/articles?${params.toString()}`, {
+       const res = await apiFetch<ApiResponse<GetArchiveArticlesResponse>>(`/api/v1/spaces/${spaceId}/articles?${queryParams.toString()}`, {
             method: "GET",
         });
 
@@ -223,7 +241,7 @@ export const SpaceAPI = {
         * 아카이브 아티클 상세 조회하는 API입니다.
     */
     async getArchiveArticleDetail(spaceId: number,  articleId : number) : Promise<ArticleData | null> {
-        const res = await apiFetch<ApiResponse<ArticleData>>(`/api/v1/spaces/${spaceId}}/articles/${articleId}`, {
+        const res = await apiFetch<ApiResponse<ArticleData>>(`/api/v1/spaces/${spaceId}/articles/${articleId}`, {
             method: "GET",
         });
         return res.data;

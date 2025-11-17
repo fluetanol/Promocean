@@ -76,7 +76,7 @@ export default function SpaceArchiveItem({
         })
 
         if(isTeamSpace && teamName) {
-          router.push(`/team-space/${encodeURIComponent(teamName)}/archive/${encodeURIComponent(name)}`);
+          router.push(`/team-space/${encodeURIComponent(teamName)}/${encodeURIComponent(name)}`);
         } else {
           router.push('/my-space/archive/' + encodeURIComponent(name));
         }

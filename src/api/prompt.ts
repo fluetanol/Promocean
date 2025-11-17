@@ -22,6 +22,7 @@ export const PromptAPI = {
 
 
   async postImagePrompt(req : PostImagePromptRequest) : Promise<PostImamgePromptResponse> {
+    console.log("postImagePrompt req " ,req);
     const res  = await apiFetch<ApiResponse<PostImamgePromptResponse>>(`/api/v1/prompt/image`, {
       method: 'POST',
       body: JSON.stringify(req)

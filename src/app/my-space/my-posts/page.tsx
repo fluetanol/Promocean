@@ -13,8 +13,6 @@ export default  function MySpaceMyPostPage() {
 
       <SpaceBoardHeader title="내가 쓴 글" description="지금까지 내가 쓴 글을 볼 수 있습니다." />
 
-      <MySpaceArchiveFilterSection buttonMode="write"/>
-
       <Suspense>
         <MySpaceMyPostSection />
       </Suspense>

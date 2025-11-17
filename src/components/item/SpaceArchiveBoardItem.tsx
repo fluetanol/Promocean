@@ -1,20 +1,23 @@
 // frontend/src/components/layout/CommunityBoardItem.tsx
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 
 
 export interface SpaceArchiveBoardItemProps{
-    id: number;
+    articleId: number;
     title: string;
     category: string;
     tags: string[];
+    folderName: string;
     image?: string;
 }
 
-export default function SpaceArchiveBoardItem( { id, title, category, tags, image }: SpaceArchiveBoardItemProps) {
+export default function SpaceArchiveBoardItem( { articleId, title, category, tags, image, folderName }: SpaceArchiveBoardItemProps) {
+  
   return (
     <Link
-      href={`/community/${id}`}
+      href={`/my-space/archive/${folderName}/${articleId}`}
       className="flex items-center justify-between w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 p-4"
     >
       {/* LEFT : 이미지 + 텍스트 */}

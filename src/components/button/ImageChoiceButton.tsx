@@ -1,3 +1,4 @@
+import { useSpaceStore } from "@/store/spaceStore";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -14,9 +15,11 @@ export interface ImageChoiceButtonProps{
  * @returns 
  */
 export default function ImageChoiceButton({ setSpaceImageState }: ImageChoiceButtonProps){
+    const spaceStore = useSpaceStore();
+    const currentSpace = spaceStore.currentSpace;
+    const coverImageUrl = currentSpace?.spaceCoverUrl;
+    const [spaceImagePreviewState, setSpaceImagePreviewState] = useState<string | null>(coverImageUrl || null);
 
-    const [spaceImagePreviewState, setSpaceImagePreviewState] = useState<string | null>(null);
-    
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
