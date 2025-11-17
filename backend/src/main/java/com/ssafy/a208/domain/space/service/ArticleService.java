@@ -76,13 +76,13 @@ public class ArticleService {
         }
 
         // 파일 들어왔으면 고쳐주기
-        articleFileService.updateArticleFile(articleReq.filePath(), article);
+        String newFilePath = articleFileService.updateArticleFile(articleReq.filePath(), article);
 
         article.updateArticle(articleReq.title(), articleReq.description(), articleReq.prompt(),
                 PromptType.valueOf(articleReq.type()), articleReq.exampleQuestion(),
                 articleReq.exampleAnswer());
 
-        articleElasticSearchService.indexArticle(article, articleReq.filePath(), articleReq.tags());
+        articleElasticSearchService.indexArticle(article, newFilePath, articleReq.tags());
 
     }
 
