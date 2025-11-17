@@ -6,9 +6,6 @@ import com.ssafy.a208.domain.space.entity.ArticleDocument;
 import com.ssafy.a208.domain.space.repository.ArticleElasticSearchRepository;
 import com.ssafy.a208.domain.space.repository.ArticleElasticsearchRepositoryImpl;
 import com.ssafy.a208.global.common.enums.SortType;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -55,8 +52,8 @@ public class ArticleElasticSearchService {
                 .filePath(fileUrl)
                 .type(article.getType())
                 .tags(tags)
-                .createdAt(article.getCreatedAt())
-                .updatedAt(article.getUpdatedAt())
+                .createdAt(article.getCreatedAt().toLocalDate())
+                .updatedAt(article.getUpdatedAt().toLocalDate())
                 .build();
 
         articleElasticSearchRepository.save(articleDocument);

@@ -2,6 +2,7 @@ package com.ssafy.a208.domain.board.controller;
 
 import com.ssafy.a208.domain.board.service.PostMigrationService;
 import com.ssafy.a208.domain.scrap.service.ScrapMigrationService;
+import com.ssafy.a208.domain.space.service.ArticleMigrationService;
 import com.ssafy.a208.domain.tag.service.TagMigrationService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,7 @@ public class AdminRestController {
     private final PostMigrationService postMigrationService;
     private final TagMigrationService tagMigrationService;
     private final ScrapMigrationService scrapMigrationService;
+    private final ArticleMigrationService articleMigrationService;
 
     /**
      * 게시글 ElasticSearch 마이그레이션
@@ -64,5 +66,19 @@ public class AdminRestController {
         log.info("스크랩 마이그레이션 API 호출");
         scrapMigrationService.migrateAllScrapsToElasticsearch();
         return ApiResponse.ok("스크랩 마이그레이션 완료");
+    }
+
+    /**
+     * 아티클 ElasticSearch 마이그레이션
+     */
+    @PostMapping("/migrate-articles")
+    @Operation(
+            summary = "아티클 ES 마이그레이션 API",
+            description = "기존 PostgresQL의 스크랩을 ElasticSearch로 마이그레이션합니다."
+    )
+    public ResponseEntity<ApiResponse<String>> migrateArticles(){
+        log.info("아티클 마이그레이션 API 호출");
+        articleMigrationService.migrateAllArticlesToElasticsearch();
+        return ApiResponse.ok("아티클 마이그레이션 완료");
     }
 }

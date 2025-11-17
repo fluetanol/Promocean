@@ -49,10 +49,19 @@ public class ArticleFileService {
     }
 
     public String getArticleFileUrl(Article article) {
+        String filePath = getArticleFilePath(article);
+        if (Objects.isNull(filePath)) {
+            return null;
+        }
+
+        return s3Service.getCloudFrontUrl(filePath);
+    }
+
+    public String getArticleFilePath(Article article) {
         Optional<ArticleFile> articleFile = articleFileReader.getArticleFileById(article.getId());
 
         return articleFile
-                .map(existing -> s3Service.getCloudFrontUrl(existing.getFilePath()))
+                .map(existing -> existing.getFilePath())
                 .orElse(null);
     }
 

@@ -1,7 +1,7 @@
 package com.ssafy.a208.domain.space.dto.response;
 
 import com.ssafy.a208.global.common.enums.PromptType;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 public record ArticleListItemQueryRes(
@@ -10,7 +10,7 @@ public record ArticleListItemQueryRes(
         PromptType type,
         String filePath,
         Set<String> tags,
-        LocalDateTime updatedAt
+        LocalDate updatedAt
 ) {
 
 }
