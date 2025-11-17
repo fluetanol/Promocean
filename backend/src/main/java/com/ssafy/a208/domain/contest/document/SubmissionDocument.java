@@ -4,7 +4,10 @@ import com.ssafy.a208.global.common.enums.PromptType;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Mapping;
 import org.springframework.data.elasticsearch.annotations.Setting;
 
@@ -26,7 +29,10 @@ public class SubmissionDocument {
     private PromptType type;
     private long voteCount;
     private String filePath;
+
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime createdAt;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedAt;
 
     // 조회 시 타 테이블과 조인하지 않게 필요한 정보 추가
