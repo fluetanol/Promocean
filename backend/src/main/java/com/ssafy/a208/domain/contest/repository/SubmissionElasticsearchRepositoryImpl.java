@@ -114,7 +114,7 @@ public class SubmissionElasticsearchRepositoryImpl implements SubmissionElastics
         fieldsToUpdate.put("description", description);
         fieldsToUpdate.put("result", result);
         fieldsToUpdate.put("filePath", filePath);
-        fieldsToUpdate.put("updatedAt", updatedAt);
+        fieldsToUpdate.put("updatedAt", updatedAt.toString());
 
         Document partialDoc = Document.from(fieldsToUpdate);
 
