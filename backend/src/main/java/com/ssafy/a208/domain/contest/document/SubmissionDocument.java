@@ -39,9 +39,11 @@ public class SubmissionDocument {
     private Long contestId;
     private Long memberId;
 
-    // TODO: 이거는 사용자가 정보 바꾸면 어떻게 됨??
-    //  멤버 업데이트 할 때 엘라스틱 서치도 수정하나?
-    //  대회만 찾고 사용자 정보는 RDB에서 찾는 게 맞나?
     private String memberNickname;
     private String profilePath;
+
+    public void updateMemberInfo(String newNickname, String newProfilePath) {
+        this.memberNickname = newNickname;
+        this.profilePath = newProfilePath;
+    }
 }

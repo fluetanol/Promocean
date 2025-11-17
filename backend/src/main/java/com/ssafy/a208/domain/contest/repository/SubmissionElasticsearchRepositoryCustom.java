@@ -23,4 +23,10 @@ public interface SubmissionElasticsearchRepositoryCustom {
             String filePath,
             LocalDateTime updatedAt
     );
+
+    void updateMemberInfo(
+            String oldNickname,
+            String newNickname,
+            String newProfilePath
+    );
 }

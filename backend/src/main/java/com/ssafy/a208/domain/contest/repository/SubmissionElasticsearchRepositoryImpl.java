@@ -2,6 +2,8 @@ package com.ssafy.a208.domain.contest.repository;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import com.ssafy.a208.domain.contest.document.SubmissionDocument;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -110,11 +112,13 @@ public class SubmissionElasticsearchRepositoryImpl implements SubmissionElastics
             LocalDateTime updatedAt
     ) {
         Map<String, Object> fieldsToUpdate = new HashMap<>();
+        LocalDateTime truncated = updatedAt.truncatedTo(ChronoUnit.SECONDS);
+
         fieldsToUpdate.put("prompt", prompt);
         fieldsToUpdate.put("description", description);
         fieldsToUpdate.put("result", result);
         fieldsToUpdate.put("filePath", filePath);
-        fieldsToUpdate.put("updatedAt", updatedAt.toString());
+        fieldsToUpdate.put("updatedAt", truncated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
         Document partialDoc = Document.from(fieldsToUpdate);
 
@@ -123,5 +127,32 @@ public class SubmissionElasticsearchRepositoryImpl implements SubmissionElastics
                 .build();
 
         operations.update(query, operations.getIndexCoordinatesFor(SubmissionDocument.class));
+    }
+
+    @Override
+    public void updateMemberInfo(String oldNickname, String newNickname, String newProfilePath) {
+        NativeQuery query = NativeQuery.builder()
+                .withPageable(PageRequest.of(0, 1000))      // 기본이 10이라 크게 줘야 함
+                .withQuery(queryBuilderDsl -> queryBuilderDsl
+                        .term(termQuery -> termQuery
+                                .field("memberNickname.keyword")   // 분석 안 된 keyword 필드
+                                .value(oldNickname)
+                        )
+                )
+                .build();
+
+        SearchHits<SubmissionDocument> hits = operations.search(query, SubmissionDocument.class);
+
+        List<SubmissionDocument> docs = hits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .toList();
+
+        if (docs.isEmpty()) {
+            return;
+        }
+
+        docs.forEach(doc -> doc.updateMemberInfo(newNickname, newProfilePath));
+
+        operations.save(docs);
     }
 }

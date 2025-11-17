@@ -23,6 +23,7 @@ import com.ssafy.a208.domain.member.reader.ProfileReader;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.image.service.S3Service;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -271,7 +272,7 @@ public class SubmissionService {
                 submission.getDescription(),
                 submission.getResult(),
                 filePath,
-                submission.getUpdatedAt()
+                LocalDateTime.now()
         );
     }
 

@@ -1,5 +1,7 @@
 package com.ssafy.a208.domain.member.service;
 
+import com.ssafy.a208.domain.board.repository.PostElasticsearchRepositoryImpl;
+import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepository;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
@@ -10,6 +12,7 @@ import com.ssafy.a208.domain.member.exception.AlreadyExistNicknameException;
 import com.ssafy.a208.domain.member.exception.InvalidMemberCheckRequestException;
 import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.domain.member.repository.MemberRepository;
+import com.ssafy.a208.domain.scrap.repository.ScrapElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.space.entity.Space;
 import com.ssafy.a208.domain.space.service.SpaceService;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
@@ -28,6 +31,9 @@ public class MemberService {
     private final MemberReader memberReader;
     private final ProfileService profileService;
     private final MemberRepository memberRepository;
+    private final SubmissionElasticsearchRepository submissionElasticsearchRepository;
+    private final PostElasticsearchRepositoryImpl postElasticsearchRepository;
+    private final ScrapElasticsearchRepositoryImpl scrapElasticsearchRepository;
 
     private static final int TOKEN_AMOUNT = 5;
 
@@ -51,9 +57,15 @@ public class MemberService {
     @Transactional
     public void updateMember(CustomUserDetails userDetails, UpdateMemberReq memberReq) {
         Member member = memberReader.getMemberById(userDetails.memberId());
+        String oldNickname = member.getNickname();
+        String newNickname = oldNickname;
+        String profileFilePath = member.getProfileImage();
+        boolean updated = false;
 
         if (!Objects.isNull(memberReq.nickname()) && !memberReq.nickname().isBlank()) {
             member.updateNickname(memberReq.nickname());
+            newNickname = memberReq.nickname();
+            updated = true;
         }
 
         if (!Objects.isNull(memberReq.password()) && !memberReq.password().isBlank()) {
@@ -63,6 +75,12 @@ public class MemberService {
 
         if (!Objects.isNull(memberReq.filePath()) && !memberReq.filePath().isBlank()) {
             profileService.updateProfile(memberReq.filePath(), userDetails.memberId());
+            profileFilePath =member.getProfileImage();
+            updated = true;
+        }
+
+        if(updated) {
+            submissionElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
         }
     }
 
