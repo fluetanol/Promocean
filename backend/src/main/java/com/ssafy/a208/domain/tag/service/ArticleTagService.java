@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,19 +47,26 @@ public class ArticleTagService {
 
     @Transactional
     public void updateArticleTags(Set<String> tags, Article article) {
-        List<ArticleTag> articleTags = articleTagReader.getArticleTag(article);
+        List<ArticleTag> articleTags = articleTagReader.getArticleTag(article); // 원래 태그
 
-        Set<String> oldTags = new HashSet<>();
+        Set<String> existingTagNames = articleTags.stream()
+                .map(at -> at.getTag().getName())
+                .collect(Collectors.toSet());
+
+        Set<String> tagsToDelete = new HashSet<>(existingTagNames);
+        tagsToDelete.removeAll(tags);
+
+        Set<String> tagsToAdd = new HashSet<>(tags);
+        tagsToAdd.removeAll(existingTagNames);
+
         for (ArticleTag tag : articleTags) {
-            if (tags.contains(tag.getTag().getName())) {
-                oldTags.add(tag.getTag().getName());
+            if (tagsToDelete.contains(tag.getTag().getName())) {
+                articleTagRepository.delete(tag);
+                tagIndexService.updateTagUsageCount(tag.getTag().getId());
             }
-            articleTagRepository.delete(tag);
-            tagIndexService.updateTagUsageCount(tag.getTag().getId());
         }
 
-        tags.removeAll(oldTags);
-        createArticleTag(tags, article);
+        createArticleTag(tagsToAdd, article);
     }
 
     public List<String> getTagNames(Article article) {
