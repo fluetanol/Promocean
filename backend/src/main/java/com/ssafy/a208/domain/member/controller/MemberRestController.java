@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인, 남은토큰 확인 API가 담겨있어요")
+@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인, 멤버 검색, 남은토큰 확인 API가 담겨있어요")
 public class MemberRestController {
 
     private final MemberService memberService;
