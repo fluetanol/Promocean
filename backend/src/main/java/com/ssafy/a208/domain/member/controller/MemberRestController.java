@@ -3,6 +3,7 @@ package com.ssafy.a208.domain.member.controller;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
+import com.ssafy.a208.domain.member.dto.response.SearchMemberRes;
 import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.service.MemberService;
 import com.ssafy.a208.global.common.dto.ApiResponse;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인, 남은토큰 확인 API가 담겨있어요")
+@Tag(name = "회원", description = "회원가입/탈퇴, 내정보 수정, 중복확인, 멤버 검색, 남은토큰 확인 API가 담겨있어요")
 public class MemberRestController {
 
     private final MemberService memberService;
@@ -65,6 +66,17 @@ public class MemberRestController {
             @RequestParam(required = false) String nickname
     ) {
         CheckDuplicateRes res = memberService.checkDuplicate(email, nickname);
+        return ApiResponse.ok(res);
+    }
+
+
+    @GetMapping("/search")
+    @Operation(summary = "회원 조회 확인 API", description = "닉네임/이메일을 바탕으로 유저를 조회할 때 사용하는 API입니다")
+    public ResponseEntity<ApiResponse<SearchMemberRes>> searchMember(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String nickname
+    ) {
+        SearchMemberRes res = memberService.searchMember(email, nickname);
         return ApiResponse.ok(res);
     }
 

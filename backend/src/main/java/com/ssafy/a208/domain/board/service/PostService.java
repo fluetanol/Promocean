@@ -88,17 +88,18 @@ public class PostService {
 
         postRepository.save(post);
 
-        // ES 인덱싱 추가
-        postIndexService.indexPost(post);
-
-        // 태그 처리
-        postTagService.createTags(req.tags(), post);
-
         // 이미지 프롬프트인 경우 파일 처리
         if (promptType == PromptType.IMAGE && Objects.nonNull(req.filePath())
                 && !req.filePath().isBlank()) {
             postFileService.createPostFile(req.filePath(), post);
         }
+       
+
+        // ES 인덱싱 추가
+        postIndexService.indexPost(post);
+
+        // 태그 처리
+        postTagService.createTags(req.tags(), post);
 
         log.info("게시글 생성 완료 - postId: {}, type: {}", post.getId(), promptType);
 
