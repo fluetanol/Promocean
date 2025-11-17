@@ -3,6 +3,7 @@ package com.ssafy.a208.domain.member.service;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
+import com.ssafy.a208.domain.member.dto.response.SearchMemberRes;
 import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.exception.AlreadyExistEmailException;
@@ -64,6 +65,31 @@ public class MemberService {
         if (!Objects.isNull(memberReq.filePath()) && !memberReq.filePath().isBlank()) {
             profileService.updateProfile(memberReq.filePath(), userDetails.memberId());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public SearchMemberRes searchMember(String email, String nickname) {
+        if ((Objects.isNull(email) && Objects.isNull(nickname))
+                || (!Objects.isNull(email) && !Objects.isNull(nickname))) {
+            throw new InvalidMemberCheckRequestException();
+        }
+
+        if (!Objects.isNull(email)) {
+            Member member = memberReader.getMemberByEmail(email);
+            return SearchMemberRes.builder()
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .profileUrl(member.getProfileImage())
+                    .build();
+        }
+
+        Member member = memberReader.getMemberByNickname(nickname);
+        return SearchMemberRes.builder()
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .profileUrl(member.getProfileImage())
+                .build();
+
     }
 
     @Transactional(readOnly = true)
