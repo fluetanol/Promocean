@@ -7,6 +7,7 @@ import com.ssafy.a208.domain.board.entity.Post;
 import com.ssafy.a208.domain.board.entity.Reply;
 import com.ssafy.a208.domain.board.exception.ReplyAccessDeniedException;
 import com.ssafy.a208.domain.board.exception.ReplyNotFoundException;
+import com.ssafy.a208.domain.board.reader.PostLikeReader;
 import com.ssafy.a208.domain.board.reader.PostReader;
 import com.ssafy.a208.domain.board.reader.ReplyReader;
 import com.ssafy.a208.domain.board.repository.ReplyRepository;
@@ -34,7 +35,7 @@ public class ReplyService {
     private final AlarmService alarmService;
     private final ReplyRepository replyRepository;
     private final PostIndexService postIndexService;
-
+    private final PostLikeReader postLikeReader;
     /**
      * 댓글을 생성합니다.
      *
@@ -60,9 +61,7 @@ public class ReplyService {
         replyRepository.save(reply);
 
         //es 카운트 업데이트
-        int likeCount = (int) post.getPostLikes().stream()
-                .filter(like -> like.getDeletedAt() == null)
-                .count();
+        int likeCount = postLikeReader.countByPost(post);
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
@@ -146,9 +145,7 @@ public class ReplyService {
         // 댓글 소프트 딜리트
         reply.deleteReply();
 
-        int likeCount = (int) post.getPostLikes().stream()
-                .filter(like -> like.getDeletedAt() == null)
-                .count();
+        int likeCount = postLikeReader.countByPost(post);
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
 

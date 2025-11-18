@@ -58,9 +58,7 @@ public class PostLikeService {
         postLikeRepository.save(postLike);
 
         //es 업데이트
-        int likeCount = (int) post.getPostLikes().stream()
-                .filter(like -> like.getDeletedAt() == null)
-                .count() + 1;
+        int likeCount = postLikeReader.countByPost(post);
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
 

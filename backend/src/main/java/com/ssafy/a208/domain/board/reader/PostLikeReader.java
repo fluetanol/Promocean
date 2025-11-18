@@ -53,4 +53,8 @@ public class PostLikeReader {
     public boolean existsByPostIdAndMember(Long postId, Member member) {
         return postLikeRepository.existsByPostIdAndMemberAndDeletedAtIsNull(postId, member);
     }
+
+    public int countByPost(Post post) {
+        return (int) postLikeRepository.countByPostAndDeletedAtIsNull(post);
+    }
 }
