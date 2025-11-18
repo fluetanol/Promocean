@@ -77,8 +77,9 @@ public class ArticleFileService {
             return null;
         }
 
+        // 기존 파일이 들어온 경우, 기존 파일 반환
         if (!filePath.startsWith("tmp")) {
-            return null;
+            return filePath;
         }
 
         Optional<ArticleFile> file = articleFileReader.getArticleFileById(article.getId());
