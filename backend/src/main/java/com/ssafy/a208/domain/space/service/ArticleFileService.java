@@ -73,15 +73,15 @@ public class ArticleFileService {
     }
 
     public String updateArticleFile(String filePath, Article article) {
-        if (!Objects.isNull(filePath) && !filePath.isBlank()) {
+        if (Objects.isNull(filePath) && filePath.isBlank()) {
             return null;
         }
 
         Optional<ArticleFile> file = articleFileReader.getArticleFileById(article.getId());
         if (file.isPresent()) {
             ArticleFile existing = file.get();
-            s3Service.deleteFile(existing.getFilePath());
             String destPath = extractFilePath(filePath);
+            s3Service.deleteFile(existing.getFilePath());
             FileMetaData metaData = s3Service.getFileMetadata(destPath);
             existing.updateFile(metaData);
             return destPath;
