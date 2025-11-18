@@ -56,7 +56,7 @@ export default function SpaceAddMemberItem({
                         onClick={(e) => e.stopPropagation()}
                         className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value={TeamSpaceRole.READ_ONLY}>읽기 전용</option>
+                        <option value={TeamSpaceRole.READER}>읽기 전용</option>
                         <option value={TeamSpaceRole.EDITOR}>편집 가능</option>
                     </select>
                 )}

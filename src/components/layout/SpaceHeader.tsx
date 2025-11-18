@@ -3,6 +3,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import path from "path";
 import React from "react";
@@ -35,6 +36,7 @@ export default function SpaceHeader(
 
     const authStore = useAuthStore();
     const nickname = authStore.user?.nickname || "익명의 사용자";
+    const folderStore = useArchiveFolderStore();
 
     const params = useParams();
     const pathname =  usePathname();
@@ -43,24 +45,57 @@ export default function SpaceHeader(
     const pathSegments = pathname.split("/").splice(1,pathname.length);
     const router = useRouter();
 
+    // 폴더 내부 페이지인지 확인 (archive/[folderName] 또는 scrap, my-posts)
+    const isInFolderPage = (pathSegments[1] === "archive" && pathSegments[2] !== undefined) ||
+                           pathSegments[1] === "scrap" ||
+                           pathSegments[1] === "my-posts";
+
+    // 폴더 색상 가져오기 (archive 폴더인 경우만)
+    const folderColor = (pathSegments[1] === "archive" && pathSegments[2] !== undefined)
+                        ? folderStore.currentFolder?.color
+                        : undefined;
+
     const handleButtonClick = () => {
       console.log("Button clicked!");
       router.push(`/post?type=my-space&folder=${pathSegments[2]}`);
     }
 
+    const handleHeaderClick = () => {
+      router.push('/my-space/archive');
+    }
+
   return (
-    <header className=" w-full">
+    <header className="w-full">
       {/* 상단 영역 - 전체 너비 */}
-      <div className="flex flex-row justify-between items-center bg-primary text-white px-8 h-32 w-full">
-        <div>
-          <h1 className="text-3xl font-semibold">{nickname} 님의
-            {isTeamSpace ? ' 팀 스페이스' : ' 마이 스페이스'}</h1>
-          <p className="text-white/80 text-sm">{description}</p>
+      <div
+        className={`relative flex flex-row justify-between items-center text-white px-6 w-full transition-all duration-300 ease-in-out ${
+          isInFolderPage ? 'h-14' : 'h-32'
+        } ${folderColor ? '' : 'bg-primary'}`}
+        style={folderColor ? { backgroundColor: folderColor } : undefined}
+      >
+        {/* 어두운 그라데이션 오버레이 - 텍스트 가독성 향상 */}
+        {folderColor && (
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent pointer-events-none"></div>
+        )}
+
+        <div
+          className="relative z-10 cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={handleHeaderClick}
+        >
+          <h1 className={`font-semibold transition-all duration-300 ${isInFolderPage ? 'text-base' : 'text-3xl'}`}>
+            {nickname} 님의{isTeamSpace ? ' 팀 스페이스' : ' 마이 스페이스'}
+          </h1>
+          <p className={`text-white/90 transition-all duration-300 ${isInFolderPage ? 'text-[10px]' : 'text-sm'}`}>{description}</p>
         </div>
 
-        <button className={` ${pathSegments[1] == "archive" && pathSegments[2] != undefined ? "visible" : "invisible"} px-3 py-2 rounded-2xl hover:bg-slate-400 hover:cursor-pointer`}
+        <button
+          className={`relative z-10 ${pathSegments[1] == "archive" && pathSegments[2] != undefined ? "visible" : "invisible"} ${
+            isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-2'
+          } rounded-2xl bg-black/30 backdrop-blur-sm hover:bg-black/50 hover:cursor-pointer transition-all duration-300 border border-white/20 drop-shadow-lg`}
           onClick={handleButtonClick}
-        >아카이브 글쓰기</button>
+        >
+          아카이브 글쓰기
+        </button>
 
       </div>
     </header>

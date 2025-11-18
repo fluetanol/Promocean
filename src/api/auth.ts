@@ -3,6 +3,7 @@
 import { AuthResponse, LoginRequest, SignUpRequest, DuplicateCheckResponse } from '@/types/authType';
 import { apiFetch, BASE_URL } from '@/api/fetcher';
 import { useAuthStore } from '@/store/authStore';
+import { ApiResponse } from '@/types/apiTypes/common';
 
 export const authAPI = {
 
@@ -139,4 +140,33 @@ export const authAPI = {
     const { logout } = useAuthStore.getState();
     logout();
   },
+
+
+
+
+  async getMemberinfo(params : {email? : string, nickname? : string}): Promise<MemberInfo> {
+
+    const searchParams = new URLSearchParams();
+    if(params.email){
+      searchParams.append('email', params.email);
+    }
+    if(params.nickname){
+      searchParams.append('nickname', params.nickname);
+    }
+
+
+    const res = await apiFetch<ApiResponse<MemberInfo>>('/api/v1/members/search?' + searchParams.toString(), {
+      method: 'GET',
+    });
+
+    return res.data
+  }
 };
+
+  export interface MemberInfo{
+
+    nickname: string;
+    email: string;
+    profileUrl: string | null;
+
+  }

@@ -8,12 +8,17 @@ import ChevronDown from "@/components/icon/ChevronDown";
 import MagnifyingGlass from "@/components/icon/MagnifyingGlass";
 import Funnel from "@/components/icon/Funnel";
 
+interface MySpaceMyPostFilterProps {
+  basePath?: string; // 필터 적용 시 라우팅할 기본 경로
+}
+
 /**
  * MySpaceMyPostFilter component
- * @description 내 글 목록을 위한 필터 컴포넌트 (CombinedSearchFilter 기반)
+ * @description 마이 스페이스 게시글/스크랩 목록을 위한 필터 컴포넌트 (CombinedSearchFilter 기반)
+ * @param {string} basePath - 필터 적용 시 라우팅할 경로 (기본값: /my-space/my-posts)
  * @returns {React.ReactNode}
 */
-export default function MySpaceMyPostFilter() {
+export default function MySpaceMyPostFilter({ basePath = "/my-space/my-posts" }: MySpaceMyPostFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,7 +55,7 @@ export default function MySpaceMyPostFilter() {
     // 페이지는 1로 리셋
     params.set("page", "1");
 
-    router.push(`/my-space/my-posts?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   };
 
   // 쿼리 파라미터로 라우팅
@@ -88,7 +93,7 @@ export default function MySpaceMyPostFilter() {
     // page는 1로 리셋 (검색 시 첫 페이지로)
     params.set("page", "1");
 
-    router.push(`/my-space/my-posts?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   };
 
   return (

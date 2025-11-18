@@ -23,12 +23,12 @@ export interface TeamSpacePageProps {
     ownerMemberState?: SpaceParticipants | null;
     setMemberListState: (members: SpaceParticipants[]) => void;
     teamName?: string;
-
+    userRole?: "READER" | "EDITOR" | "OWNER";
 }
 
 
 
-export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handleModalClose, modalTabState, setModalTabState, memberListState, ownerMemberState, setMemberListState, teamName = "팀 스페이스"}: TeamSpacePageProps) {
+export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handleModalClose, modalTabState, setModalTabState, memberListState, ownerMemberState, setMemberListState, teamName = "팀 스페이스", userRole}: TeamSpacePageProps) {
     console.log("spaceId in TeamSpaceManageModal:", spaceId);
     const router = useRouter();
     const { user } = useAuthStore();
@@ -37,6 +37,17 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
     const spaceStore = useSpaceStore();
     const currentSpace = spaceStore.currentSpace;
     const setCurrentSpace = spaceStore.setCurrentSpace;
+
+    // 권한 확인
+    const isOwner = userRole === "OWNER";
+    const isEditor = userRole === "EDITOR";
+    const isReader = userRole === "READER";
+
+    // OWNER만 초대, 수정, 삭제 가능
+    // EDITOR, READER는 멤버 조회만 가능
+    const canInvite = isOwner;
+    const canEdit = isOwner;
+    const canDelete = isOwner;
     
     const [addMemberListState, setAddMemberListState] = useState<SpaceParticipants[]>([]);
     const [searchInputState, setSearchInputState] = useState("");
@@ -139,34 +150,29 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
                 return;
             }
 
-            // 사용자 존재 여부 확인
+            // 회원 정보 조회
             try {
-                const res = await authAPI.checkDuplicate(
+                const memberInfo = await authAPI.getMemberinfo(
                     searchMode === "email"
                         ? { email: searchValue }
                         : { nickname: searchValue }
                 );
 
-                if (!res?.data?.isDuplicated) {
-                    setSearchError(`존재하지 않는 ${searchMode === "email" ? "이메일" : "닉네임"}입니다. 다시 확인해주세요.`);
-                    return;
-                }
-
-                // 새 멤버 추가 (임시 데이터)
+                // 새 멤버 추가
                 const newMember: SpaceParticipants = {
                     participantId: Date.now(), // 임시 ID
-                    nickname: searchMode === "nickname" ? searchValue : "제인도",
-                    email: searchMode === "email" ? searchValue : `${searchValue}@temp.com`,
-                    role: "READ_ONLY",
-                    profileUrl: ""
+                    nickname: memberInfo.nickname,
+                    email: memberInfo.email,
+                    role: "READER",
+                    profileUrl: memberInfo.profileUrl || ""
                 };
 
                 setAddMemberListState(prev => [...prev, newMember]);
                 setSearchInputState(""); // 입력창 초기화
                 setSearchError(""); // 에러 메시지 초기화
             } catch (error) {
-                console.error("Error checking duplicate:", error);
-                setSearchError("사용자 확인 중 오류가 발생했습니다.");
+                console.error("Error fetching member info:", error);
+                setSearchError(`존재하지 않는 ${searchMode === "email" ? "이메일" : "닉네임"}입니다. 다시 확인해주세요.`);
             }
         }
     };
@@ -176,7 +182,7 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
         setAddMemberListState(prev =>
             prev.map(member =>
                 member.email === email
-                    ? { ...member, role: newRole === TeamSpaceRole.READ_ONLY ? "READ_ONLY" : "EDITOR" }
+                    ? { ...member, role: newRole === TeamSpaceRole.READER ? "READER" : newRole === TeamSpaceRole.EDITOR ? "EDITOR" : "OWNER" }
                     : member
             )
         );
@@ -294,7 +300,11 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
                 <div className="py-4 px-4 border-b border-gray-200">
                     <TeamSpaceInsertionModalTabs
                         modalTabState={modalTabState}
-                        setModalTabState={setModalTabState}/>
+                        setModalTabState={setModalTabState}
+                        canInvite={canInvite}
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                    />
                 </div>
 
                 {/* 컨텐츠 영역 - 스크롤 가능 */}
@@ -316,6 +326,7 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
                                 currentUserEmail={user?.email}
                                 onDelete={handleDeleteMember}
                                 onRoleChange={handleMemberRoleChangeInList}
+                                canManageMembers={isOwner}
                             />
                         </div>
                     </div>

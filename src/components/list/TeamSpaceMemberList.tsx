@@ -9,10 +9,11 @@ export interface TeamSpaceMemberListProps {
     currentUserEmail?: string;
     onDelete?: (participantId: number) => void;
     onRoleChange?: (email: string, newRole: TeamSpaceRole) => void;
+    canManageMembers?: boolean; // OWNER만 멤버 관리 가능
 }
 
 
-export default function TeamSpaceMemberList({ memberListState, currentUserEmail, onDelete, onRoleChange }: TeamSpaceMemberListProps){
+export default function TeamSpaceMemberList({ memberListState, currentUserEmail, onDelete, onRoleChange, canManageMembers = true }: TeamSpaceMemberListProps){
 
     // 팀원이 없는 경우 빈 상태 표시
     if (!memberListState || memberListState.length === 0) {
@@ -52,8 +53,8 @@ export default function TeamSpaceMemberList({ memberListState, currentUserEmail,
                             member={member}
                             index={index}
                             currentUserEmail={currentUserEmail}
-                            onDelete={onDelete}
-                            onRoleChange={onRoleChange}
+                            onDelete={canManageMembers ? onDelete : undefined}
+                            onRoleChange={canManageMembers ? onRoleChange : undefined}
                         />
                     ))}
 

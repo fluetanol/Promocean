@@ -1,7 +1,10 @@
 // frontend/src/components/layout/CommunityBoardItem.tsx
+'use client';
+
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 
 export interface SpaceArchiveBoardItemProps{
@@ -14,10 +17,23 @@ export interface SpaceArchiveBoardItemProps{
 }
 
 export default function SpaceArchiveBoardItem( { articleId, title, category, tags, image, folderName }: SpaceArchiveBoardItemProps) {
-  
+  const pathname = usePathname();
+
+  // 현재 경로에서 팀 스페이스인지 마이 스페이스인지 판단
+  const isTeamSpace = pathname.startsWith('/team-space');
+
+  // 팀 스페이스인 경우 team-archive ID 추출
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const teamArchiveId = isTeamSpace && pathSegments.length > 1 ? pathSegments[1] : '';
+
+  // 동적으로 href 생성
+  const href = isTeamSpace
+    ? `/team-space/${teamArchiveId}/${folderName}/${articleId}`
+    : `/my-space/archive/${folderName}/${articleId}`;
+
   return (
     <Link
-      href={`/my-space/archive/${folderName}/${articleId}`}
+      href={href}
       className="flex items-center justify-between w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 p-4"
     >
       {/* LEFT : 이미지 + 텍스트 */}

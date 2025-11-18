@@ -42,9 +42,9 @@ export default function TeamSpaceMemberItem({ member, index, currentUserEmail, o
         if (converted !== undefined) {
             return converted;
         }
-        // fallback: 기본값으로 READ_ONLY 반환
-        console.warn(`Invalid role value: ${member.role}, defaulting to READ_ONLY`);
-        return TeamSpaceRole.READ_ONLY;
+        // fallback: 기본값으로 READER 반환
+        console.warn(`Invalid role value: ${member.role}, defaulting to READER`);
+        return TeamSpaceRole.READER;
     };
 
     return(
@@ -72,7 +72,7 @@ export default function TeamSpaceMemberItem({ member, index, currentUserEmail, o
                     className ="hover:bg-gray-200 p-1 border-gray-200
                     outline-none
                     rounded-md">
-                        <option value={TeamSpaceRole.READ_ONLY}>읽기 허용</option>
+                        <option value={TeamSpaceRole.READER}>읽기 허용</option>
                         <option value={TeamSpaceRole.EDITOR}>편집 허용</option>
                         <option value={TeamSpaceRole.OWNER}>소유자</option>
                     </select>

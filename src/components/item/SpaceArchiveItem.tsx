@@ -165,47 +165,63 @@ export default function SpaceArchiveItem({
         <>
             <div
                 className={`
-                    w-40 h-60 relative rounded-[10px]
-                    shadow-[0px_4px_6px_0px_rgba(0,0,0,0.10)] overflow-hidden
-                    transition-all duration-200 ease-in-out
-                    hover:-translate-y-1 hover:brightness-105 hover:shadow-lg
-                    active:translate-y-0 active:scale-95 active:shadow-sm
-                    cursor-pointer
+                    group w-32 h-44 relative rounded-xl
+                    shadow-md overflow-hidden
+                    transition-all duration-300 ease-out
+                    hover:-translate-y-2 hover:shadow-2xl
+                    active:translate-y-0 active:scale-95 active:shadow-md
+                    cursor-pointer border-2 border-white/50 hover:border-white
                 `}
-                style={{ backgroundColor: color }}  // inline style로 배경색 적용
+                style={{ backgroundColor: color }}
                 onClick={handleArchiveRoute}
             >
-                <div className="w-full h-20 p-2.5 left-0 top-40 absolute bg-white inline-flex justify-center items-center">
-                    <div className="text-center justify-center text-(--text-color) text-2xl font-medium leading-9">
+                {/* 배경 그라데이션 오버레이 */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 group-hover:from-white/20 group-hover:to-black/5 transition-all duration-300"></div>
+
+                {/* 폴더 아이콘 워터마크 */}
+                <div className="absolute top-2 left-2 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
+                    <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                </div>
+
+                <div className="absolute w-full h-14 p-2 left-0 top-30 bg-white/95 backdrop-blur-sm inline-flex justify-center items-center shadow-lg z-10">
+                    <div className="text-center justify-center text-gray-800 text-base font-semibold leading-tight line-clamp-2">
                         {name}
                     </div>
                 </div>
 
                 {/* Pin 영역 */}
-                <div className="w-6 h-6 absolute top-[0.8rem] right-[0.8rem]" onClick={(e) => e.stopPropagation()}>
+                <div className="w-6 h-6 absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
                     <label className="relative block w-6 h-6 cursor-pointer">
                         <input
                             type="checkbox"
                             checked={isPinnedState}
-                            className="absolute opacity-0 w-7 h-7 cursor-pointer"
+                            className="absolute opacity-0 w-6 h-6 cursor-pointer"
                             aria-label={`${name} 아카이브 폴더 pinned 설정`}
                             onChange={handlePinnedClick}
                         />
-                        <Pin
-                            className={`w-6 h-6 transition-all duration-200
-                                        ${isPinnedState
-                                    ? 'fill-red-400 stroke-gray-800'
-                                    : 'fill-none stroke-gray-800'
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+                            isPinnedState
+                                ? 'bg-white shadow-md'
+                                : 'bg-white/80 hover:bg-white hover:shadow-md'
+                        }`}>
+                            <Pin
+                                className={`w-4 h-4 transition-all duration-200 ${
+                                    isPinnedState
+                                        ? 'fill-red-500 stroke-red-600'
+                                        : 'fill-none stroke-gray-600'
                                 }`}
-                        />
+                            />
+                        </div>
                     </label>
                 </div>
 
                 {/* 수정 및 삭제 버튼 영역 */}
-                <div className="absolute bottom-22 left-0 w-full flex flex-row gap-2 px-2" onClick={(e) => e.stopPropagation()}>
+                <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
                     <button
-                        className="flex-1 px-2 py-1.5 bg-white/90 text-gray-700 text-sm rounded-md
-                            hover:bg-white hover:shadow-md active:scale-95 transition-all duration-150"
+                        className="flex-1 px-2 py-1.5 bg-white text-gray-700 text-xs font-medium rounded-lg
+                            hover:bg-gray-50 hover:shadow-lg active:scale-95 transition-all duration-150 border border-gray-200"
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsEditModalOpen(true);
@@ -214,8 +230,8 @@ export default function SpaceArchiveItem({
                         수정
                     </button>
                     <button
-                        className="flex-1 px-2 py-1.5 bg-red-500/90 text-white text-sm rounded-md
-                            hover:bg-red-500 hover:shadow-md active:scale-95 transition-all duration-150"
+                        className="flex-1 px-2 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg
+                            hover:bg-red-600 hover:shadow-lg active:scale-95 transition-all duration-150"
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsDeleteModalOpen(true);

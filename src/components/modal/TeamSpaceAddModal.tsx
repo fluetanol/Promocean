@@ -1,16 +1,15 @@
 import { useState } from "react";
-import Image from "next/image";
-import { SpaceAddMemberItemProps } from "../item/SpaceAddMemberItem";
-import TeamSpaceAddMemberList from "../list/TeamSpaceAddMemberList";
 import TeamSpaceTeamChoiceLabelList from "../list/TeamSpaceTeamChoiceLabelList";
 import { TeamSpaceChoiceItemProps } from "../item/TeamSpaceTeamChoiceItem";
 import { TeamSpaceRole } from "@/enum/TeamSpaceRole";
 import SpaceAPI from "@/api/space";
+import { authAPI } from "@/api/auth";
 
 export interface SelectedMember {
     name: string;
     email: string;
     role: TeamSpaceRole;
+    profileUrl?: string | null;
 }
 
 
@@ -23,16 +22,68 @@ export interface TeamSpaceAddModalProps{
 }
 
 
-
+/**
+ *  팀 스페이스 생성 모달 컴포넌트
+ * @param param0 
+ * @returns 
+ */
 export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSpaceTeamChoiceList, setTeamSpaceTeamChoiceList}: TeamSpaceAddModalProps){
 
-    const [isMemberExistState, setIsMemberExistState] = useState(false);
-    const [searchSpaceMemberListState, setSearchSpaceMemberListState] = useState<SpaceAddMemberItemProps[]>([])
     const [selectedMembersState, setSelectedMembersState] = useState<Map<string, SelectedMember>>(new Map());
     const [spaceNameState, setSpaceNameState] = useState("");
     const [spaceNameErrorState, setSpaceNameErrorState] = useState(false);
     const [spaceImageState, setSpaceImageState] = useState<File | null>(null);
+    const [searchInputState, setSearchInputState] = useState("");
+    const [searchMode, setSearchMode] = useState<"email" | "nickname">("email");
+    const [searchError, setSearchError] = useState("");
 
+    // 검색 입력 후 엔터 키 처리
+    const handleSearchKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && searchInputState.trim()) {
+            e.preventDefault();
+            setSearchError(""); // 에러 메시지 초기화
+
+            const searchValue = searchInputState.trim();
+
+            // 이미 추가 목록에 있는지 확인
+            const isDuplicate = Array.from(selectedMembersState.values()).some(m =>
+                searchMode === "email"
+                    ? m.email === searchValue
+                    : m.name === searchValue
+            );
+            if (isDuplicate) {
+                setSearchError(`이미 추가된 ${searchMode === "email" ? "이메일" : "닉네임"}입니다.`);
+                return;
+            }
+
+            // 회원 정보 조회
+            try {
+                const memberInfo = await authAPI.getMemberinfo(
+                    searchMode === "email"
+                        ? { email: searchValue }
+                        : { nickname: searchValue }
+                );
+
+                // 새 멤버 추가
+                const newMember: SelectedMember = {
+                    name: memberInfo.nickname,
+                    email: memberInfo.email,
+                    role: TeamSpaceRole.READER,
+                    profileUrl: memberInfo.profileUrl
+                };
+
+                const newMap = new Map(selectedMembersState);
+                newMap.set(newMember.email, newMember);
+                setSelectedMembersState(newMap);
+
+                setSearchInputState(""); // 입력창 초기화
+                setSearchError(""); // 에러 메시지 초기화
+            } catch (error) {
+                console.error("Error fetching member info:", error);
+                setSearchError(`존재하지 않는 ${searchMode === "email" ? "이메일" : "닉네임"}입니다. 다시 확인해주세요.`);
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,7 +116,8 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
                 name: res!.name,
                 participantCnt: res!.participantsCnt,
                 spaceCoverUrl: res!.spaceCoverUrl,
-                spaceId: res!.spaceId
+                spaceId: res!.spaceId,
+                userRole: "OWNER"
             }
         ])
 
@@ -114,31 +166,54 @@ export default function TeamSpaceAddModal({isModalState, setIsModalState, teamSp
                             </div>
 
 
-                            <div>
-                                <div className="relative">
-                                <input type="text"
-                                    placeholder="팀원 닉네임 또는 이메일을 입력하세요"
-                                    className = "w-full border border-gray-300 rounded-[10px] p-3"
-                                    onKeyDown={(e)=>{
-                                              if(e.key === '\n' || e.key === 'Enter'){
-                                            console.log("zz");
-                                        }
-                                    }}
-                                />
+                            <div className="flex flex-col gap-3">
+                                {/* 검색 모드 선택 드롭다운 */}
+                                <div className="flex items-center gap-2">
+                                    <label className="text-sm text-gray-600">검색 방식:</label>
+                                    <select
+                                        value={searchMode}
+                                        onChange={(e) => {
+                                            setSearchMode(e.target.value as "email" | "nickname");
+                                            setSearchError("");
+                                            setSearchInputState("");
+                                        }}
+                                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                    >
+                                        <option value="email">이메일</option>
+                                        <option value="nickname">닉네임</option>
+                                    </select>
+                                </div>
 
-                                {isMemberExistState &&
-                                    <TeamSpaceAddMemberList
-                                    searchSpaceMemberListState={searchSpaceMemberListState}
-                                    selectedMembersState={selectedMembersState}
-                                    setSelectedMembersState={setSelectedMembersState} />
-                                }
+                                {/* 검색 입력 필드 */}
+                                <div className="flex flex-col gap-1">
+                                    <input
+                                        type={searchMode === "email" ? "email" : "text"}
+                                        placeholder={searchMode === "email"
+                                            ? "초대할 멤버의 이메일을 입력하고 Enter를 누르세요"
+                                            : "초대할 멤버의 닉네임을 입력하고 Enter를 누르세요"
+                                        }
+                                        className={`w-full border rounded-[10px] px-4 py-2 focus:outline-none focus:ring-2 transition-all ${
+                                            searchError
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : "border-gray-300 focus:ring-primary"
+                                        }`}
+                                        value={searchInputState}
+                                        onChange={(e) => {
+                                            setSearchInputState(e.target.value);
+                                            setSearchError(""); // 입력 시 에러 메시지 제거
+                                        }}
+                                        onKeyDown={handleSearchKeyPress}
+                                    />
+                                    {/* 인라인 에러 메시지 */}
+                                    {searchError && (
+                                        <p className="text-red-500 text-sm px-1">{searchError}</p>
+                                    )}
                                 </div>
 
                                 <TeamSpaceTeamChoiceLabelList
                                     selectedMembersState={selectedMembersState}
                                     setSelectedMembersState={setSelectedMembersState}
                                 />
-
                             </div>
                         </div>
 

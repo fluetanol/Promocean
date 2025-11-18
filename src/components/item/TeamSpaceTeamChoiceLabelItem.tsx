@@ -28,7 +28,7 @@ export default function TeamSpaceTeamChoiceLabelItem({ member, onRoleChange, onR
                     onChange={(e) => onRoleChange(member.email, Number(e.target.value) as TeamSpaceRole)}
                     className="hover:bg-gray-200 px-2 py-1 border-gray-200 outline-none rounded-md text-sm"
                 >
-                    <option value={TeamSpaceRole.READ_ONLY}>읽기 허용</option>
+                    <option value={TeamSpaceRole.READER}>읽기 허용</option>
                     <option value={TeamSpaceRole.EDITOR}>편집 허용</option>
                     <option value={TeamSpaceRole.OWNER}>소유자</option>
                 </select>

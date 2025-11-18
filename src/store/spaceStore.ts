@@ -1,5 +1,6 @@
 // frontend/src/store/spaceStore.ts
 
+import { SpaceRole } from '@/enum/TeamSpaceRole';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -15,6 +16,7 @@ export interface TeamSpaceInfo {
   participantCnt: number;
   spaceCoverUrl: string;
   spaceId: number;
+  userRole : SpaceRole;
 }
 
 /**

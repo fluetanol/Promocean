@@ -10,9 +10,9 @@ export interface SpaceBoardHeaderProps {
 
 
 export function SpaceBoardHeader(   { title, description } : SpaceBoardHeaderProps ) {
-    
-    
-    
+
+
+
     const folderStore = useArchiveFolderStore();
     const currentStore = folderStore.currentFolder;
     const titleName = currentStore ? currentStore.name : "";
