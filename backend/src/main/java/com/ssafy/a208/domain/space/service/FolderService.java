@@ -107,8 +107,22 @@ public class FolderService {
         return folder;
     }
 
+    public Folder getReadableFolder(Long spaceId, Long folderId, Long memberId) {
+        Folder folder = folderReader.getFolderById(folderId);
+        Space space = spaceService.getReadableSpace(spaceId, memberId);
+
+        if (!Objects.equals(folder.getSpace(), space)) {
+            throw new FolderNotFoundException();
+        }
+        return folder;
+    }
+
     public void validateEditableFolder(Long spaceId, Long folderId, Long memberId) {
         getEditableFolder(spaceId, folderId, memberId);
+    }
+
+    public void validateReadableFolder(Long spaceId, Long folderId, Long memberId) {
+        getReadableFolder(spaceId, folderId, memberId);
     }
 
 }

@@ -37,7 +37,6 @@ public class ArticleService {
     public ArticleDetailRes createArticle(CustomUserDetails userDetails, Long spaceId,
             Long folderId, ArticleReq articleReq) {
         Folder folder = folderService.getEditableFolder(spaceId, folderId, userDetails.memberId());
-        validateArticleRequest(articleReq);
 
         Article article = saveArticle(articleReq, folder);
         articleTagService.createArticleTag(articleReq.tags(), article);
@@ -63,7 +62,6 @@ public class ArticleService {
     public void updateArticle(CustomUserDetails userDetails, Long spaceId, Long folderId,
             Long articleId, ArticleReq articleReq) {
         folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
-        validateArticleRequest(articleReq);
         Article article = articleReader.getArticleById(articleId);
 
         // 해시태그 처리
@@ -162,21 +160,5 @@ public class ArticleService {
                 .folder(folder)
                 .build();
         return articleRepository.save(article);
-    }
-
-
-    private void validateArticleRequest(ArticleReq articleReq) {
-        if (Objects.equals(articleReq.type(), 1)) { // TEXT
-            if (!Objects.isNull(articleReq.filePath()) && !articleReq.filePath().isBlank()) {
-                throw new InvalidArticleRequestException();
-            }
-        } else if (Objects.equals(articleReq.type(), 2)) { // IMAGE
-            if ((!Objects.isNull(articleReq.exampleQuestion()) && !articleReq.exampleQuestion()
-                    .isBlank())
-                    || (!Objects.isNull(articleReq.exampleAnswer()) && !articleReq.exampleAnswer()
-                    .isBlank())) {
-                throw new InvalidArticleRequestException();
-            }
-        }
     }
 }
