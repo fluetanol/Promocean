@@ -30,6 +30,7 @@ public interface ContestRepository extends JpaRepository<Contest, Long> {
                 WHEN :now >= c.voteEndAt THEN 'FINISHED'
                 ELSE c.status
             END
+        WHERE c.status <> 'FINISHED'
         """)
     int updateContestStatus(@Param("now") LocalDateTime now);
 }
