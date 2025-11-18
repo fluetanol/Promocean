@@ -14,7 +14,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#5c94f7",
+        primary: "#0094ff",
         secondary: "#a6fbfc",
         background: "#fdfdfc",
         text: "#343434",
@@ -32,7 +32,7 @@ export const daisyuiThemes = {
   themes: [
     {
       promeocean: {
-        primary: "#5c94f7",
+        primary: "#0094ff",
         secondary: "#a6fbfc",
         accent: "#4b7cf7",
         neutral: "#343434",

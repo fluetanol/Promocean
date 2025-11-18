@@ -6,6 +6,7 @@ import SpaceArchiveAddModal from "../modal/SpaceArchiveAddModal";
 import { SpaceArchiveData } from "@/app/my-space/page";
 import { useAuthStore } from "@/store/authStore";
 import { useSpaceStore } from "@/store/spaceStore";
+import { SpaceAPI } from "@/api/space";
 
 export interface SpaceArchiveListProps {
   isPinnedList?: boolean;
@@ -36,6 +37,7 @@ export default function SpaceArchiveList({
 }: SpaceArchiveListProps) {
     const [isModalOpenState, setIsModalOpenState] = useState(false);
     const [shouldRenderModalState, setShouldRenderModalState] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
     const spaceStore = useSpaceStore();
 
     // 팀 스페이스인 경우 권한 확인
@@ -56,6 +58,47 @@ export default function SpaceArchiveList({
         }, 300);
     };
 
+    // 드래그 오버 핸들러
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setIsDragOver(true);
+    };
+
+    // 드래그 리브 핸들러
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragOver(false);
+    };
+
+    // 드롭 핸들러 - 빈 공간에 드롭했을 때
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragOver(false);
+
+        const draggedData = JSON.parse(e.dataTransfer.getData('application/json')) as SpaceArchiveData;
+
+        // 드래그한 폴더와 드롭 대상의 pinned 상태가 다른 경우에만 처리
+        if (draggedData.isPinned !== isPinnedList) {
+            // API 호출로 핀 상태 변경
+            await SpaceAPI.patchMySpaceArchiveFolderPinStatus(spaceId!, draggedData.folderId);
+
+            // 드래그한 아이템을 원래 리스트에서 제거하고 새 리스트에 추가
+            if (draggedData.isPinned) {
+                // Pinned -> 일반 폴더로 이동
+                const updatedPinnedList = pinnedItemListState.filter(item => item.folderId !== draggedData.folderId);
+                setPinnedItemListState(updatedPinnedList);
+                setArchiveItemListState([...archiveItemListState, { ...draggedData, isPinned: false }]);
+            } else {
+                // 일반 폴더 -> Pinned로 이동
+                const updatedArchiveList = archiveItemListState.filter(item => item.folderId !== draggedData.folderId);
+                setArchiveItemListState(updatedArchiveList);
+                setPinnedItemListState([...pinnedItemListState, { ...draggedData, isPinned: true }]);
+            }
+
+            console.log(`${draggedData.name} 폴더를 드래그하여 ${isPinnedList ? 'Pinned' : '일반'}로 이동`);
+        }
+    };
 
     // console.log("isPinnedList:", isPinnedList);
 
@@ -63,7 +106,14 @@ export default function SpaceArchiveList({
     // console.log("displayList:", displayList);
 
     return (
-        <div className="flex flex-wrap flex-row p-7 gap-4">
+        <div
+            className={`flex flex-wrap flex-row p-7 gap-4 min-h-[200px] transition-all duration-200 ${
+                isDragOver ? 'bg-blue-50 ring-2 ring-blue-300 ring-inset rounded-lg' : ''
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+        >
             {isPinnedList ? (
                 <button
                     className={`${interactiveBtnClasses} bg-white outline-2 outline-dodger-blue-11`}

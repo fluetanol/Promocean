@@ -29,12 +29,12 @@ interface HashtagInputProps {
 export default function HashtagInput({
   tags,
   onTagsChange,
-  placeholder = '#해시태그를 입력하고 스페이스를 누르세요',
+  placeholder = '#해시태그를 입력하고 스페이스, 엔터 또는 탭을 누르세요',
 }: HashtagInputProps) {
   const [inputValue, setInputValue] = useState('');
-
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === ' ' && inputValue.trim()) {
+    if ((e.key === ' ' || e.key === 'Enter' || e.key === 'Tab') && inputValue.trim()) {
+      console.log("태그 입력 완료");
       e.preventDefault();
 
       // #으로 시작하는지 확인

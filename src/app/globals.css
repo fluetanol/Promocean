@@ -1,13 +1,13 @@
 @import "tailwindcss";
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 /* @plugin "daisyui"; */
-@tailwind base;
-@tailwind components;
+/* @tailwind base;
+@tailwind components; */
 @tailwind utilities;
 
 :root {
   /* PromOcean Color Palette */
-  --primary: #5c94f7;
+  --primary: #0094f7;
   --secondary: #a6fbfc;
   --background: #fdfdfc;
   --text: #343434;

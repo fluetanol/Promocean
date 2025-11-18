@@ -18,6 +18,7 @@ interface SidebarSectionProps {
   setIsAlarm: (isAlarm:boolean) => void
   hasNewAlarm: boolean
   setHasNewAlarm: (hasNew: boolean) => void
+  alarmButtonRef?: React.RefObject<HTMLButtonElement | null>
 }
 
 /**
@@ -26,7 +27,7 @@ interface SidebarSectionProps {
  * @param {SidebarSectionProps} props - The props for the SidebarSection component
  * @returns {React.ReactNode}
  */
-export default function SidebarSection({title, sidebarList, setAlarmList, isAlarm, setIsAlarm, hasNewAlarm, setHasNewAlarm}: SidebarSectionProps) {
+export default function SidebarSection({title, sidebarList, setAlarmList, isAlarm, setIsAlarm, hasNewAlarm, setHasNewAlarm, alarmButtonRef}: SidebarSectionProps) {
   const { isCollapsed } = useSidebar();
 
   const callback = async ()=>{
@@ -51,6 +52,7 @@ export default function SidebarSection({title, sidebarList, setAlarmList, isAlar
           onClick ={callback}
           showBadge={hasNewAlarm}
           isActive={isAlarm}
+          buttonRef={alarmButtonRef}
         />
 
     </div>

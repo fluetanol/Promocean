@@ -14,15 +14,6 @@ export default async function MySpaceArchiveFolderPage({ params }: MySpaceArchiv
   const { folderId } = await params;
   
   return (
-
-    <div className="min-h-screen bg-gray-50">
-
-      <SpaceBoardHeader description={`자신이 아카이브에 쓴 글을 확인하세요`} /> 
-
-
       <SpaceArchiveBoardList />
-
-    </div>
-
   );
 }

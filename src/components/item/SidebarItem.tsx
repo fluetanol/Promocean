@@ -13,7 +13,7 @@ import { useSidebar } from '@/contexts/SidebarContext'
  * @param {SidebarItemProps} props - The props for the SidebarItem component
  * @returns {React.ReactNode}
  */
-export default function SidebarItem({ icon, title, href, onClick, showBadge, isActive }: SidebarItemProps) {
+export default function SidebarItem({ icon, title, href, onClick, showBadge, isActive, buttonRef }: SidebarItemProps) {
   const { isCollapsed, showText, isCollapsing } = useSidebar();
 
   const baseClass =
@@ -31,6 +31,7 @@ export default function SidebarItem({ icon, title, href, onClick, showBadge, isA
   if (onClick) {
     return (
       <button
+        ref={buttonRef}
         type="button"
         onClick={onClick}
         className={`${className} relative`}

@@ -24,6 +24,7 @@ export default function AlarmInvitationItem({
     const handleItemClick = () => {
         if (isRemove) return;
         // TODO: 팀 스페이스로 이동
+        console.log("스페이스 아이디 ",spaceId)
         router.push(`/team-space/${spaceId}`);
     };
 

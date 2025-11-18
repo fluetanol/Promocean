@@ -61,10 +61,15 @@ export default function SpaceArchiveItem({
     const [isPinnedState, setIsPinnedState] = useState(isPinned);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const archiveFolderStore = useArchiveFolderStore();
     const spaceStore = useSpaceStore();
-    const teamName = spaceStore.currentSpace?.name;
     const spaceId = spaceStore.currentSpace?.spaceId;
+
+    // 팀 스페이스의 경우 권한 확인
+    const userRole = isTeamSpace ? spaceStore.currentSpace?.userRole : null;
+    const isReader = userRole === "READER";
+    const canEdit = !isTeamSpace || !isReader; // 개인 스페이스 또는 READER가 아닌 경우
     
     const handleArchiveRoute = () => {
         console.log(`${name} 아카이브 아이템 클릭됨`);
@@ -75,10 +80,10 @@ export default function SpaceArchiveItem({
             isPinned : isPinned
         })
 
-        if(isTeamSpace && teamName) {
-          router.push(`/team-space/${encodeURIComponent(teamName)}/${encodeURIComponent(name)}`);
+        if(isTeamSpace && spaceId) {
+          router.push(`/team-space/${spaceId}/${folderId}`);
         } else {
-          router.push('/my-space/archive/' + encodeURIComponent(name));
+          router.push(`/my-space/archive/${folderId}`);
         }
     }
 
@@ -136,7 +141,7 @@ export default function SpaceArchiveItem({
     const handleEdit = async (newTitle: string, newBgColor: string) => {
         console.log("id ",spaceId, folderId)
 
-        const res = await SpaceAPI.patchMySpaceArchiveFolderData(spaceId!, folderId, {
+        await SpaceAPI.patchMySpaceArchiveFolderData(spaceId!, folderId, {
             name: newTitle,
             color: colorCodeFrontToBack(newBgColor),
         });
@@ -161,9 +166,83 @@ export default function SpaceArchiveItem({
         console.log(`${name} 아카이브 폴더 수정됨:`, { newTitle, newBgColor });
     }
 
+    // 드래그 시작 핸들러
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+        // Reader 권한인 경우 드래그 불가
+        if (!canEdit) {
+            e.preventDefault();
+            return;
+        }
+
+        setIsDragging(true);
+        //dataTransfer란 드래그 앤 드롭 시에 데이터를 전달하는 역할을 하는 객체
+        //effectAllowed는 드래그 앤 드롭 작업에서 허용되는 효과를 지정
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('application/json', JSON.stringify({
+            folderId,
+            name,
+            color,
+            isPinned: isPinnedState
+        }));
+    };
+
+    // 드래그 종료 핸들러
+    const handleDragEnd = () => {
+        setIsDragging(false);
+    };
+
+    // 드래그 오버 핸들러
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        //dataTransfer은 기본적으로 드롭이 불가능하도록 설정되어 있어야 하므로, 
+        //여기서 드롭 가능하도록 설정
+        //dropEffect는 커서 모양을 지정
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    // 드롭 핸들러
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        //어차피 자스 객체들은 제이슨 형태라서 파싱 가능함을 잊지 말자
+        const draggedData = JSON.parse(e.dataTransfer.getData('application/json')) as SpaceArchiveData;
+
+        // 자기 자신에게 드롭한 경우 무시
+        if (draggedData.folderId === folderId) {
+            return;
+        }
+
+        // 드래그한 폴더와 드롭 대상 폴더의 pinned 상태가 다른 경우 핀 상태 변경
+        if (draggedData.isPinned !== isPinnedState) {
+            // API 호출로 핀 상태 변경
+            await SpaceAPI.patchMySpaceArchiveFolderPinStatus(spaceId!, draggedData.folderId);
+
+            // 드래그한 아이템을 원래 리스트에서 제거하고 새 리스트에 추가
+            if (draggedData.isPinned) {
+                // Pinned -> 일반 폴더로 이동
+                const updatedPinnedList = pinnedItemListState.filter(item => item.folderId !== draggedData.folderId);
+                setPinnedItemListState(updatedPinnedList);
+                setArchiveItemListState([...archiveItemListState, { ...draggedData, isPinned: false }]);
+            } else {
+                // 일반 폴더 -> Pinned로 이동
+                const updatedArchiveList = archiveItemListState.filter(item => item.folderId !== draggedData.folderId);
+                setArchiveItemListState(updatedArchiveList);
+                setPinnedItemListState([...pinnedItemListState, { ...draggedData, isPinned: true }]);
+            }
+
+            console.log(`${draggedData.name} 폴더를 드래그하여 ${isPinnedState ? 'Pinned' : '일반'}로 이동`);
+        }
+    };
+
     return (
         <>
             <div
+                draggable={canEdit}
+                onDragStart={canEdit ? handleDragStart : undefined}
+                onDragEnd={canEdit ? handleDragEnd : undefined}
+                onDragOver={canEdit ? handleDragOver : undefined}
+                onDrop={canEdit ? handleDrop : undefined}
                 className={`
                     group w-32 h-44 relative rounded-xl
                     shadow-md overflow-hidden
@@ -171,12 +250,13 @@ export default function SpaceArchiveItem({
                     hover:-translate-y-2 hover:shadow-2xl
                     active:translate-y-0 active:scale-95 active:shadow-md
                     cursor-pointer border-2 border-white/50 hover:border-white
+                    ${isDragging ? 'opacity-50 scale-95' : ''}
                 `}
                 style={{ backgroundColor: color }}
                 onClick={handleArchiveRoute}
             >
                 {/* 배경 그라데이션 오버레이 */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 group-hover:from-white/20 group-hover:to-black/5 transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-black/10 group-hover:from-white/20 group-hover:to-black/5 transition-all duration-300"></div>
 
                 {/* 폴더 아이콘 워터마크 */}
                 <div className="absolute top-2 left-2 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
@@ -191,55 +271,59 @@ export default function SpaceArchiveItem({
                     </div>
                 </div>
 
-                {/* Pin 영역 */}
-                <div className="w-6 h-6 absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
-                    <label className="relative block w-6 h-6 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={isPinnedState}
-                            className="absolute opacity-0 w-6 h-6 cursor-pointer"
-                            aria-label={`${name} 아카이브 폴더 pinned 설정`}
-                            onChange={handlePinnedClick}
-                        />
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
-                            isPinnedState
-                                ? 'bg-white shadow-md'
-                                : 'bg-white/80 hover:bg-white hover:shadow-md'
-                        }`}>
-                            <Pin
-                                className={`w-4 h-4 transition-all duration-200 ${
-                                    isPinnedState
-                                        ? 'fill-red-500 stroke-red-600'
-                                        : 'fill-none stroke-gray-600'
-                                }`}
+                {/* Pin 영역 - Reader 권한이 아닐 때만 표시 */}
+                {canEdit && (
+                    <div className="w-6 h-6 absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
+                        <label className="relative block w-6 h-6 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={isPinnedState}
+                                className="absolute opacity-0 w-6 h-6 cursor-pointer"
+                                aria-label={`${name} 아카이브 폴더 pinned 설정`}
+                                onChange={handlePinnedClick}
                             />
-                        </div>
-                    </label>
-                </div>
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+                                isPinnedState
+                                    ? 'bg-white shadow-md'
+                                    : 'bg-white/80 hover:bg-white hover:shadow-md'
+                            }`}>
+                                <Pin
+                                    className={`w-4 h-4 transition-all duration-200 ${
+                                        isPinnedState
+                                            ? 'fill-red-500 stroke-red-600'
+                                            : 'fill-none stroke-gray-600'
+                                    }`}
+                                />
+                            </div>
+                        </label>
+                    </div>
+                )}
 
-                {/* 수정 및 삭제 버튼 영역 */}
-                <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
-                    <button
-                        className="flex-1 px-2 py-1.5 bg-white text-gray-700 text-xs font-medium rounded-lg
-                            hover:bg-gray-50 hover:shadow-lg active:scale-95 transition-all duration-150 border border-gray-200"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsEditModalOpen(true);
-                        }}
-                    >
-                        수정
-                    </button>
-                    <button
-                        className="flex-1 px-2 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg
-                            hover:bg-red-600 hover:shadow-lg active:scale-95 transition-all duration-150"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsDeleteModalOpen(true);
-                        }}
-                    >
-                        삭제
-                    </button>
-                </div>
+                {/* 수정 및 삭제 버튼 영역 - Reader 권한이 아닐 때만 표시 */}
+                {canEdit && (
+                    <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="flex-1 px-2 py-1.5 bg-white text-gray-700 text-xs font-medium rounded-lg
+                                hover:bg-gray-50 hover:shadow-lg active:scale-95 transition-all duration-150 border border-gray-200"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsEditModalOpen(true);
+                            }}
+                        >
+                            수정
+                        </button>
+                        <button
+                            className="flex-1 px-2 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg
+                                hover:bg-red-600 hover:shadow-lg active:scale-95 transition-all duration-150"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsDeleteModalOpen(true);
+                            }}
+                        >
+                            삭제
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* 삭제 확인 모달 */}

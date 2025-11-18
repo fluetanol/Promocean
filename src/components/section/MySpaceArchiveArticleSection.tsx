@@ -37,8 +37,8 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
         return;
       }
 
-      // 수정 페이지로 이동: /post?type=my-space&folder=폴더명&mode=edit&articleId=123
-      const editUrl = `/post?type=my-space&folder=${encodeURIComponent(currentFolder.name)}&mode=edit&articleId=${articleData.articleId}`;
+      // 수정 페이지로 이동: /post?type=my-space&folderId=123&mode=edit&articleId=456
+      const editUrl = `/post?type=my-space&folderId=${currentFolder.folderId}&mode=edit&articleId=${articleData.articleId}`;
       router.push(editUrl);
     };
 
@@ -72,8 +72,8 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
           alert('게시글이 성공적으로 삭제되었습니다.');
 
           // 아카이브 목록 페이지로 직접 이동
-          // 마이스페이스: /my-space/archive/[폴더명]
-          router.push(`/my-space/archive/${encodeURIComponent(currentFolder.name)}`);
+          // 마이스페이스: /my-space/archive/[folderId]
+          router.push(`/my-space/archive/${currentFolder.folderId}`);
         } else {
           throw new Error('삭제 응답이 없습니다.');
         }

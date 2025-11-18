@@ -51,7 +51,7 @@ export default function TeamSpaceHeader(
   const userNickname = authStore.user?.nickname;
   const router = useRouter();
   const params = useParams();
-  const isFolderPage = Boolean(params['folder']);
+  const isFolderPage = Boolean(params['folderId']);
   console.log("isFolderPage:", isFolderPage);
 
   // 현재 사용자의 권한 가져오기
@@ -61,12 +61,12 @@ export default function TeamSpaceHeader(
   const isReader = userRole === "READER";
 
   // 폴더 내부 페이지인지 확인
-  const isInFolderPage = Boolean(params['folder']);
+  const isInFolderPage = Boolean(params['folderId']);
 
   console.log("현재 사용자 권한:", userRole);
   console.log("폴더 내부 페이지:", isInFolderPage);
-  // console.log("params['folder']", params['folder']);
-  // console.log("params['team-archive']", params['team-archive']);
+  // console.log("params['folderId']", params['folderId']);
+  // console.log("params['spaceId']", params['spaceId']);
 
 
 
@@ -91,8 +91,8 @@ export default function TeamSpaceHeader(
     console.log("글 쓰기 버튼 클릭됨");
     // 여기에 글쓰기 로직 추가
 
-    router.push('/post?type=team-space&space='+params['team-archive']+'&folder='+params['folder']);
-  
+    router.push(`/post?type=team-space&spaceId=${params['spaceId']}&folderId=${params['folderId']}`);
+
   }
 
   useEffect(()=>{
@@ -135,40 +135,39 @@ export default function TeamSpaceHeader(
         isInFolderPage ? 'px-6 py-3.5' : 'px-8 py-15'
       }`}>
         <div
-          className="z-10 cursor-pointer hover:opacity-90 transition-opacity"
-          onClick={() => router.push(`/team-space/${params['team-archive']}`)}
+          className="relative z-10 cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={() => router.push(`/team-space/${params['spaceId']}`)}
         >
-            <h1 className={`flex font-semibold transition-all duration-300 ${isInFolderPage ? 'text-base' : 'text-4xl'}`}>
+            <h1 className={`font-semibold transition-all duration-300 ${isInFolderPage ? 'text-base' : 'text-4xl'}`}>
               {nickname}의 팀 스페이스
             </h1>
             <p className={`text-white/90 transition-all duration-300 ${isInFolderPage ? 'text-[10px]' : 'text-sm'}`}>{description}</p>
         </div>
 
-        <div className = "flex flex-col h-full justify-between">
-        <div className="relative flex flex-row gap-2 h-full z-10">
+        <div className="relative flex flex-row gap-2 z-10">
 
           {/* 글 쓰기: READER 제외 (EDITOR, OWNER만 가능) */}
           {isFolderPage && !isReader && (
-            <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 ${
+            <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 drop-shadow-lg ${
               isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
             }`} onClick={handleWrite}>
               글 쓰기
             </button>
           )}
 
-          <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 ${
-            isInFolderPage ? 'px-2 py-1 text-xs' : 'p-2'
+          <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 drop-shadow-lg ${
+            isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
           }`} onClick={handleMyMenuOpen}>
             내 메뉴
           </button>
 
           {/* 팀 관리: 모든 권한에서 접근 가능하지만, 내부에서 권한별로 다르게 표시 */}
-          <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 ${
-            isInFolderPage ? 'px-2 py-1 text-xs' : 'p-2'
+          <button className={`cursor-pointer rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300 border border-white/20 drop-shadow-lg ${
+            isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
           }`} onClick={handleModalOpen}>
             팀 관리
           </button>
-          
+
           {isMyMenuModalOpen && (
             <TeamSpaceMyMenuModal
               spaceId={spaceId}
@@ -193,8 +192,6 @@ export default function TeamSpaceHeader(
             />
           )}
         </div>
-        <div className = "flex"></div>
-      </div>
       </div>
     </header>
   );

@@ -18,11 +18,14 @@ export default function SidebarList({ sidebarList }: SidebarListProps) {
   return (
     <ul>
       {sidebarList.map((sidebarItem, index) => (
-        <SidebarItem 
+        <SidebarItem
           key={index}
           icon={sidebarItem.icon}
           title={sidebarItem.title}
           href={sidebarItem.href}
+          onClick={sidebarItem.onClick}
+          showBadge={sidebarItem.showBadge}
+          isActive={sidebarItem.isActive}
         />
       ))}
     </ul>

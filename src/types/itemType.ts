@@ -27,6 +27,7 @@ export interface SidebarItemProps {
   onClick?: () => void
   showBadge?: boolean
   isActive?: boolean
+  buttonRef?: React.RefObject<HTMLButtonElement | null>
 }
 
 /**

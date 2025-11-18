@@ -5,15 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
+import { getPostImageUrl } from "@/utils/imageUtils";
 
 export interface SpaceScrapBoardItemProps {
-  postId: string;
+  postId: number;
   title: string;
   category: string;
   tags: string[];
   likeCnt: number;
   replyCnt: number;
-  image: string;
+  fileUrl : string;
   profileUrl: string;
   author: string;
 }
@@ -23,7 +24,7 @@ export interface SpaceScrapBoardItemProps {
  * @description CommunityBoardItem component is a community board item component that displays the community board item content
  * @returns {React.ReactNode}
  */
-export default function SpaceScrapBoardItem({ postId, tags, category, replyCnt, image, likeCnt, title, profileUrl, author }: SpaceScrapBoardItemProps) {
+export default function SpaceScrapBoardItem({ postId, tags, category, replyCnt, fileUrl, likeCnt, title, profileUrl, author }: SpaceScrapBoardItemProps) {
   return (
     <Link
       href={`/community/${postId}`}
@@ -33,16 +34,13 @@ export default function SpaceScrapBoardItem({ postId, tags, category, replyCnt, 
       <div className="flex items-start gap-4 min-w-0">
         {/* 썸네일 */}
         <div className="relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-100">
-          {image ? (
             <Image
-              src={image}
+              src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, postId)}
               alt={title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-          ) : (
-            <div className="w-full h-full bg-gray-200" />
-          )}
+
         </div>
 
         {/* 텍스트 영역 */}

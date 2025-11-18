@@ -37,7 +37,7 @@ export default function TeamSpaceChoiceItem({
         const res = await getTeamSpaceInfoToServer(spaceId, name, participantCnt, spaceCoverUrl);
 
         console.log("TeamSpaceTeamChoiceItem clicked");
-        router.push(`/team-space/${encodeURIComponent(name)}`);
+        router.push(`/team-space/${spaceId}`);
     }
         console.log("role : ", userRole);
 

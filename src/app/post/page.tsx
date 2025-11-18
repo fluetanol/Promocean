@@ -32,7 +32,8 @@ function PostPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const postType = searchParams.get("type"); // community, my-space, team-space, submission
-  const folderName = searchParams.get("folder"); // 아카이브 폴더 이름
+  const folderIdParam = searchParams.get("folderId"); // 아카이브 폴더 ID
+  const spaceIdParam = searchParams.get("spaceId"); // 팀 스페이스 ID
   const mode = searchParams.get("mode"); // edit 모드인지 확인
   const articleIdParam = searchParams.get("articleId"); // 수정할 게시글 ID (아카이브용)
   const postIdParam = searchParams.get("postId"); // 수정할 게시글 ID (커뮤니티용)
@@ -51,8 +52,10 @@ function PostPageContent() {
   const [answerPrompt, setAnswerPrompt] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("work");
   const [selectedPromptType, setSelectedPromptType] = useState("text");
-  const [selectedFolder, setSelectedFolder] = useState(folderName || "");
-  const [selectedFolderId , setSelectedFolderId] = useState<number | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState("");
+  const [selectedFolderId , setSelectedFolderId] = useState<number | null>(
+    folderIdParam ? parseInt(folderIdParam, 10) : null
+  );
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
 
   const spaceStore = useSpaceStore();
@@ -116,16 +119,15 @@ function PostPageContent() {
   const pinnedFolders = allFolders.filter(folder => folder.isPinned);
   const normalFolders = allFolders.filter(folder => !folder.isPinned);
 
-  // URL 파라미터의 폴더명으로 folderId 찾기
+  // URL 파라미터의 folderId로 폴더 이름 찾기
   useEffect(() => {
-    if (!isArchiveType || !folderName) return;
+    if (!isArchiveType || !selectedFolderId) return;
 
-    const folder = allFolders.find(f => f.name === folderName);
+    const folder = allFolders.find(f => f.folderId === selectedFolderId);
     if (folder) {
-      setSelectedFolderId(folder.folderId);
       setSelectedFolder(folder.name);
     }
-  }, [isArchiveType, folderName, allFolders]);
+  }, [isArchiveType, selectedFolderId, allFolders]);
 
   // 수정 모드일 때 또는 아카이브로 이동할 때 기존 게시글 데이터 로드
   useEffect(() => {
@@ -666,10 +668,9 @@ function PostPageContent() {
 
             // 성공 후 상세 페이지로 이동
             if (postType === 'my-space') {
-              router.push(`/my-space/archive/${encodeURIComponent(selectedFolder)}/${articleId}`);
+              router.push(`/my-space/archive/${selectedFolderId}/${articleId}`);
             } else if (postType === 'team-space') {
-              const teamSpaceName = spaceStore.currentSpace?.name || '';
-              router.push(`/team-space/${encodeURIComponent(teamSpaceName)}/${encodeURIComponent(selectedFolder)}/${articleId}`);
+              router.push(`/team-space/${spaceId}/${selectedFolderId}/${articleId}`);
             }
           }
         } else {
@@ -688,12 +689,11 @@ function PostPageContent() {
           // 성공 후 상세 페이지로 이동
           if (response?.articleId) {
             if (postType === 'my-space') {
-              // 마이스페이스: /my-space/archive/[폴더명]/[아티클ID]
-              router.push(`/my-space/archive/${encodeURIComponent(selectedFolder)}/${response.articleId}`);
+              // 마이스페이스: /my-space/archive/[folderId]/[articleId]
+              router.push(`/my-space/archive/${selectedFolderId}/${response.articleId}`);
             } else if (postType === 'team-space') {
-              // 팀스페이스: /team-space/[팀스페이스명]/[폴더명]/[아티클ID]
-              const teamSpaceName = spaceStore.currentSpace?.name || '';
-              router.push(`/team-space/${encodeURIComponent(teamSpaceName)}/${encodeURIComponent(selectedFolder)}/${response.articleId}`);
+              // 팀스페이스: /team-space/[spaceId]/[folderId]/[articleId]
+              router.push(`/team-space/${spaceId}/${selectedFolderId}/${response.articleId}`);
             }
           }
         }

@@ -40,8 +40,8 @@ export default function SpaceHeader(
 
     const params = useParams();
     const pathname =  usePathname();
-    console.log("SpaceHeader params:", JSON.stringify(params));
-    console.log("SpaceHeader pathname:", pathname.split("/").splice(1,pathname.length));
+    // console.log("SpaceHeader params:", JSON.stringify(params));
+    // console.log("SpaceHeader pathname:", pathname.split("/").splice(1,pathname.length));
     const pathSegments = pathname.split("/").splice(1,pathname.length);
     const router = useRouter();
 
@@ -57,7 +57,10 @@ export default function SpaceHeader(
 
     const handleButtonClick = () => {
       console.log("Button clicked!");
-      router.push(`/post?type=my-space&folder=${pathSegments[2]}`);
+      const folderId = folderStore.currentFolder?.folderId;
+      if (folderId) {
+        router.push(`/post?type=my-space&folderId=${folderId}`);
+      }
     }
 
     const handleHeaderClick = () => {
@@ -68,8 +71,8 @@ export default function SpaceHeader(
     <header className="w-full">
       {/* 상단 영역 - 전체 너비 */}
       <div
-        className={`relative flex flex-row justify-between items-center text-white px-6 w-full transition-all duration-300 ease-in-out ${
-          isInFolderPage ? 'h-14' : 'h-32'
+        className={`relative flex flex-row justify-between items-center text-white w-full transition-all duration-300 ease-in-out ${
+          isInFolderPage ? 'px-6 py-3.5' : 'px-8 py-15'
         } ${folderColor ? '' : 'bg-primary'}`}
         style={folderColor ? { backgroundColor: folderColor } : undefined}
       >
@@ -82,7 +85,7 @@ export default function SpaceHeader(
           className="relative z-10 cursor-pointer hover:opacity-90 transition-opacity"
           onClick={handleHeaderClick}
         >
-          <h1 className={`font-semibold transition-all duration-300 ${isInFolderPage ? 'text-base' : 'text-3xl'}`}>
+          <h1 className={`font-semibold transition-all duration-300 ${isInFolderPage ? 'text-base' : 'text-4xl'}`}>
             {nickname} 님의{isTeamSpace ? ' 팀 스페이스' : ' 마이 스페이스'}
           </h1>
           <p className={`text-white/90 transition-all duration-300 ${isInFolderPage ? 'text-[10px]' : 'text-sm'}`}>{description}</p>
@@ -90,8 +93,8 @@ export default function SpaceHeader(
 
         <button
           className={`relative z-10 ${pathSegments[1] == "archive" && pathSegments[2] != undefined ? "visible" : "invisible"} ${
-            isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-2'
-          } rounded-2xl bg-black/30 backdrop-blur-sm hover:bg-black/50 hover:cursor-pointer transition-all duration-300 border border-white/20 drop-shadow-lg`}
+            isInFolderPage ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
+          } rounded-md bg-black/30 backdrop-blur-sm hover:bg-black/50 hover:cursor-pointer transition-all duration-300 border border-white/20 drop-shadow-lg`}
           onClick={handleButtonClick}
         >
           아카이브 글쓰기

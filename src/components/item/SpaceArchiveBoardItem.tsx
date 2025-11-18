@@ -1,6 +1,7 @@
 // frontend/src/components/layout/CommunityBoardItem.tsx
 'use client';
 
+import { getPostImageUrl } from "@/utils/imageUtils";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,10 +14,11 @@ export interface SpaceArchiveBoardItemProps{
     category: string;
     tags: string[];
     folderName: string;
-    image?: string;
+    folderId : number; 
+    fileUrl: string;
 }
 
-export default function SpaceArchiveBoardItem( { articleId, title, category, tags, image, folderName }: SpaceArchiveBoardItemProps) {
+export default function SpaceArchiveBoardItem( { articleId, title, category, tags, fileUrl, folderName, folderId }: SpaceArchiveBoardItemProps) {
   const pathname = usePathname();
 
   // 현재 경로에서 팀 스페이스인지 마이 스페이스인지 판단
@@ -28,8 +30,8 @@ export default function SpaceArchiveBoardItem( { articleId, title, category, tag
 
   // 동적으로 href 생성
   const href = isTeamSpace
-    ? `/team-space/${teamArchiveId}/${folderName}/${articleId}`
-    : `/my-space/archive/${folderName}/${articleId}`;
+    ? `/team-space/${teamArchiveId}/${folderId}/${articleId}`
+    : `/my-space/archive/${folderId}/${articleId}`;
 
   return (
     <Link
@@ -40,16 +42,14 @@ export default function SpaceArchiveBoardItem( { articleId, title, category, tag
       <div className="flex items-start gap-4 min-w-0">
         {/* 썸네일 */}
         <div className="relative shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-100">
-          {image ? (
+
             <Image
-              src={image}
+              src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, articleId)}
               alt={title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-          ) : (
-            <div className="w-full h-full bg-gray-200" />
-          )}
+      
         </div>
 
         {/* 텍스트 영역 */}

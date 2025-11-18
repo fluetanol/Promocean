@@ -64,7 +64,7 @@ export default function SpaceScrapBoardList(){
     }, [currentPage, sorter, title, tag, category, router]);
 
 
-    const handleScrapToggle = (id: string) => {
+    const handleScrapToggle = (id: number) => {
         // 해당 id를 가진 아이템을 리스트에서 제거
         setScrapList(prevList => prevList.filter(item => item.postId !== id));
         console.log(`게시물 ID ${id} 스크랩 해제됨`);
@@ -130,7 +130,7 @@ export default function SpaceScrapBoardList(){
                         <p className="text-gray-800 text-lg font-medium">스크랩한 글이 없습니다</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {scrapList.map((item) => (
                             <SpaceScrapItem
                                 key={item.postId}
@@ -140,9 +140,7 @@ export default function SpaceScrapBoardList(){
                                 author={item.author}
                                 category={item.category}
                                 tags={item.tags}
-                                likeCnt={item.likeCnt}
-                                replyCnt={item.replyCnt}
-                                image={item.image}
+                                fileUrl={item.fileUrl}
                                 onScrapToggle={handleScrapToggle}
                             />
                         ))}

@@ -16,8 +16,9 @@ import { useSidebar } from '@/contexts/SidebarContext'
 import { useAuthStore } from '@/store/authStore'
 import SidebarSimpleSection from '../section/SidebarSimpleSection';
 import AlarmBell from '../icon/AlarmBell';
-import AlarmItem, { AlarmItemProps } from '../item/AlarmItem';
+import { AlarmItemProps } from '../item/AlarmItem';
 import SidebarAlarmModal from '../modal/SidebarAlarmModal';
+import { usePathname } from 'next/navigation';
 
 /** 
  * Sidebar component
@@ -27,21 +28,38 @@ import SidebarAlarmModal from '../modal/SidebarAlarmModal';
 export default function Sidebar() {
   const { isCollapsed, onTransitionEnd } = useSidebar();
   const { isLoggedIn } = useAuthStore();
+  const pathname = usePathname();
   const sidebarRef = React.useRef<HTMLDivElement>(null);
+  const alarmButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isAlarm, setIsAlarm] = useState(false);
   const [alarmListState, setAlarmListState] = useState<AlarmItemProps[]>([]);
   const [hasNewAlarm, setHasNewAlarm] = useState(false);
-  
+
+  // 현재 경로가 특정 메뉴와 일치하는지 확인하는 함수
+  const isActiveRoute = (href: string) => {
+    if (!pathname) return false;
+
+    // 정확히 일치하는 경로
+    if (pathname === href) return true;
+
+    // 하위 경로도 활성화 (예: /my-space/archive도 /my-space로 간주)
+    if (href !== '/' && pathname.startsWith(href)) return true;
+
+    return false;
+  };
+
   // 커뮤니티 섹션
   const communityItems: SidebarItemProps[] = [{
     'icon': <MagnifyingGlass />,
     'title': '커뮤니티',
     'href': '/community',
+    'isActive': isActiveRoute('/community'),
   },
   {
     'icon': <Trophy />,
     'title': '프롬프트 대회',
     'href': '/contest',
+    'isActive': isActiveRoute('/contest'),
   },
   // {
   //   'icon': <Megaphone />,
@@ -55,11 +73,13 @@ export default function Sidebar() {
     'icon': <User />,
     'title': '마이 스페이스',
     'href': '/my-space',
+    'isActive': isActiveRoute('/my-space'),
   },
   {
     'icon': <UserGroup />,
     'title': '팀 스페이스',
     'href': '/team-space',
+    'isActive': isActiveRoute('/team-space'),
   },
 ]
 
@@ -91,7 +111,7 @@ const alarmItems : SidebarItemProps[] = [{
     <div
       ref={sidebarRef}
       className={`fixed left-0 top-0 ${
-        isCollapsed ? 'w-16' : 'w-64'
+        isCollapsed ? 'w-16' : 'w-58'
       } h-screen p-4 border-r border-gray-200 flex flex-col transition-[width] duration-200 overflow-hidden shrink-0`}
       style={{ backgroundColor: '#fdfdfc', color: '#343434' }}
     >
@@ -106,6 +126,7 @@ const alarmItems : SidebarItemProps[] = [{
         setAlarmList={setAlarmListState}
         hasNewAlarm={hasNewAlarm}
         setHasNewAlarm={setHasNewAlarm}
+        alarmButtonRef={alarmButtonRef}
        />
 
         <SidebarSection title="게시판" sidebarList={communityItems} />
@@ -127,6 +148,7 @@ const alarmItems : SidebarItemProps[] = [{
         alarmListState={alarmListState}
         setAlarmListState={setAlarmListState}
         setHasNewAlarm={setHasNewAlarm}
+        alarmButtonRef={alarmButtonRef}
     />
         
     </div>

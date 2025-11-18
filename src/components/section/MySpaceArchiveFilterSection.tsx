@@ -14,15 +14,15 @@ import { useRouter } from "next/navigation";
  * @property { "search" | "write" } buttonMode - 필터 섹션의 버튼 모드를 지정합니다.
  * - search : 카테고리 검색 버튼을 나타냅니다.
  * - write : 글 쓰기 버튼을 나타냅니다.
- * @property {string} folderName - 아카이브 폴더 이름 (글쓰기 버튼 클릭 시 라우팅에 사용)
+ * @property {number} folderId - 아카이브 폴더 ID (글쓰기 버튼 클릭 시 라우팅에 사용)
  * @property {boolean} isTeamSpace - 팀 스페이스 여부
- * @property {string} teamName - 팀 스페이스 이름 (isTeamSpace가 true일 때 필요)
+ * @property {number} spaceId - 스페이스 ID (isTeamSpace가 true일 때 필요)
  */
 export interface MySpaceArchiveFilterSectionProps{
   buttonMode : "search" | "write"
-  folderName?: string
+  folderId?: number
   isTeamSpace?: boolean
-  teamName?: string
+  spaceId?: number
 }
 
 
@@ -33,9 +33,9 @@ export interface MySpaceArchiveFilterSectionProps{
  */
 export default function MySpaceArchiveFilterSection({
   buttonMode,
-  folderName,
+  folderId,
   isTeamSpace = false,
-  teamName
+  spaceId
 } : MySpaceArchiveFilterSectionProps) {
 
   const router = useRouter();
@@ -46,22 +46,22 @@ export default function MySpaceArchiveFilterSection({
   const handleArchiveBoardWrite = () =>{
     console.log("글 쓰기");
 
-    if (!folderName) {
-      console.error("폴더 이름이 지정되지 않았습니다.");
+    if (!folderId) {
+      console.error("폴더 ID가 지정되지 않았습니다.");
       return;
     }
 
     // 마이 스페이스 아카이브 글쓰기
     if (!isTeamSpace) {
-      router.push(`/post?type=my-space&folder=${encodeURIComponent(folderName)}`);
+      router.push(`/post?type=my-space&folderId=${folderId}`);
     }
     // 팀 스페이스 아카이브 글쓰기
     else {
-      if (!teamName) {
-        console.error("팀 이름이 지정되지 않았습니다.");
+      if (!spaceId) {
+        console.error("스페이스 ID가 지정되지 않았습니다.");
         return;
       }
-      router.push(`/post?type=team-space&name=${encodeURIComponent(teamName)}&folder=${encodeURIComponent(folderName)}`);
+      router.push(`/post?type=team-space&spaceId=${spaceId}&folderId=${folderId}`);
     }
   }
 

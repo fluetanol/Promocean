@@ -16,6 +16,7 @@ export interface SidebarAlarmModalProps {
     isAlarm: boolean;
     setIsAlarm: (isAlarm:boolean) => void;
     setHasNewAlarm: (hasNew: boolean) => void;
+    alarmButtonRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 
@@ -24,7 +25,8 @@ export default function SidebarAlarmModal({
     setAlarmListState,
     isAlarm,
     setIsAlarm,
-    setHasNewAlarm
+    setHasNewAlarm,
+    alarmButtonRef
 
 }: SidebarAlarmModalProps) {
 
@@ -40,17 +42,19 @@ export default function SidebarAlarmModal({
     const [selectedAlarms, setSelectedAlarms] = useState<Set<number>>(new Set());
 
     const resizeRef = useRef<HTMLDivElement>(null);
+    const isResizingRef = useRef(false);
 
     const MIN_WIDTH = 240; // 15rem
     const MAX_WIDTH = 448; // 28rem
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
+        isResizingRef.current = true;
         setIsResizingState(true);
     }, []);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!isResizingState || !resizeRef.current) return;
+        if (!isResizingRef.current || !resizeRef.current) return;
 
         const containerLeft = resizeRef.current.getBoundingClientRect().left;
         const newWidth = e.clientX - containerLeft;
@@ -59,9 +63,10 @@ export default function SidebarAlarmModal({
         if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
             setWidth(newWidth);
         }
-    }, [isResizingState]);
+    }, []);
 
     const handleMouseUp = useCallback(() => {
+        isResizingRef.current = false;
         setIsResizingState(false);
     }, []);
 
@@ -274,11 +279,43 @@ export default function SidebarAlarmModal({
 
 
 
+    // 바깥 클릭 감지
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isAlarm) return;
+
+        const handleClickOutside = (e: MouseEvent) => {
+            // 알림 버튼 클릭은 무시
+            if (alarmButtonRef?.current && alarmButtonRef.current.contains(e.target as Node)) {
+                return;
+            }
+
+            // 모달 외부를 클릭했는지 확인
+            if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+                setIsAlarm(false);
+            }
+        };
+
+        // 약간의 지연을 두고 이벤트 리스너 등록 (모달이 열리는 클릭과 충돌 방지)
+        const timeoutId = setTimeout(() => {
+            document.addEventListener('mousedown', handleClickOutside);
+        }, 100);
+
+        return () => {
+            clearTimeout(timeoutId);
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isAlarm, setIsAlarm, alarmButtonRef]);
+
     return(
     <div
-        ref={resizeRef}
+        ref={(node) => {
+            if (modalRef) modalRef.current = node;
+            if (resizeRef) resizeRef.current = node;
+        }}
         className ={`
-       fixed ${ isCollapsed ? 'left-16' : 'left-64'}
+       fixed ${ isCollapsed ? 'left-16' : 'left-58'}
        ${ isAlarm ? 'p-2' : 'p-0'}
        h-screen
        flex flex-col z-50
@@ -314,10 +351,10 @@ export default function SidebarAlarmModal({
                 <div
                     onMouseDown={handleMouseDown}
                     className={`
-                        absolute top-0 right-0 w-1 h-full
-                        cursor-ew-resize hover:bg-blue-500
+                        absolute top-0 right-0 w-2 h-full z-100
+                        cursor-ew-resize hover:bg-primary
                         transition-colors duration-150
-                        ${isResizingState ? 'bg-blue-500' : 'bg-transparent'}
+                        ${isResizingState ? 'bg-primary' : 'bg-transparent'}
                     `}
                 />
             )}
