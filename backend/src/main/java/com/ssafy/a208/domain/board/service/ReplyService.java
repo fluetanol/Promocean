@@ -1,5 +1,6 @@
 package com.ssafy.a208.domain.board.service;
 
+import com.ssafy.a208.domain.board.dto.PostCommentEvent;
 import com.ssafy.a208.domain.alarm.dto.AlarmReq;
 import com.ssafy.a208.domain.alarm.service.AlarmService;
 import com.ssafy.a208.domain.board.dto.ReplyReq;
@@ -19,8 +20,12 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * 댓글 서비스 댓글 생성, 수정, 삭제 등 핵심 비즈니스 로직을 담당합니다.
@@ -33,10 +38,20 @@ public class ReplyService {
     private final MemberReader memberReader;
     private final PostReader postReader;
     private final ReplyReader replyReader;
+    private final PostLikeReader postLikeReader;
     private final AlarmService alarmService;
     private final ReplyRepository replyRepository;
     private final PostIndexService postIndexService;
-    private final PostLikeReader postLikeReader;
+
+    private final KafkaTemplate<String, PostCommentEvent> postCommentKafkaTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String TOPIC = "post-comments";
+    private static final String TRENDING_KEY = "trending:posts";
+    private static final String COMMENT_COUNT_KEY = "post:%d:comments";
+
+
+
     /**
      * 댓글을 생성합니다.
      *
@@ -66,6 +81,8 @@ public class ReplyService {
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
+        // Kafka 이벤트 발행 (Redis용)
+        publishCommentEvent(postId, reply.getId(), author.getId(), PostCommentEvent.CommentAction.CREATE);
         log.info("댓글 생성 완료 - replyId: {}, postId: {}, authorId: {}",
                 reply.getId(), postId, author.getId());
 
@@ -83,6 +100,7 @@ public class ReplyService {
             log.info("알림 전송 완료 - replyId: {}, postId: {}, authorId: {}",
                     reply.getId(), postId, author.getId());
         }
+
     }
 
     /**
@@ -150,9 +168,14 @@ public class ReplyService {
         // 댓글 소프트 딜리트
         reply.deleteReply();
 
+        // es 업데이트트
         int likeCount = postLikeReader.countByPost(post);
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
+
+        // Kafka 이벤트 발행 (Redis용)
+        publishCommentEvent(postId, replyId, userDetails.memberId(), PostCommentEvent.CommentAction.DELETE);
+
 
         log.info("댓글 삭제 완료 - replyId: {}, postId: {}", replyId, postId);
     }
@@ -166,6 +189,39 @@ public class ReplyService {
     public void deleteRepliesByPost(Post post) {
         List<Reply> replies = replyReader.getRepliesByPost(post);
         replies.forEach(Reply::deleteReply);
+
+        // Redis에서도 삭제 처리
+        Long postId = post.getId();
+
+        // 인기글 목록에서 제거
+        redisTemplate.opsForZSet().remove(TRENDING_KEY, postId.toString());
+
+        // 댓글 카운트 삭제
+        redisTemplate.delete(String.format(COMMENT_COUNT_KEY, postId));
         log.info("게시글의 댓글 삭제 완료 - postId: {}, 댓글 수: {}", post.getId(), replies.size());
     }
+
+    /**
+     * Kafka 이벤트 발행
+     */
+    private void publishCommentEvent(Long postId, Long commentId, Long userId, PostCommentEvent.CommentAction action) {
+        PostCommentEvent event = PostCommentEvent.builder()
+                .eventId(UUID.randomUUID().toString())
+                .postId(postId)
+                .commentId(commentId)
+                .userId(userId)
+                .action(action)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        postCommentKafkaTemplate.send(TOPIC, postId.toString(), event)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("댓글 event 전송에 실패했습니다: postId={}", postId, ex);
+                    } else {
+                        log.debug("댓글 event가 전송되었습니다: postId={}, action={}", postId, action);
+                    }
+                });
+    }
+
 }
