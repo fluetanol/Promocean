@@ -2,7 +2,7 @@
 
 // frontend/src/components/layout/Sidebar.tsx
 
-import React from 'react'
+import React, { useState } from 'react'
 import SidebarHeader from '@/components/layout/SidebarHeader'
 import SidebarSection from '@/components/section/SidebarSection'
 import SidebarFooter from '@/components/layout/SidebarFooter'
@@ -14,6 +14,10 @@ import UserGroup from '@/components/icon/UserGroup'
 import { SidebarItemProps } from '@/types/itemType'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { useAuthStore } from '@/store/authStore'
+import SidebarSimpleSection from '../section/SidebarSimpleSection';
+import AlarmBell from '../icon/AlarmBell';
+import AlarmItem, { AlarmItemProps } from '../item/AlarmItem';
+import SidebarAlarmModal from '../modal/SidebarAlarmModal';
 
 /** 
  * Sidebar component
@@ -24,6 +28,9 @@ export default function Sidebar() {
   const { isCollapsed, onTransitionEnd } = useSidebar();
   const { isLoggedIn } = useAuthStore();
   const sidebarRef = React.useRef<HTMLDivElement>(null);
+  const [isAlarm, setIsAlarm] = useState(false);
+  const [alarmListState, setAlarmListState] = useState<AlarmItemProps[]>([]);
+  const [hasNewAlarm, setHasNewAlarm] = useState(false);
   
   // 커뮤니티 섹션
   const communityItems: SidebarItemProps[] = [{
@@ -56,6 +63,12 @@ export default function Sidebar() {
   },
 ]
 
+const alarmItems : SidebarItemProps[] = [{
+    'icon': <AlarmBell/>,
+    'title': '알림',
+    'href': '/notifications',
+}];
+
   React.useEffect(() => {
     const sidebar = sidebarRef.current;
     if (!sidebar) return;
@@ -74,6 +87,7 @@ export default function Sidebar() {
   }, [onTransitionEnd]);
 
   return (
+    <div>
     <div
       ref={sidebarRef}
       className={`fixed left-0 top-0 ${
@@ -84,6 +98,16 @@ export default function Sidebar() {
       <div className="flex-1">
         <SidebarHeader />
         
+       <SidebarSimpleSection
+        title="알림"
+        sidebarList={alarmItems}
+        isAlarm={isAlarm}
+        setIsAlarm={setIsAlarm}
+        setAlarmList={setAlarmListState}
+        hasNewAlarm={hasNewAlarm}
+        setHasNewAlarm={setHasNewAlarm}
+       />
+
         <SidebarSection title="게시판" sidebarList={communityItems} />
 
         {isLoggedIn && (
@@ -95,5 +119,17 @@ export default function Sidebar() {
         <SidebarFooter />
       </div>
     </div>
+
+
+    <SidebarAlarmModal
+        isAlarm={isAlarm}
+        setIsAlarm={setIsAlarm}
+        alarmListState={alarmListState}
+        setAlarmListState={setAlarmListState}
+        setHasNewAlarm={setHasNewAlarm}
+    />
+        
+    </div>
+    
   );
 }

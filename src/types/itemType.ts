@@ -25,6 +25,8 @@ export interface SidebarItemProps {
   title: string
   href?: string
   onClick?: () => void
+  showBadge?: boolean
+  isActive?: boolean
 }
 
 /**
