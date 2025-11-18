@@ -72,24 +72,22 @@ public class ArticleFileService {
         return s3Service.getCloudFrontUrl(filePath);
     }
 
-    public void updateArticleFile(String filePath, Article article) {
+    public String updateArticleFile(String filePath, Article article) {
         if (!Objects.isNull(filePath) && !filePath.isBlank()) {
-            return;
+            return null;
         }
 
         Optional<ArticleFile> file = articleFileReader.getArticleFileById(article.getId());
-        file.ifPresentOrElse(
-                existing -> {
-                    s3Service.deleteFile(existing.getFilePath());
-                    String destPath = extractFilePath(filePath);
-                    FileMetaData metaData = s3Service.getFileMetadata(destPath);
-                    existing.updateFile(metaData);
-                },
-                () -> {
-                    createArticleFile(filePath, article);
-                }
-        );
+        if (file.isPresent()) {
+            ArticleFile existing = file.get();
+            s3Service.deleteFile(existing.getFilePath());
+            String destPath = extractFilePath(filePath);
+            FileMetaData metaData = s3Service.getFileMetadata(destPath);
+            existing.updateFile(metaData);
+            return destPath;
+        }
 
+        return createArticleFile(filePath, article);
     }
 
     private String extractFilePath(String filePath) {

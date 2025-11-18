@@ -76,13 +76,13 @@ public class ArticleService {
         }
 
         // 파일 들어왔으면 고쳐주기
-        articleFileService.updateArticleFile(articleReq.filePath(), article);
+        String newFilePath = articleFileService.updateArticleFile(articleReq.filePath(), article);
 
         article.updateArticle(articleReq.title(), articleReq.description(), articleReq.prompt(),
                 PromptType.valueOf(articleReq.type()), articleReq.exampleQuestion(),
                 articleReq.exampleAnswer());
 
-        articleElasticSearchService.indexArticle(article, articleReq.filePath(), articleReq.tags());
+        articleElasticSearchService.indexArticle(article, newFilePath, articleReq.tags());
 
     }
 
@@ -103,9 +103,9 @@ public class ArticleService {
             Long folderId, Integer type, String tag, String title, int page, int size,
             SortType sort) {
         if (Objects.isNull(folderId)) {
-            spaceService.validateEditableSpace(spaceId, userDetails.memberId());
+            spaceService.validateReadableSpace(spaceId, userDetails.memberId());
         } else {
-            folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
+            folderService.validateReadableFolder(spaceId, folderId, userDetails.memberId());
         }
 
         Page<ArticleListItemQueryRes> articles = articleElasticSearchService
@@ -133,7 +133,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public ArticleDetailRes getArticleDetail(CustomUserDetails userDetails, Long spaceId,
             Long articleId) {
-        spaceService.validateEditableSpace(spaceId, userDetails.memberId());
+        spaceService.validateReadableSpace(spaceId, userDetails.memberId());
         Article article = articleReader.getArticleById(articleId);
         String fileUrl = articleFileService.getArticleFileUrl(article);
 
