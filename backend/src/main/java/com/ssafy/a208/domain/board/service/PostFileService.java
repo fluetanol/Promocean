@@ -66,7 +66,7 @@ public class PostFileService {
      * @param newFilePath 새로운 파일 경로
      */
     @Transactional
-    public void updatePostFile(Post post, String newFilePath) {
+    public String updatePostFile(Post post, String newFilePath) {
         Optional<PostFile> existingFileOptional = postFileReader.getPostFileByPost(post);
 
         // 기존 파일 경로와 동일한지 확인
@@ -77,7 +77,7 @@ public class PostFileService {
         if (isSameFile) {
             // 기존 파일과 동일 -> 변경 없음
             log.info("기존 파일 유지 - postId: {}, filePath: {}", post.getId(), newFilePath);
-            return;
+            return newFilePath;
         }
 
         // 새 파일로 변경
@@ -98,6 +98,7 @@ public class PostFileService {
                 },
                 () -> createPostFile(newFilePath, post)
         );
+        return destPath;
     }
 
     /**

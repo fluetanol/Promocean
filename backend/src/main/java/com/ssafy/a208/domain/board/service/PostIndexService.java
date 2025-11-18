@@ -27,14 +27,8 @@ public class PostIndexService {
     /**
      * 게시글을 ES에 인덱싱
      */
-    public void indexPost(Post post) {
+    public void indexPost(Post post, String filePath, List<String> tags) {
         try {
-            // 태그 목록 조회
-            List<PostTag> postTags = postReader.getPostTagsByPostIds(List.of(post.getId()));
-            List<String> tags = postTags.stream()
-                    .map(pt -> pt.getTag().getName())
-                    .toList();
-
             // 좋아요 수 계산
             int likeCount = (int) post.getPostLikes().stream()
                     .filter(like -> like.getDeletedAt() == null)
@@ -47,12 +41,6 @@ public class PostIndexService {
             String profilePath = null;
             if (post.getAuthor().getProfile() != null) {
                 profilePath = post.getAuthor().getProfile().getFilePath();
-            }
-
-            // 파일 경로
-            String filePath = null;
-            if (post.getPostFile() != null) {
-                filePath = post.getPostFile().getFilePath();
             }
 
             PostDocument document = PostDocument.builder()
