@@ -1,24 +1,23 @@
 package com.ssafy.a208.domain.member.service;
 
-import com.ssafy.a208.domain.board.repository.PostElasticsearchRepositoryImpl;
-import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepository;
 import com.ssafy.a208.domain.member.dto.request.SignupReq;
 import com.ssafy.a208.domain.member.dto.request.UpdateMemberReq;
 import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
 import com.ssafy.a208.domain.member.dto.response.SearchMemberRes;
 import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.entity.Member;
+import com.ssafy.a208.domain.member.event.MemberUpdatedEvent;
 import com.ssafy.a208.domain.member.exception.AlreadyExistEmailException;
 import com.ssafy.a208.domain.member.exception.AlreadyExistNicknameException;
 import com.ssafy.a208.domain.member.exception.InvalidMemberCheckRequestException;
 import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.domain.member.repository.MemberRepository;
-import com.ssafy.a208.domain.scrap.repository.ScrapElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.space.entity.Space;
 import com.ssafy.a208.domain.space.service.SpaceService;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +31,7 @@ public class MemberService {
     private final MemberReader memberReader;
     private final ProfileService profileService;
     private final MemberRepository memberRepository;
-    private final SubmissionElasticsearchRepository submissionElasticsearchRepository;
-    private final PostElasticsearchRepositoryImpl postElasticsearchRepository;
-    private final ScrapElasticsearchRepositoryImpl scrapElasticsearchRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int TOKEN_AMOUNT = 5;
 
@@ -64,6 +61,10 @@ public class MemberService {
         boolean updated = false;
 
         if (!Objects.isNull(memberReq.nickname()) && !memberReq.nickname().isBlank()) {
+            if(!oldNickname.equals(memberReq.nickname()) &&
+                    memberReader.checkNicknameExist(memberReq.nickname())) {
+                throw new AlreadyExistNicknameException();
+            }
             member.updateNickname(memberReq.nickname());
             newNickname = memberReq.nickname();
             updated = true;
@@ -81,9 +82,9 @@ public class MemberService {
         }
 
         if(updated) {
-            submissionElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
-            postElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
-            scrapElasticsearchRepository.updateMemberInfo(oldNickname, newNickname, profileFilePath);
+            eventPublisher.publishEvent(
+                    new MemberUpdatedEvent(oldNickname, newNickname, profileFilePath)
+            );
         }
     }
 
