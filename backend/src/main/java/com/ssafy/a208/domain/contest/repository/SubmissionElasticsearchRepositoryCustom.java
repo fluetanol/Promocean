@@ -29,4 +29,9 @@ public interface SubmissionElasticsearchRepositoryCustom {
             String newNickname,
             String newProfilePath
     );
+
+    void updateVoteCount(
+            Long id,
+            int voteCount
+    );
 }
