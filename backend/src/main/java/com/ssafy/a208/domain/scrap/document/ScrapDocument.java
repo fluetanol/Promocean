@@ -53,4 +53,9 @@ public class ScrapDocument {
 
     @Field(type = FieldType.Keyword, index = false)
     private String filePath;
+
+    public void updateMemberInfo(String newNickname, String newProfilePath) {
+        this.authorNickname = newNickname;
+        this.profilePath = newProfilePath;
+    }
 }

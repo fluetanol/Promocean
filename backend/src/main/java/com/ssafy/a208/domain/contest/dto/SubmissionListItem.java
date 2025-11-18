@@ -1,5 +1,6 @@
 package com.ssafy.a208.domain.contest.dto;
 
+import com.ssafy.a208.domain.contest.document.SubmissionDocument;
 import com.ssafy.a208.domain.contest.entity.Submission;
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ public record SubmissionListItem(
         long voteCnt,
         LocalDateTime updatedAt
 ) {
-    public static SubmissionListItem from(
+    public static SubmissionListItem fromLegacy(
             Submission submission,
             String profileUrl,
             String submissionUrl
@@ -27,6 +28,23 @@ public record SubmissionListItem(
                 submissionUrl,
                 submission.getVoteCount(),
                 submission.getUpdatedAt()
+        );
+    }
+
+    public static SubmissionListItem from(
+            SubmissionDocument doc,
+            String profileUrl,
+            String submissionUrl
+    ) {
+        return new SubmissionListItem(
+                doc.getId(),
+                doc.getMemberNickname(),
+                profileUrl,
+                doc.getDescription(),
+                doc.getType().getName(),
+                submissionUrl,
+                doc.getVoteCount(),
+                doc.getUpdatedAt()
         );
     }
 }

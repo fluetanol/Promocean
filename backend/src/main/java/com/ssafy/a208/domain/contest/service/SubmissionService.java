@@ -1,5 +1,6 @@
 package com.ssafy.a208.domain.contest.service;
 
+import com.ssafy.a208.domain.contest.document.SubmissionDocument;
 import com.ssafy.a208.domain.contest.dto.SubmissionCreateReq;
 import com.ssafy.a208.domain.contest.dto.SubmissionDetailRes;
 import com.ssafy.a208.domain.contest.dto.SubmissionListItem;
@@ -12,6 +13,7 @@ import com.ssafy.a208.domain.contest.exception.DuplicateSubmissionException;
 import com.ssafy.a208.domain.contest.exception.SubmissionFileNotFoundException;
 import com.ssafy.a208.domain.contest.exception.SubmissionNotFoundException;
 import com.ssafy.a208.domain.contest.repository.ContestRepository;
+import com.ssafy.a208.domain.contest.repository.SubmissionElasticsearchRepository;
 import com.ssafy.a208.domain.contest.repository.SubmissionRepository;
 import com.ssafy.a208.domain.contest.util.ContestValidator;
 import com.ssafy.a208.domain.member.entity.Member;
@@ -21,6 +23,7 @@ import com.ssafy.a208.domain.member.reader.ProfileReader;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.image.service.S3Service;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
+    private final SubmissionElasticsearchRepository submissionSearchRepository;
     private final ContestRepository contestRepository;
     private final MemberReader memberReader;
     private final ProfileReader profileReader;
@@ -78,16 +82,35 @@ public class SubmissionService {
 
         submissionRepository.save(submission);
 
+        SubmissionDocument document = SubmissionDocument.builder()
+                .id(submission.getId())
+                .prompt(submission.getPrompt())
+                .description(submission.getDescription())
+                .result(submission.getResult())
+                .type(submission.getType())
+                .voteCount(submission.getVoteCount())
+                .filePath(fileUrl)
+                .createdAt(submission.getCreatedAt())
+                .updatedAt(submission.getUpdatedAt())
+                .contestId(contestId)
+                .memberId(member.getId())
+                .memberNickname(member.getNickname())
+                .profilePath(profile.getFilePath())
+                .build();
+        submissionSearchRepository.save(document);
+
         return SubmissionDetailRes.from(submission, fileUrl, s3Service.getCloudFrontUrl(profile.getFilePath()), false);
     }
 
+    @Deprecated
     @Transactional(readOnly = true)
-    public SubmissionListRes getSubmissionList(
+    public SubmissionListRes getSubmissionListLegacy(
             Long contestId,
             int page,
             int size,
             String sorter,
-            String filterAuthor
+            String filterAuthor,
+            String filterKeyword
     ) {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(ContestNotFoundException::new);
@@ -98,15 +121,28 @@ public class SubmissionService {
         Sort sort = switch (sorter) {
             case "latest"   -> Sort.by(Sort.Direction.DESC, "updatedAt");
             case "oldest"   -> Sort.by(Sort.Direction.ASC, "updatedAt");
-            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCnt");
-            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCnt");
+            case "voteDesc" -> Sort.by(Sort.Direction.DESC, "voteCount");
+            case "voteAsc"  -> Sort.by(Sort.Direction.ASC, "voteCount");
             default         -> Sort.by(Sort.Direction.DESC, "updatedAt");
         };
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Submission> list = (filterAuthor == null || filterAuthor.trim().isEmpty())
-                ? submissionRepository.findByContest_Id(contestId, pageable)
-                : submissionRepository.findByContest_IdAndMember_Nickname(contestId, filterAuthor, pageable);
+        Page<Submission> list;
+        String author = filterAuthor.trim();
+        String keyword = filterKeyword.trim();
+        boolean authorFlag = !author.isEmpty();
+        boolean keywordFlag = !keyword.isEmpty();
+
+        if(authorFlag && keywordFlag) {
+            list = submissionRepository.findByContest_IdAndMember_NicknameAndDescriptionContainingIgnoreCase(
+                    contestId, author, keyword, pageable);
+        } else if(!authorFlag && keywordFlag) {
+            list = submissionRepository.findByContest_IdAndDescriptionContainingIgnoreCase(contestId, keyword, pageable);
+        } else if(authorFlag) {
+            list = submissionRepository.findByContest_IdAndMember_Nickname(contestId, author, pageable);
+        } else {
+            list = submissionRepository.findByContest_Id(contestId, pageable);
+        }
 
         List<SubmissionListItem> submissionListRes = list.getContent().stream()
                 .map(submission -> {
@@ -125,11 +161,43 @@ public class SubmissionService {
                                 : null;
                     }
 
-                    return SubmissionListItem.from(submission, profileUrl, submissionUrl);
+                    return SubmissionListItem.fromLegacy(submission, profileUrl, submissionUrl);
                 })
                 .toList();
 
         Page<SubmissionListItem> submissionItems = new PageImpl<>(submissionListRes, pageable, list.getTotalElements());
+
+        return SubmissionListRes.from(submissionItems);
+    }
+
+    @Transactional(readOnly = true)
+    public SubmissionListRes getSubmissionList(
+            Long contestId,
+            int page,
+            int size,
+            String sorter,
+            String filterAuthor,
+            String filterKeyword
+    ) {
+        Contest contest = contestRepository.findById(contestId)
+                .orElseThrow(ContestNotFoundException::new);
+
+        contestValidator.validateViewDate(contest);
+
+        Page<SubmissionDocument> submissionDocuments = submissionSearchRepository.searchSubmissions(
+                contestId, page, size, sorter, filterAuthor, filterKeyword
+        );
+
+        Page<SubmissionListItem> submissionItems = submissionDocuments.map(doc -> {
+            String profileUrl = s3Service.getCloudFrontUrl(doc.getProfilePath());
+
+            String submissionUrl = null;
+            if (doc.getType() == PromptType.IMAGE) {
+                submissionUrl = s3Service.getCloudFrontUrl(doc.getFilePath());
+            }
+
+            return SubmissionListItem.from(doc, profileUrl, submissionUrl);
+        });
 
         return SubmissionListRes.from(submissionItems);
     }
@@ -187,15 +255,25 @@ public class SubmissionService {
                 submissionCreateReq.result()
         );
 
+        String filePath = null;
         if(submission.getType() == PromptType.IMAGE) {
             SubmissionFile oldFile = submissionFileService.getSubmissionFile(submission.getId()).orElse(null);
 
             if(oldFile == null) {
-                submissionFileService.createSubmissionFile(submission);
+                filePath = submissionFileService.createSubmissionFile(submission);
             } else {
-                submissionFileService.updateSubmissionFile(oldFile, submissionCreateReq.result());
+                filePath = submissionFileService.updateSubmissionFile(oldFile, submissionCreateReq.result());
             }
         }
+
+        submissionSearchRepository.updateSubmission(
+                submission.getId(),
+                submission.getPrompt(),
+                submission.getDescription(),
+                submission.getResult(),
+                filePath,
+                LocalDateTime.now()
+        );
     }
 
     @Transactional
@@ -216,6 +294,7 @@ public class SubmissionService {
         }
 
         submissionRepository.delete(submission);
+        submissionSearchRepository.deleteById(submissionId);
     }
 
     @Transactional(readOnly = true)

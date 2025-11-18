@@ -53,9 +53,11 @@ public class SubmissionFileService {
     }
 
     @Transactional
-    public void updateSubmissionFile(SubmissionFile oldFile, String newFilePath) {
+    public String updateSubmissionFile(SubmissionFile oldFile, String newFilePath) {
         String movedFilePath = s3Service.moveObject(newFilePath, ImageDirectory.SUBMISSIONS);
         FileMetaData fileMetaData = s3Service.getFileMetadata(movedFilePath);
         oldFile.updateSubmissionFile(fileMetaData);
+
+        return movedFilePath;
     }
 }

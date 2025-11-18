@@ -49,9 +49,10 @@ public class SubmissionRestController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String sorter,
-            @RequestParam(defaultValue = "") String author
+            @RequestParam(defaultValue = "") String author,
+            @RequestParam(defaultValue = "") String keyword
     ) {
-        SubmissionListRes res = submissionService.getSubmissionList(contestId, page, size, sorter, author);
+        SubmissionListRes res = submissionService.getSubmissionList(contestId, page, size, sorter, author, keyword);
         return ApiResponse.ok(res);
     }
 
