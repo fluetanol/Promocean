@@ -57,6 +57,9 @@ public record PostDetailRes(
         @Schema(description = "현재 사용자의 좋아요 여부", example = "true")
         Boolean isLiked,
 
+        @Schema(description = "현재 사용자의 스크랩 여부", example = "false")
+        Boolean isScraped,
+
         @Schema(description = "게시글 작성일시", example = "2025-11-07T10:02:22")
         LocalDateTime createdAt,
 

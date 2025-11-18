@@ -14,6 +14,7 @@ import com.ssafy.a208.domain.board.repository.PostElasticsearchRepositoryImpl;
 import com.ssafy.a208.domain.board.repository.PostRepository;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.reader.MemberReader;
+import com.ssafy.a208.domain.scrap.reader.ScrapReader;
 import com.ssafy.a208.domain.scrap.service.ScrapService;
 import com.ssafy.a208.domain.tag.entity.PostTag;
 import com.ssafy.a208.domain.tag.service.PostTagService;
@@ -48,6 +49,7 @@ public class PostService {
     private final PostReader postReader;
     private final PostLikeReader postLikeReader;
     private final ReplyReader replyReader;
+    private final ScrapReader scrapReader;
     private final PostRepository postRepository;
     private final PostFileService postFileService;
     private final PostTagService postTagService;
@@ -268,9 +270,17 @@ public class PostService {
 
         // 현재 사용자의 좋아요 여부
         boolean isLiked = false;
+
+        //현재 사용자의 스크랩 여부
+        boolean isScraped = false;
         if (userDetails != null) {
             Member currentMember = memberReader.getMemberById(userDetails.memberId());
             isLiked = postLikeReader.existsByPostIdAndMember(postId, currentMember);
+
+            Post post = postReader.getPostById(postId);
+            isScraped = scrapReader.getScrapByPostAndMemberIncludeDeleted(post, currentMember)
+                    .map(scrap -> scrap.getDeletedAt() == null)  // 삭제되지 않은 경우만 true
+                    .orElse(false);
         }
 
         // 댓글 목록 조회 (Projection 사용)
@@ -309,6 +319,7 @@ public class PostService {
                 .likeCnt(projection.getLikeCount().intValue())
                 .replyCnt(projection.getReplyCount().intValue())
                 .isLiked(isLiked)
+                .isScraped(isScraped)
                 .createdAt(projection.getCreatedAt())
                 .replies(replyDtos)
                 .build();
