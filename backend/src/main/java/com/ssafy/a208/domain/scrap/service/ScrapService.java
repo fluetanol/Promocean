@@ -137,7 +137,7 @@ public class ScrapService {
         log.info("게시글의 스크랩 삭제 완료 - postId: {}, 스크랩 수: {}", post.getId(), scraps.size());
     }
     /**
-     * 스크랩 목록 조회 V2 (ElasticSearch) ⭐
+     * 스크랩 목록 조회 V2 (ElasticSearch)
      */
     @Transactional(readOnly = true)
     public ScrapListRes getScrapsV2(CustomUserDetails userDetails, ScrapQueryDto query) {
