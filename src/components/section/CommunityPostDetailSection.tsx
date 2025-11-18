@@ -19,11 +19,11 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
     <div className="p-8">
       
       {/* 메타 데이터 섹션 */}
-      <div className="flex flex-col gap-3 border-b border-gray-200 pb-5">
+      <div className="flex flex-col gap-3 border-b border-gray-200 pb-4">
 
         {/* 제목 */}
-        <div className="mb-3 flex flex-row items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="mb-2 flex flex-row items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">
             {communityPostData.title}
           </h1>
           <CommunityPostButtonList author={communityPostData.author} />
@@ -32,7 +32,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {/* 해시태그, 카테고리/타입 및 사용자 정보 */}
         <div className="flex items-end justify-between">
           {/* 왼쪽: 해시태그, 카테고리/타입 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <CommunityHashtagSection hashtagList={hashtagList} />
             <CommunityPostCategoryTypeBadges
               category={communityPostData.category}
@@ -54,7 +54,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {/* 설명 */}
         {communityPostData.description && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">설명</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">설명</h2>
             <MarkdownViewer content={communityPostData.description} />
           </div>
         )}
@@ -62,7 +62,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {/* 프롬프트 */}
         {communityPostData.prompt && (
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-1">프롬프트</h3>
+            <h3 className="text-xs font-medium text-gray-900 mb-1">프롬프트</h3>
             <MarkdownViewer content={communityPostData.prompt} />
           </div>
         )}
@@ -70,18 +70,18 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
         {/* 샘플 질문/답변 */}
         {(communityPostData.sampleQuestion || communityPostData.sampleAnswer) && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">예시</h2>
+            <h2 className="text-lg font-semibold text-gray-900">예시</h2>
 
             {communityPostData.sampleQuestion && (
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="text-sm font-medium text-blue-900 mb-1">질문</h3>
+                <h3 className="text-xs font-medium text-blue-900 mb-1">질문</h3>
                 <MarkdownViewer content={communityPostData.sampleQuestion} />
               </div>
             )}
 
             {communityPostData.sampleAnswer && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h3 className="text-sm font-medium text-green-900 mb-1">답변</h3>
+                <h3 className="text-xs font-medium text-green-900 mb-1">답변</h3>
                 <MarkdownViewer content={communityPostData.sampleAnswer} />
               </div>
             )}

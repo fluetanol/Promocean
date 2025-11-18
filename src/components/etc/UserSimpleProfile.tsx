@@ -53,7 +53,7 @@ export default function UserSimpleProfile({
         </div>
       )}
       {showName && (
-        <span className={`${textSizeClass} font-medium text-gray-700`}>{nickname}</span>
+        <span className={`${textSizeClass} font-medium text-gray-700 truncate`}>{nickname}</span>
       )}
     </div>
   )

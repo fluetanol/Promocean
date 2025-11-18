@@ -8,7 +8,7 @@ import {
 } from "@/types/itemType";
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
-import popularMock from "../../../public/mock/CommunityPopularPost.json";
+import { CommunityFloatingItemProps } from "@/types/itemType";
 
 /**
  * PostAPI
@@ -103,8 +103,7 @@ export class PostAPI {
   static async getPopular(page: string = "9") {
     const params = new URLSearchParams();
     params.set('page', page);
-    // const response = await apiFetch<ApiResponse<{ posts: CommunityFloatingItemProps[] }>>(`/api/v1/posts/trending?${params.toString()}`);
-    const response = popularMock;
+    const response = await apiFetch<ApiResponse<{ posts: CommunityFloatingItemProps[] }>>(`/api/v1/posts/trending?${params.toString()}`);
     return { popularPosts: response.data.posts };
   }
 

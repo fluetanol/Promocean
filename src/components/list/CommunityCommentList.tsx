@@ -16,7 +16,7 @@ interface CommunityCommentListProps {
  */
 export default function CommunityCommentList({ communityCommentList, postId, onUpdate }: CommunityCommentListProps) {
   return (
-    <div className="space-y-0">
+    <div>
       {communityCommentList.map((item, index) => (
         <CommunityCommentItem key={index} {...item} postId={postId} onUpdate={onUpdate} />
       ))}

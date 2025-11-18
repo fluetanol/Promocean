@@ -129,7 +129,7 @@ export default function CommunityCommentItem({ replyId, author, profileUrl, cont
         {/* 댓글 내용 */}
         <div className="flex-1 min-w-0">
           {/* 작성자 정보 */}
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-900 text-sm">{author}</span>
               <span className="text-xs text-gray-500">

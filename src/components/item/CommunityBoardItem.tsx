@@ -7,17 +7,17 @@ import { CommunityBoardItemProps } from "@/types/itemType";
 import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
 import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
+import IconCount from "@/components/etc/IconCount";
 import { getPostImageUrl } from "@/utils/imageUtils";
 
 export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
   
   const imgUrl = getPostImageUrl(fileUrl, postId);
-  const limitCnt = 99;
 
   return (
     <Link
       href={`/community/${postId}`}
-      className="flex flex-row justify-between items-stretch w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 p-2.5 gap-4"
+      className="group flex flex-row justify-between items-stretch w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 p-2.5 gap-4"
     >
     {/* 상단: 이미지 + 본문 */}
     <div className="flex flex-row items-start gap-4">
@@ -27,7 +27,7 @@ export default function CommunityBoardItem({ postId, author, profileUrl, title, 
           src={imgUrl}
           alt={title}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 group-hover:scale-115"
         />
       </div>
 
@@ -38,7 +38,7 @@ export default function CommunityBoardItem({ postId, author, profileUrl, title, 
           <h3 className="font-bold text-text text-sm leading-snug group-hover:text-primary transition-colors pb-0.5">
             {title}
           </h3>
-          <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+          <p className="text-xs text-gray-600 line-clamp-1">{description}</p>
         </div>
 
         {/* 카테고리 + 태그 묶음 */}
@@ -73,20 +73,8 @@ export default function CommunityBoardItem({ postId, author, profileUrl, title, 
               />
           </div>
           <div className="flex flex-row items-center gap-2 mt-2">
-            <div className="flex items-center gap-1 transition-colors">
-              <Heart />
-              {likeCnt > limitCnt ?
-              <span className="text-xs">+{limitCnt}</span> :
-              <span className="text-xs">{likeCnt}</span>
-              }
-            </div>
-            <div className="flex items-center gap-1 transition-colors">
-              <ChatBubbleBottomCenterText />
-              {replyCnt > limitCnt ?
-              <span className="text-xs">+{limitCnt}</span> :
-              <span className="text-xs">{replyCnt}</span>
-              }
-            </div>
+            <IconCount icon={<Heart />} count={likeCnt} limit={99} />
+            <IconCount icon={<ChatBubbleBottomCenterText />} count={replyCnt} limit={99} />
           </div>
         </div>
       </div>

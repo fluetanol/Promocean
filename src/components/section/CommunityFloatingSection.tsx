@@ -13,8 +13,8 @@ export default function CommunityFloatingSection({ popularPosts }: { popularPost
   return (
     <div>
       {/* Section Header */}
-      <div className="mb-4">
-        <h2 className="text-lg font-bold text-text mb-2">실시간 인기글</h2>
+      <div className="mb-2">
+        <h2 className="text-base font-bold text-text">실시간 인기글</h2>
       </div>
       
       {/* Popular Posts List */}

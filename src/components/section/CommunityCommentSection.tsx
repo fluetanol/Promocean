@@ -32,7 +32,7 @@ export default function CommunityCommentSection({ communityCommentList, postId }
       <div>
         <div className="flex flex-row items-center gap-2 mb-2">
           <ChatBubbleBottomCenterText />
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-md font-semibold text-gray-900">
             댓글 {communityCommentList.length}개
           </h3>
         </div>
@@ -43,7 +43,7 @@ export default function CommunityCommentSection({ communityCommentList, postId }
       <div>
         <div className="flex flex-row items-center gap-2 mb-4">
           <ChatBubbleBottomCenterText />
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-md font-semibold text-gray-900">
             댓글 작성
           </h3>
         </div>

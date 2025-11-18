@@ -36,17 +36,17 @@ export default function CommunityPostCategoryTypeBadges({ category, type }: Comm
         className="flex flex-row items-center gap-2 cursor-pointer"
         onClick={handleCategoryClick}
       >
-        <ListBullet />
-        <span className="text">카테고리</span>
+        <ListBullet className="size-5" />
+        <span className="text-sm text-gray-700">카테고리</span>
       </div>
-      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600">
         <span
           onClick={handleCategoryClick}
-          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors hover:bg-primary/10 hover:text-primary"
+          className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full text-[11px] font-medium cursor-pointer transition-colors hover:bg-primary/10 hover:text-primary"
         >
           {category}
         </span>
-        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
+        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium">
           {type}
         </span>
       </div>

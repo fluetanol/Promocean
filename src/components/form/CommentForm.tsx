@@ -54,7 +54,7 @@ export default function CommentForm({ postId, onSuccess }: CommentFormProps) {
           <button
             type="submit"
             disabled={!comment.trim() || isSubmitting}
-            className="px-6 py-2 bg-primary hover:bg-blue-600 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+            className="px-4 py-2 bg-primary hover:bg-blue-600 text-xs text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
           >
             {isSubmitting ? '작성 중...' : '댓글 작성'}
           </button>
