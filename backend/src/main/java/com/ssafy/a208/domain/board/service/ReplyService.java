@@ -16,6 +16,7 @@ import com.ssafy.a208.domain.member.reader.MemberReader;
 import com.ssafy.a208.global.common.enums.AlarmCategory;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,19 +66,23 @@ public class ReplyService {
         int replyCount = replyReader.getRepliesByPost(post).size();
         postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
-        // 게시글 작성자에게 알림 전송
-        AlarmReq alarmReq = AlarmReq.builder()
-                .category(AlarmCategory.POST_REPLY)
-                .postId(postId)
-                .postTitle(post.getTitle())
-                .replyId(reply.getId())
-                .replyContent(reply.getContent())
-                .build();
-        Member receiver = post.getAuthor();
-        alarmService.send(receiver, alarmReq);
-
         log.info("댓글 생성 완료 - replyId: {}, postId: {}, authorId: {}",
                 reply.getId(), postId, author.getId());
+
+        // 게시글 작성자에게 알림 전송(본인 게시물에 본인 댓글이면 제외)
+        if(!Objects.equals(post.getAuthor(), author)) {
+            AlarmReq alarmReq = AlarmReq.builder()
+                    .category(AlarmCategory.POST_REPLY)
+                    .postId(postId)
+                    .postTitle(post.getTitle())
+                    .replyId(reply.getId())
+                    .replyContent(reply.getContent())
+                    .build();
+            Member receiver = post.getAuthor();
+            alarmService.send(receiver, alarmReq);
+            log.info("알림 전송 완료 - replyId: {}, postId: {}, authorId: {}",
+                    reply.getId(), postId, author.getId());
+        }
     }
 
     /**
