@@ -36,6 +36,9 @@ export default function TeamSpaceMemberItem({ member, index, currentUserEmail, o
     // 자기 자신인지 확인
     const isSelf = currentUserEmail && member.email === currentUserEmail;
 
+    // 관리 권한 확인 (onRoleChange와 onDelete가 있으면 OWNER)
+    const canManage = !!onRoleChange || !!onDelete;
+
     // role 값을 숫자로 변환 (안전하게)
     const getRoleValue = (): number => {
         const converted = ChangeSpaceRoleToValue(member.role);
@@ -45,6 +48,20 @@ export default function TeamSpaceMemberItem({ member, index, currentUserEmail, o
         // fallback: 기본값으로 READER 반환
         console.warn(`Invalid role value: ${member.role}, defaulting to READER`);
         return TeamSpaceRole.READER;
+    };
+
+    // role을 한글로 변환
+    const getRoleLabel = (role: number): string => {
+        switch (role) {
+            case TeamSpaceRole.READER:
+                return '읽기 허용';
+            case TeamSpaceRole.EDITOR:
+                return '편집 허용';
+            case TeamSpaceRole.OWNER:
+                return '소유자';
+            default:
+                return '알 수 없음';
+        }
     };
 
     return(
@@ -66,18 +83,26 @@ export default function TeamSpaceMemberItem({ member, index, currentUserEmail, o
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <select name="" id=""
-                    value={getRoleValue()}
-                    onChange={handleRoleChange}
-                    className ="hover:bg-gray-200 p-1 border-gray-200
-                    outline-none
-                    rounded-md">
-                        <option value={TeamSpaceRole.READER}>읽기 허용</option>
-                        <option value={TeamSpaceRole.EDITOR}>편집 허용</option>
-                        <option value={TeamSpaceRole.OWNER}>소유자</option>
-                    </select>
+                    {canManage ? (
+                        /* OWNER인 경우: 드롭다운으로 권한 변경 가능 */
+                        <select name="" id=""
+                        value={getRoleValue()}
+                        onChange={handleRoleChange}
+                        className ="hover:bg-gray-200 p-1 border-gray-200
+                        outline-none
+                        rounded-md">
+                            <option value={TeamSpaceRole.READER}>읽기 허용</option>
+                            <option value={TeamSpaceRole.EDITOR}>편집 허용</option>
+                            <option value={TeamSpaceRole.OWNER}>소유자</option>
+                        </select>
+                    ) : (
+                        /* READER, EDITOR인 경우: 읽기 전용 텍스트로 표시 */
+                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">
+                            {getRoleLabel(getRoleValue())}
+                        </span>
+                    )}
 
-                    {!isSelf && (
+                    {canManage && !isSelf && (
                         <button
                             type="button"
                             className="flex bg-red-500 rounded-full size-6 text-white justify-center items-center hover:bg-red-600 active:bg-red-700 cursor-pointer transition-colors"

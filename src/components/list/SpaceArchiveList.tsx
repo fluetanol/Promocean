@@ -7,6 +7,8 @@ import { SpaceArchiveData } from "@/app/my-space/page";
 import { useAuthStore } from "@/store/authStore";
 import { useSpaceStore } from "@/store/spaceStore";
 import { SpaceAPI } from "@/api/space";
+import { useRouter } from "next/navigation";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 
 export interface SpaceArchiveListProps {
   isPinnedList?: boolean;
@@ -39,6 +41,7 @@ export default function SpaceArchiveList({
     const [shouldRenderModalState, setShouldRenderModalState] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const spaceStore = useSpaceStore();
+    const folderStore = useArchiveFolderStore();
 
     // 팀 스페이스인 경우 권한 확인
     const userRole = isTeamSpace ? spaceStore.currentSpace?.userRole : null;
@@ -70,6 +73,24 @@ export default function SpaceArchiveList({
         e.preventDefault();
         setIsDragOver(false);
     };
+
+    const router = useRouter();
+    const handleAllPrompt = () => {
+
+            folderStore.setCurrentFolder({
+            folderId : 0,
+            name : "모든 프롬프트",
+            color : "bg-primary",
+            isPinned : true
+            })
+
+        if(isTeamSpace){
+            router.push(`/team-space/${spaceId}/all-prompts`)
+        }
+        else {
+            router.push(`/my-space/archive/all-prompts`)
+        }
+    }
 
     // 드롭 핸들러 - 빈 공간에 드롭했을 때
     const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
@@ -118,6 +139,7 @@ export default function SpaceArchiveList({
                 <button
                     className={`${interactiveBtnClasses} bg-white outline-2 outline-dodger-blue-11`}
                     aria-label="모든 프롬프트 보기"
+                    onClick={handleAllPrompt}
                 >
                     <div className="w-full h-full flex items-center justify-center">
                         <div className="text-center text-black text-xl font-medium leading-6">

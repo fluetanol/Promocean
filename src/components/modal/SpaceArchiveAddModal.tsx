@@ -78,7 +78,7 @@ export default function SpaceArchiveAddModal({ isOpen, spaceId, onCloseAddModal,
 
     return (
         <div
-            className={`fixed flex inset-0 z-10 w-full h-full bg-black/40 backdrop-blur-xs justify-center items-center
+            className={`fixed flex inset-0 z-50 w-full h-full bg-black/40 backdrop-blur-xs justify-center items-center
                 transition-opacity duration-300 ease-out
                 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
             onClick={onCloseAddModal}

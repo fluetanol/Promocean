@@ -36,10 +36,10 @@ export default function AlarmItem(props: AlarmItemProps) {
         onToggle,
     } = props;
 
-    console.log('AlarmItem - category:', category, 'type:', typeof category);
-    console.log('AlarmItem - postId:', postId, 'replyId:', replyId);
-    console.log('AlarmItem - contestId:', contestId, 'noticeId:', noticeId);
-    console.log('AlarmItem - spaceId:', spaceId);
+    // console.log('AlarmItem - category:', category, 'type:', typeof category);
+    // console.log('AlarmItem - postId:', postId, 'replyId:', replyId);
+    // console.log('AlarmItem - contestId:', contestId, 'noticeId:', noticeId);
+    // console.log('AlarmItem - spaceId:', spaceId);
 
     // 댓글 알람 (POST_REPLY = 2)
     if (category === "POST_REPLY" && postId !== undefined && replyId !== undefined) {

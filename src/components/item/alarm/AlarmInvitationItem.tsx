@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { AlarmInvitationItemProps } from "./alarmTypes";
 import { getRelativeTime, parseMessage } from "./alarmUtils";
+import { useSpaceStore } from "@/store/spaceStore";
+import { SpaceAPI } from "@/api/space";
+import { getTeamSpaceInfoToServer } from "@/server-side/getTeamSpaceInfoToServer";
 
 export default function AlarmInvitationItem({
     alarmId,
@@ -14,6 +17,7 @@ export default function AlarmInvitationItem({
     onToggle,
 }: AlarmInvitationItemProps) {
     const router = useRouter();
+    const spaceStore = useSpaceStore();
 
     const handleCheckboxChange = () => {
         if (onToggle) {
@@ -21,8 +25,28 @@ export default function AlarmInvitationItem({
         }
     };
 
-    const handleItemClick = () => {
+    const handleItemClick = async() => {
         if (isRemove) return;
+
+        const res = await SpaceAPI.getTeamSpaceList();
+        const spaceList = res?.spaces || [];
+        spaceStore.setAllTeamSpaces(spaceList);
+
+        console.log("초대된 스페이스 리스트 ", spaceList);
+        const inviteSpaceId = spaceId;
+        const invitedSpace = spaceList.find(space => space.spaceId === inviteSpaceId);
+        if (invitedSpace) {
+            spaceStore.setCurrentSpace(invitedSpace);
+        }
+
+
+        const res2 = await getTeamSpaceInfoToServer(
+            invitedSpace?.spaceId || -1,
+            invitedSpace?.name || '',
+            invitedSpace?.participantCnt || 0,
+            invitedSpace?.spaceCoverUrl || ''
+        );
+
         // TODO: 팀 스페이스로 이동
         console.log("스페이스 아이디 ",spaceId)
         router.push(`/team-space/${spaceId}`);

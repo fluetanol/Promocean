@@ -5,7 +5,7 @@ import { SpaceRole, TeamSpaceRole } from "@/enum/TeamSpaceRole";
 
 
 export interface searchParamsType{
-    folderId : number, 
+    folderId? : number, 
     type? : number, 
     tag? : string, 
     title? : string, 
@@ -215,7 +215,7 @@ export const SpaceAPI = {
             params = {folderId: 0, page: 1, size: 10, sort: "latest"};
         }
 
-        queryParams.append("folderId", params.folderId.toString());
+        if(params.folderId)  queryParams.append("folderId", params.folderId.toString());
         if(params.type) queryParams.append("type", params.type.toString());
         if(params.tag) queryParams.append("tag", params.tag);
         if(params.title) queryParams.append("title", params.title);

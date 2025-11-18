@@ -4,15 +4,9 @@ import SpaceArchiveBoardList from "@/components/list/SpaceArchiveBoardList";
 import MySpaceArchiveFilterSection from "@/components/section/MySpaceArchiveFilterSection";
 
 
-export interface MySpaceArchiveFolderPageProps {
-  params : Promise<{ folderId : number }>
 
-}
+export default async function MySpaceArchiveFolderPage() {
 
-
-export default async function MySpaceArchiveFolderPage({ params }: MySpaceArchiveFolderPageProps) {
-  const { folderId } = await params;
-  
   return (
       <SpaceArchiveBoardList />
   );

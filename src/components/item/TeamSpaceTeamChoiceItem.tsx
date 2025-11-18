@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UserGroup from "../icon/UserGroup";
 import { useSpaceStore } from "@/store/spaceStore";
-import { getTeamSpaceInfoToServer } from "@/server-side/TeamSpaceInfo";
+import { getTeamSpaceInfoToServer } from "@/server-side/getTeamSpaceInfoToServer";
 import { TeamSpaceRoleToKorean } from "@/enum/TeamSpaceRole";
 import { TeamSpaceItem } from "@/types/apiTypes/space";
 
-export interface TeamSpaceChoiceItemProps extends TeamSpaceItem {}
+export interface TeamSpaceChoiceItemProps extends TeamSpaceItem {
+    z?:number;
+}
 
 
 export default function TeamSpaceChoiceItem({
@@ -35,7 +37,8 @@ export default function TeamSpaceChoiceItem({
         })
         console.log("현재 스페이스 설정됨, 내 권한 ", userRole);
         const res = await getTeamSpaceInfoToServer(spaceId, name, participantCnt, spaceCoverUrl);
-
+        
+        
         console.log("TeamSpaceTeamChoiceItem clicked");
         router.push(`/team-space/${spaceId}`);
     }

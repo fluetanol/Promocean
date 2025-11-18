@@ -109,70 +109,74 @@ export default function MySpaceMyPostSection() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full bg-white rounded-xl shadow-sm border border-gray-100 p-12">
-        <p className="text-gray-800 text-lg font-medium">로딩 중...</p>
+      <div className="px-8 py-6">
+        <div className="flex items-center justify-center w-full bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <p className="text-gray-800 text-lg font-medium">로딩 중...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 필터 섹션 */}
-      <MySpaceMyPostFilter />
+    <div className="px-8 py-6">
+      <div className="flex flex-col gap-6">
+        {/* 필터 섹션 */}
+        <MySpaceMyPostFilter />
 
-      {/* 게시글 목록 */}
-      <div className="flex flex-col divide-y divide-gray-100 space-y-4">
-        {posts.length === 0 ? (
-          <div className="flex items-center justify-center w-full bg-white rounded-xl shadow-sm border border-gray-100 p-12">
-            <p className="text-gray-800 text-lg font-medium">작성한 글이 없습니다</p>
+        {/* 게시글 목록 */}
+        <div className="flex flex-col divide-y divide-gray-100 space-y-4">
+          {posts.length === 0 ? (
+            <div className="flex items-center justify-center w-full bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+              <p className="text-gray-800 text-lg font-medium">작성한 글이 없습니다</p>
+            </div>
+          ) : (
+            posts.map((post) => <MyPostBoardItem key={post.postId} {...post} />)
+          )}
+        </div>
+
+        {/* 페이지네이션 */}
+        {posts.length > 0 && totalPages > 1 && (
+          <div className="flex justify-center py-8">
+            <div className="join overflow-hidden rounded-lg border border-gray-300">
+              {/* 이전 */}
+              <button
+                className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handlePreviousPage}
+                disabled={startPage === 1}
+              >
+                «
+              </button>
+
+              {/* 페이지 번호 */}
+              {pageNumbers.map((pageNum) => (
+                <input
+                  key={pageNum}
+                  type="radio"
+                  name="page"
+                  aria-label={pageNum.toString()}
+                  className={`join-item btn btn-square bg-background text-text hover:bg-gray-100 border-none ${
+                    pageNum === currentPage
+                      ? "btn-active bg-primary text-white rounded-md"
+                      : "rounded-none"
+                  }`}
+                  onClick={() => handlePageChange(pageNum)}
+                  readOnly
+                  checked={pageNum === currentPage}
+                />
+              ))}
+
+              {/* 다음 */}
+              <button
+                className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleNextPage}
+                disabled={endPage >= totalPages}
+              >
+                »
+              </button>
+            </div>
           </div>
-        ) : (
-          posts.map((post) => <MyPostBoardItem key={post.postId} {...post} />)
         )}
       </div>
-
-      {/* 페이지네이션 */}
-      {posts.length > 0 && totalPages > 1 && (
-        <div className="flex justify-center py-8">
-          <div className="join overflow-hidden rounded-lg border border-gray-300">
-            {/* 이전 */}
-            <button
-              className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handlePreviousPage}
-              disabled={startPage === 1}
-            >
-              «
-            </button>
-
-            {/* 페이지 번호 */}
-            {pageNumbers.map((pageNum) => (
-              <input
-                key={pageNum}
-                type="radio"
-                name="page"
-                aria-label={pageNum.toString()}
-                className={`join-item btn btn-square bg-background text-text hover:bg-gray-100 border-none ${
-                  pageNum === currentPage
-                    ? "btn-active bg-primary text-white rounded-md"
-                    : "rounded-none"
-                }`}
-                onClick={() => handlePageChange(pageNum)}
-                readOnly
-                checked={pageNum === currentPage}
-              />
-            ))}
-
-            {/* 다음 */}
-            <button
-              className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleNextPage}
-              disabled={endPage >= totalPages}
-            >
-              »
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

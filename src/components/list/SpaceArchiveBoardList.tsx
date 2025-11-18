@@ -53,7 +53,7 @@ export default function SpaceArchiveBoardList(
 
                         // API 호출 파라미터 구성
                         const apiParams : searchParamsType = {
-                            folderId: folderId || -1,
+                            folderId: folderId || undefined,
                             page: currentPage,
                             size: 10,
                             sort: sort as "latest" | "oldest",
