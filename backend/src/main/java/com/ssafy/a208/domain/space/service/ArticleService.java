@@ -103,9 +103,9 @@ public class ArticleService {
             Long folderId, Integer type, String tag, String title, int page, int size,
             SortType sort) {
         if (Objects.isNull(folderId)) {
-            spaceService.validateEditableSpace(spaceId, userDetails.memberId());
+            spaceService.validateReadableSpace(spaceId, userDetails.memberId());
         } else {
-            folderService.validateEditableFolder(spaceId, folderId, userDetails.memberId());
+            folderService.validateReadableFolder(spaceId, folderId, userDetails.memberId());
         }
 
         Page<ArticleListItemQueryRes> articles = articleElasticSearchService
@@ -133,7 +133,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public ArticleDetailRes getArticleDetail(CustomUserDetails userDetails, Long spaceId,
             Long articleId) {
-        spaceService.validateEditableSpace(spaceId, userDetails.memberId());
+        spaceService.validateReadableSpace(spaceId, userDetails.memberId());
         Article article = articleReader.getArticleById(articleId);
         String fileUrl = articleFileService.getArticleFileUrl(article);
 
