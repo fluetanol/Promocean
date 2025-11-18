@@ -5,6 +5,7 @@ import com.ssafy.a208.domain.board.entity.PostLike;
 import com.ssafy.a208.domain.board.exception.PostLikeAlreadyExistsException;
 import com.ssafy.a208.domain.board.reader.PostLikeReader;
 import com.ssafy.a208.domain.board.reader.PostReader;
+import com.ssafy.a208.domain.board.reader.ReplyReader;
 import com.ssafy.a208.domain.board.repository.PostLikeRepository;
 import com.ssafy.a208.domain.member.entity.Member;
 import com.ssafy.a208.domain.member.reader.MemberReader;
@@ -24,7 +25,9 @@ public class PostLikeService {
     private final PostReader postReader;
     private final PostLikeReader postLikeReader;
     private final MemberReader memberReader;
+    private final ReplyReader replyReader;
     private final PostLikeRepository postLikeRepository;
+    private final PostIndexService postIndexService;
 
     /**
      * 게시글 좋아요 생성
@@ -53,6 +56,13 @@ public class PostLikeService {
                 .build();
 
         postLikeRepository.save(postLike);
+
+        //es 업데이트
+        int likeCount = (int) post.getPostLikes().stream()
+                .filter(like -> like.getDeletedAt() == null)
+                .count() + 1;
+        int replyCount = replyReader.getRepliesByPost(post).size();
+        postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
         log.info("게시글 좋아요 완료 - postId: {}, memberId: {}", postId, member.getId());
     }

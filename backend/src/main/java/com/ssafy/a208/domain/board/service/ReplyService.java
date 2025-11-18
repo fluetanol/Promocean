@@ -33,6 +33,7 @@ public class ReplyService {
     private final ReplyReader replyReader;
     private final AlarmService alarmService;
     private final ReplyRepository replyRepository;
+    private final PostIndexService postIndexService;
 
     /**
      * 댓글을 생성합니다.
@@ -58,8 +59,12 @@ public class ReplyService {
 
         replyRepository.save(reply);
 
-        log.info("댓글 생성 완료 - replyId: {}, postId: {}, authorId: {}",
-                reply.getId(), postId, author.getId());
+        //es 카운트 업데이트
+        int likeCount = (int) post.getPostLikes().stream()
+                .filter(like -> like.getDeletedAt() == null)
+                .count();
+        int replyCount = replyReader.getRepliesByPost(post).size();
+        postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
         // 게시글 작성자에게 알림 전송
         AlarmReq alarmReq = AlarmReq.builder()
@@ -71,6 +76,9 @@ public class ReplyService {
                 .build();
         Member receiver = post.getAuthor();
         alarmService.send(receiver, alarmReq);
+
+        log.info("댓글 생성 완료 - replyId: {}, postId: {}, authorId: {}",
+                reply.getId(), postId, author.getId());
     }
 
     /**
@@ -137,6 +145,12 @@ public class ReplyService {
 
         // 댓글 소프트 딜리트
         reply.deleteReply();
+
+        int likeCount = (int) post.getPostLikes().stream()
+                .filter(like -> like.getDeletedAt() == null)
+                .count();
+        int replyCount = replyReader.getRepliesByPost(post).size();
+        postIndexService.updatePostCounts(postId, likeCount, replyCount);
 
         log.info("댓글 삭제 완료 - replyId: {}, postId: {}", replyId, postId);
     }

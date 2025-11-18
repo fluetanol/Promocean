@@ -89,17 +89,17 @@ public class PostService {
         postRepository.save(post);
 
         // 이미지 프롬프트인 경우 파일 처리
+        String filePath = null;
         if (promptType == PromptType.IMAGE && Objects.nonNull(req.filePath())
                 && !req.filePath().isBlank()) {
-            postFileService.createPostFile(req.filePath(), post);
+            filePath = postFileService.createPostFile(req.filePath(), post);
         }
-       
-
-        // ES 인덱싱 추가
-        postIndexService.indexPost(post);
-
         // 태그 처리
         postTagService.createTags(req.tags(), post);
+
+        // ES 인덱싱 추가
+        postIndexService.indexPost(post, filePath, req.tags());
+
 
         log.info("게시글 생성 완료 - postId: {}, type: {}", post.getId(), promptType);
 
@@ -117,7 +117,6 @@ public class PostService {
      * @throws PostAccessDeniedException 수정 권한이 없을 때
      */
     @Transactional
-
     public PostUpdateRes updatePost(CustomUserDetails userDetails, Long postId, PostUpdateReq req) {
         // 게시글 조회
         Post post = postReader.getPostById(postId);
@@ -163,10 +162,11 @@ public class PostService {
         }
 
         // 파일 처리
+        String filePath = null;
         if (promptType == PromptType.IMAGE && Objects.nonNull(req.filePath())
                 && !req.filePath().isBlank()) {
             // 이미지 타입이고 파일 경로가 있을 때만 업데이트
-            postFileService.updatePostFile(post, req.filePath());
+            filePath = postFileService.updatePostFile(post, req.filePath());
         } else if (promptType == PromptType.TEXT) {
             // 텍스트 타입으로 변경 시 기존 파일 삭제
             postFileReader.getPostFileByPost(post)
@@ -183,11 +183,12 @@ public class PostService {
                 req.sampleQuestion(),
                 req.sampleAnswer()
         );
-        // ES 재인덱싱 추가
-        postIndexService.indexPost(post);
 
         // 태그 처리
         postTagService.createTags(req.tags(), post);
+
+        // ES 재인덱싱 추가
+        postIndexService.indexPost(post, filePath, req.tags());
 
         log.info("게시글 수정 완료 - postId: {}, type: {}", post.getId(), promptType);
 
