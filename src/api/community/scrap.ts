@@ -37,12 +37,7 @@ export class ScrapAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async create(postId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/scraps`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/scraps`, {
       method: 'POST',
     });
 
@@ -61,12 +56,7 @@ export class ScrapAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async delete(postId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/scraps`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/scraps`, {
       method: 'DELETE',
     });
 

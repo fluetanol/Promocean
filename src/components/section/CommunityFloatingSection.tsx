@@ -11,11 +11,10 @@ import { CommunityFloatingItemProps } from '@/types/itemType'
  */
 export default function CommunityFloatingSection({ popularPosts }: { popularPosts: CommunityFloatingItemProps[] }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div>
       {/* Section Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-bold text-text mb-2">인기글</h2>
-        <p className="text-sm text-gray-600">많은 사람들이 관심을 가진 글들</p>
+        <h2 className="text-lg font-bold text-text mb-2">실시간 인기글</h2>
       </div>
       
       {/* Popular Posts List */}

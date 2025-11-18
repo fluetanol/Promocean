@@ -20,14 +20,14 @@ interface ContestCardSectionProps {
  */
 export default function ContestCardSection({ contestCardList, itemCnt, totalCnt, totalPages, currentPage }: ContestCardSectionProps) {
   return (
-    <div className="py-8">
+    <div>
       <div className="max-w-6xl mx-auto px-4">
         {/* 게시글 목록 헤더 */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-shrink-0">
+        <div className="flex items-end justify-end">
+          {/* <div className="flex-shrink-0">
             <h2 className="text-2xl font-bold text-text mb-2">프롬프트 대회</h2>
             <p className="text-gray-800">다양한 주제의 프롬프트 대회에 참여해보세요</p>
-          </div>
+          </div> */}
 
           {/* 필터/검색*/}
           <div className="flex-shrink-0 min-w-[380px]">

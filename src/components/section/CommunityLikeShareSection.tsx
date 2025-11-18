@@ -7,6 +7,9 @@ import Bookmark from "@/components/icon/Bookmark";
 import ArrayDownTray from "@/components/icon/ArrayDownTray";
 import { LikeAPI, ScrapAPI } from "@/api/community";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
+import SpaceAPI from "@/api/space";
 
 /**
  * CommunityLikeShareSection component
@@ -85,6 +88,59 @@ export default function CommunityLikeShareSection({ likeCnt: initialLikeCnt, isL
     }
   };
 
+  const router = useRouter();
+  const { isLoggedIn, user } = useAuthStore();
+
+  const archiveClick = async () => {
+    // 1. 로그인 유효성 검사
+    if (!isLoggedIn || !user) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      // 2. authStore에서 자신의 Space ID 가져오기
+      const spaceId = user.personalSpaceId;
+      if (!spaceId) {
+        alert('스페이스 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      // 3. SpaceId로 my-space의 폴더목록 호출하기
+      const foldersData = await SpaceAPI.getSpaceArchiveFoldersData(spaceId);
+      if (!foldersData || !foldersData.folders || foldersData.folders.length === 0) {
+        alert('폴더가 없습니다. 먼저 폴더를 생성해주세요.');
+        return;
+      }
+
+      // 첫 번째 폴더 이름 가져오기
+      const firstFolderName = foldersData.folders[0].name;
+      const encodedFolderName = encodeURIComponent(firstFolderName);
+
+      // 4. 글쓰기 화면으로 이동하면서 쿼리 파라미터 세팅
+      // (게시글 정보는 post/page.tsx에서 postId로 로드됨)
+      const params = new URLSearchParams({
+        type: 'my-space',
+        folder: encodedFolderName,
+        postId: postId.toString(), // 게시글 정보를 세팅하기 위해 전달
+      });
+
+      router.push(`/post?${params.toString()}`);
+    } catch (error) {
+      if (!(error instanceof Error)) return;
+      const errorMessage = error.message;
+      
+      if (errorMessage.includes('인증') || errorMessage.includes('로그인')) {
+        alert('로그인이 필요합니다.');
+      } else if (errorMessage.includes('404') || errorMessage.includes('찾을 수 없습니다')) {
+        alert('게시글을 찾을 수 없습니다.');
+      } else {
+        alert('아카이브 이동 중 오류가 발생했습니다.');
+        console.error('Archive error:', error);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-row items-center justify-center gap-8">
       {/* 좋아요 */}
@@ -115,10 +171,13 @@ export default function CommunityLikeShareSection({ likeCnt: initialLikeCnt, isL
       </button>
 
       {/* 아카이브하기 */}
-      <div className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity">
+      <button
+        onClick={archiveClick}
+        className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity"
+      >
         <ArrayDownTray className="w-4 h-4 stroke-gray-500" />
         <span className="text-sm">아카이브</span>
-      </div>
+      </button>
     </div>
   );
 }

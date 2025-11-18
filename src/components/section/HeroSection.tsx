@@ -7,7 +7,7 @@
  */
 export default function HeroSection() {
   return (
-    <div className="h-[515px] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center relative overflow-hidden">
+    <div className="h-[320px] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-32 h-32 bg-primary rounded-full blur-3xl"></div>
@@ -26,16 +26,6 @@ export default function HeroSection() {
         <p className="text-lg text-text/60 mb-12 max-w-2xl mx-auto">
           AI 프롬프트를 공유하고, 검색하고, 경쟁하며 함께 성장하는 커뮤니티 플랫폼
         </p>
-        
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl">
-            시작하기
-          </button>
-          <button className="border-2 border-primary text-primary px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary hover:text-white transition-colors">
-            둘러보기
-          </button>
-        </div>
       </div>
       
       {/* Floating Elements */}

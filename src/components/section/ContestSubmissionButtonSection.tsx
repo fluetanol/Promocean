@@ -20,7 +20,7 @@ export default function ContestSubmissionButtonSection() {
   }
 
   const handleSubmitSubmission = () => {
-    router.push(`/post`);
+    router.push(`/post?type=submission&contestId=${contestId}`);
   }
 
   return (

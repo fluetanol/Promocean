@@ -19,10 +19,10 @@ export default function ContestCardList({ contestCards }: ContestCardListProps) 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-      {contestCards.map((contestCard) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+      {contestCards.map((contestCard, index) => (
         <ContestCardItem
-          key={contestCard.contestId}
+          key={index}
           {...contestCard}
         />
       ))}

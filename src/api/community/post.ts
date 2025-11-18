@@ -4,10 +4,10 @@ import { apiFetch } from "@/api/fetcher";
 import {
   CommunityBoardItemProps,
   CommunityBoardItemResponse,
-  CommunityFloatingItemProps,
   CommunityPostItemResponse,
 } from "@/types/itemType";
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
+import { ApiResponse } from "@/types/apiTypes/common";
 import popularMock from "../../../public/mock/CommunityPopularPost.json";
 
 /**
@@ -73,22 +73,17 @@ export class PostAPI {
       { key: 'category', value: convertCategoryToApiCode(category) },
     ].forEach(({ key, value }) => value && queryParams.set(key, value));
     
-    interface ApiResponse {
-      message: string | null;
-      data: {
-        posts: CommunityBoardItemResponse[];
-        itemCnt: number;
-        totalCnt: number;
-        totalPages: number;
-        currentPage: number;
-      };
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts?${queryParams.toString()}`);
+    const response = await apiFetch<ApiResponse<{
+      posts: CommunityBoardItemResponse[];
+      itemCnt: number;
+      totalCnt: number;
+      totalPages: number;
+      currentPage: number;
+    }>>(`/api/v1/posts?${queryParams.toString()}`);
 
     const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
-    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post, fileUrl: undefined }));
-
+    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post}));
+    
     return {
       communityBoardList,
       itemCnt,
@@ -105,17 +100,10 @@ export class PostAPI {
    * @description 인기글 데이터를 조회하는 API입니다.
    * @returns {Promise<{ popularPosts: CommunityFloatingItemProps[] }>}
    */
-  static async getPopular() {
-    interface ApiResponse {
-      message: string | null;
-      data: {
-        posts: CommunityFloatingItemProps[];
-      };
-    }
-    // const params = new URLSearchParams();
-    // const page = "9";
-    // params.set('page', page);
-    // const response = await apiFetch<ApiResponse>(`/api/v1/trending/posts?${params.toString()}`);
+  static async getPopular(page: string = "9") {
+    const params = new URLSearchParams();
+    params.set('page', page);
+    // const response = await apiFetch<ApiResponse<{ posts: CommunityFloatingItemProps[] }>>(`/api/v1/posts/trending?${params.toString()}`);
     const response = popularMock;
     return { popularPosts: response.data.posts };
   }
@@ -129,12 +117,7 @@ export class PostAPI {
    * @returns {Promise<{ communityPostDetailData: CommunityPostItemResponse }>}
    */
   static async getDetail(postId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: CommunityPostItemResponse;
-    }
-    
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}`);
+    const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`);
     
     const communityPostDetailData = response.data;
     

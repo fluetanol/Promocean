@@ -1,6 +1,7 @@
 // frontend/src/api/community/like.ts
 
 import { apiFetch } from "@/api/fetcher";
+import { ApiResponse } from "@/types/apiTypes/common";
 
 /**
  * LikeAPI
@@ -16,12 +17,7 @@ export class LikeAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async create(postId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/likes`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/likes`, {
       method: 'POST',
     });
 

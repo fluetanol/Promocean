@@ -50,9 +50,10 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
     fetchMySubmission();
   }, [contestId]);
 
-  // 수정 시작
+  // 수정 시작 - post 페이지로 이동
   const handleEditStart = () => {
-    setIsEditing(true);
+    if (!submissionDetailData) return;
+    router.push(`/post?type=submission&mode=edit&contestId=${contestId}&submissionId=${submissionDetailData.submissionId}`);
   };
 
   // 수정 취소
@@ -166,24 +167,6 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
 
             {/* 산출물 정보 */}
             <div className="mb-6 space-y-4">
-              {/* 프롬프트 */}
-              {submissionDetailData && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">프롬프트</h3>
-                  {isEditing ? (
-                    <textarea
-                      value={editPrompt}
-                      onChange={(e) => setEditPrompt(e.target.value)}
-                      className="w-full min-h-[100px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
-                      placeholder="프롬프트를 입력하세요"
-                    />
-                  ) : (
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-gray-700 whitespace-pre-wrap">{submissionDetailData.prompt}</p>
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* 설명 */}
               {submissionDetailData && (
@@ -199,6 +182,25 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
                   ) : (
                     <div className="p-4 bg-gray-50 rounded-lg">
                       <p className="text-gray-700 whitespace-pre-wrap">{submissionDetailData.description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 프롬프트 */}
+              {submissionDetailData && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">프롬프트</h3>
+                  {isEditing ? (
+                    <textarea
+                      value={editPrompt}
+                      onChange={(e) => setEditPrompt(e.target.value)}
+                      className="w-full min-h-[100px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                      placeholder="프롬프트를 입력하세요"
+                    />
+                  ) : (
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-gray-700 whitespace-pre-wrap">{submissionDetailData.prompt}</p>
                     </div>
                   )}
                 </div>

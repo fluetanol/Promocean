@@ -1,6 +1,7 @@
 // frontend/src/api/contest/vote.ts
 
 import { apiFetch } from "@/api/fetcher";
+import { ApiResponse } from "@/types/apiTypes/common";
 
 /**
  * VoteAPI
@@ -17,12 +18,7 @@ export class VoteAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async create(contestId: number, submissionId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/submissions/${submissionId}/votes`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/contests/${contestId}/submissions/${submissionId}/votes`, {
       method: 'POST',
     });
 

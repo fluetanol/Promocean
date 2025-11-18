@@ -5,6 +5,7 @@ import {
   ContestNoticeItemProps,
   ContestNoticeDetailData,
 } from "@/types/itemType";
+import { ApiResponse } from "@/types/apiTypes/common";
 
 /**
  * NoticeAPI
@@ -20,11 +21,7 @@ export class NoticeAPI {
    * @returns {Promise<{ contestNoticeList: ContestNoticeItemProps[] }>}
    */
   static async list(contestId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: ContestNoticeItemProps[];
-    }
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/notices`);
+    const response = await apiFetch<ApiResponse<ContestNoticeItemProps[]>>(`/api/v1/contests/${contestId}/notices`);
     return {
       contestNoticeList: response.data,
     };
@@ -40,11 +37,7 @@ export class NoticeAPI {
    * @returns {Promise<{ noticeData: ContestNoticeDetailData }>}
    */
   static async getDetail(contestId: number, noticeId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: ContestNoticeDetailData;
-    }
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/notices/${noticeId}`);
+    const response = await apiFetch<ApiResponse<ContestNoticeDetailData>>(`/api/v1/contests/${contestId}/notices/${noticeId}`);
     return {
       noticeData: response.data,
     };
@@ -61,11 +54,7 @@ export class NoticeAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async create(contestId: number, title: string, content: string) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/notices`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/contests/${contestId}/notices`, {
       method: 'POST',
       body: JSON.stringify({
         title,
@@ -90,11 +79,7 @@ export class NoticeAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async update(contestId: number, noticeId: number, title: string, content: string) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/notices/${noticeId}`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/contests/${contestId}/notices/${noticeId}`, {
       method: 'PUT',
       body: JSON.stringify({
         title,
@@ -117,11 +102,7 @@ export class NoticeAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async delete(contestId: number, noticeId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${contestId}/notices/${noticeId}`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/contests/${contestId}/notices/${noticeId}`, {
       method: 'DELETE',
     });
     return {

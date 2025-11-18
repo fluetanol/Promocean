@@ -60,7 +60,7 @@ export default function ContestCardItem({
       <div className="w-full bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-primary/20">
         
         {/* Image Section */}
-        <div className="relative w-full h-48 overflow-hidden">
+        <div className="relative w-full h-32 overflow-hidden">
           <Image
             src={imgUrl}
             alt={title}
@@ -71,9 +71,9 @@ export default function ContestCardItem({
           />
 
           {/* Status Pill */}
-          <div className="absolute top-5 left-4">
+          <div className="absolute top-2 left-3">
             <span
-              className={`px-4 py-2 rounded-full text-s font-medium ${
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
                 displayStatus === "진행중" || displayStatus === "투표중"
                   ? "bg-primary/90 text-white"
                   : "bg-gray-500/90 text-white"
@@ -85,19 +85,19 @@ export default function ContestCardItem({
         </div>
 
         {/* Content Section */}
-        <div className="p-4">
+        <div className="p-2">
           {/* Title */}
-          <h3 className="font-bold text-text text-xl mb-3 line-clamp-2 transition-colors group-hover:text-primary">
+          <h3 className="font-bold text-text text-sm pl-0.5 pb-1 line-clamp-1 transition-colors group-hover:text-primary overflow-hidden text-ellipsis">
             {title}
           </h3>
 
           {/* 종료날짜 + D-day */}
-          <div className="flex flex-row items-center justify-between mb-0">
+          <div className="flex flex-row items-center justify-between pl-0.5">
 
             {/* 날짜 */}
             <div className="flex flex-row items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-600" />
-              <span className="text-base text-gray-600">
+              <span className="text-[10px] text-gray-600 line-clamp-1 overflow-hidden text-ellipsis">
                 {formattedStartDate} ~ {formattedEndDate}
               </span>
             </div>
@@ -105,7 +105,7 @@ export default function ContestCardItem({
             {/* D-day (종료면 표시 안함) */}
             {!isEnded && (
               <span
-                className={`px-3 py-1 rounded-full text-xs font-medium ${ddayColor}`}
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ddayColor} line-clamp-1 overflow-hidden text-ellipsis`}
               >
                 {ddayText}
               </span>

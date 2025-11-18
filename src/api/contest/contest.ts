@@ -7,6 +7,7 @@ import {
   ContestNoticeItemProps,
   ContestSubmissionItemProps,
 } from "@/types/itemType";
+import { ApiResponse } from "@/types/apiTypes/common";
 import { NoticeAPI } from "./notice";
 import { SubmissionAPI } from "./submission";
 
@@ -88,18 +89,13 @@ export class ContestAPI {
       updatedAt: string;
     }
 
-    interface ApiResponse {
-      message: string | null;
-      data: {
-        contests: ContestApiResponse[];
-        itemCnt: number;
-        totalCnt: number;
-        totalPages: number;
-        currentPage: number;
-      };
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests?${queryParams.toString()}`);
+    const response = await apiFetch<ApiResponse<{
+      contests: ContestApiResponse[];
+      itemCnt: number;
+      totalCnt: number;
+      totalPages: number;
+      currentPage: number;
+    }>>(`/api/v1/contests?${queryParams.toString()}`);
     
     const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data;
 
@@ -129,11 +125,7 @@ export class ContestAPI {
    */
   static async getDetail(id: number) {
     try {
-      interface ApiResponse {
-        message: string | null;
-        data: ContestPostItemProps;
-      }
-      const response = await apiFetch<ApiResponse>(`/api/v1/contests/${id}`);
+      const response = await apiFetch<ApiResponse<ContestPostItemProps>>(`/api/v1/contests/${id}`);
       return {
         contestData: response.data,
       };
@@ -153,11 +145,6 @@ export class ContestAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async update(id: number, data: { title: string; content: string; type: number; startAt: string; endAt: string; voteEndAt: string }) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-    
     // 날짜 형식 변환 (YYYY-MM-DD -> YYYY-MM-DDTHH:mm:ss)
     const formatDateTime = (dateStr: string): string => {
       if (!dateStr || dateStr.trim() === '') {
@@ -171,7 +158,7 @@ export class ContestAPI {
       return `${dateStr}T00:00:00`;
     };
     
-    const response = await apiFetch<ApiResponse>(`/api/v1/contests/${id}`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/contests/${id}`, {
       method: 'PUT',
       body: JSON.stringify({
         ...data,

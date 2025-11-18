@@ -39,6 +39,24 @@ export const PostAPI = {
     },
 
     /**
+     * 게시글 수정하는 API입니다.
+     * @page /post?type=community&mode=edit&postId={postId}
+     * @endpoint PUT /api/v1/posts/{postId}
+     * @description 커뮤니티 게시글을 수정하는 API입니다.
+     * @param {number} postId - 게시글 ID
+     * @param {PostArticleRequest} data - 게시글 수정 요청 데이터
+     * @returns {Promise<{ message: string | null, data: PostArticleResponse }>}
+     */
+    async putArticlePost(postId: number, data: PostArticleRequest) {
+        const res = await apiFetch<ApiResponse<PostArticleResponse>>(`/api/v1/posts/${postId}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+
+        return res.data;
+    },
+
+    /**
      * 게시글 삭제하는 API입니다.
      * @page /community/[postId]
      * @endpoint DELETE /api/v1/posts/{postId}

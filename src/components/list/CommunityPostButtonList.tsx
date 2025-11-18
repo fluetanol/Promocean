@@ -28,7 +28,7 @@ export default function CommunityPostButtonList({ author }: CommunityPostButtonL
   }
 
   const handleUpdatePost = async () => {
-    router.push(`/post?type=community&postId=${postId}`);
+    router.push(`/post?type=community&mode=edit&postId=${postId}`);
   }
 
   const handleDeletePost = async () => {

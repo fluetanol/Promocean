@@ -10,13 +10,11 @@ export default function CommunityTabs() {
     { name: "전체", category: "all" },
     { name: "업무", category: "work" },
     { name: "개발", category: "dev" },
-    { name: "디자인", category: "design" },
+    { name: "디자인/창작", category: "design" },
+    { name: "취업", category: "job" },
     { name: "교육", category: "edu" },
-    { name: "마케팅", category: "marketing" },
-    { name: "창작", category: "creation" },
-    { name: "데이터", category: "data" },
-    { name: "생활", category: "life" },
-    { name: "AI", category: "ai" },
+    { name: "일상", category: "life" },
+    { name: "기타", category: "etc" },
   ];
 
   const searchParams = useSearchParams();

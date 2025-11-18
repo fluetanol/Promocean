@@ -1,6 +1,7 @@
 // frontend/src/api/community/reply.ts
 
 import { apiFetch } from "@/api/fetcher";
+import { ApiResponse } from "@/types/apiTypes/common";
 
 /**
  * ReplyAPI
@@ -17,12 +18,7 @@ export class ReplyAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async create(postId: number, content: string) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/replies`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/replies`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     });
@@ -44,12 +40,7 @@ export class ReplyAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async update(postId: number, replyId: number, content: string) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/replies/${replyId}`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/replies/${replyId}`, {
       method: 'PUT',
       body: JSON.stringify({ content }),
     });
@@ -70,12 +61,7 @@ export class ReplyAPI {
    * @returns {Promise<{ message: string | null, data: null }>}
    */
   static async delete(postId: number, replyId: number) {
-    interface ApiResponse {
-      message: string | null;
-      data: null;
-    }
-
-    const response = await apiFetch<ApiResponse>(`/api/v1/posts/${postId}/replies/${replyId}`, {
+    const response = await apiFetch<ApiResponse<null>>(`/api/v1/posts/${postId}/replies/${replyId}`, {
       method: 'DELETE',
     });
 

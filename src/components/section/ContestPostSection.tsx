@@ -110,7 +110,7 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
 
         {/* 공지사항 */}
         {currentTab === 'notice' && (
-          <ContestNoticeSection ContestNoticeList={ContestNoticeList} />
+          <ContestNoticeSection ContestNoticeList={ContestNoticeList} contestAuthor={contestPostData.author} />
         )}
         
         {/* 산출물 */}
