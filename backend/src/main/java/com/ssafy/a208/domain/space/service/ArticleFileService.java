@@ -77,13 +77,17 @@ public class ArticleFileService {
             return null;
         }
 
+        if (!filePath.startsWith("tmp")) {
+            return null;
+        }
+
         Optional<ArticleFile> file = articleFileReader.getArticleFileById(article.getId());
         if (file.isPresent()) {
             ArticleFile existing = file.get();
             String destPath = extractFilePath(filePath);
-            s3Service.deleteFile(existing.getFilePath());
             FileMetaData metaData = s3Service.getFileMetadata(destPath);
             existing.updateFile(metaData);
+            s3Service.deleteFile(existing.getFilePath());
             return destPath;
         }
 
