@@ -78,7 +78,7 @@ public class ArticleFileService {
         }
 
         // 기존 파일이 들어온 경우, 기존 파일 반환
-        if (!filePath.startsWith("tmp")) {
+        if (filePath.startsWith(ImageDirectory.ARTICLES.getName())) {
             return filePath;
         }
 
