@@ -45,8 +45,9 @@ public class MemberReader {
         return memberRepository.existsByNickname(nickname);
     }
 
-    public void updateAllUsableCount(int count) {
-        memberRepository.updateAllUsableCount(count);
+    @Transactional
+    public int updateAllUsableCount(int count) {
+        return memberRepository.updateAllUsableCount(count);
     }
 
 }
