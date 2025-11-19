@@ -128,7 +128,7 @@ export default function SpaceArchiveList({
 
     return (
         <div
-            className={`flex flex-wrap flex-row p-7 gap-4 min-h-[200px] transition-all duration-200 ${
+            className={`flex flex-wrap flex-row p-6 gap-4 min-h-[200px] transition-all duration-200 ${
                 isDragOver ? 'bg-blue-50 ring-2 ring-blue-300 ring-inset rounded-lg' : ''
             }`}
             onDragOver={handleDragOver}
@@ -137,12 +137,12 @@ export default function SpaceArchiveList({
         >
             {isPinnedList ? (
                 <button
-                    className={`${interactiveBtnClasses} bg-white outline-2 outline-dodger-blue-11`}
+                    className={`${interactiveBtnClasses} bg-white border-2 border-gray-200`}
                     aria-label="모든 프롬프트 보기"
                     onClick={handleAllPrompt}
                 >
                     <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-center text-black text-xl font-medium leading-6">
+                        <div className="text-center text-gray-800 text-xl font-semibold leading-6">
                             모든<br />프롬프트
                         </div>
                     </div>
@@ -151,12 +151,12 @@ export default function SpaceArchiveList({
                 /* 폴더 추가 버튼: READER 제외 (개인 스페이스 또는 EDITOR, OWNER만 가능) */
                 canCreateFolder && (
                     <button
-                        className={`${interactiveBtnClasses} bg-white outline-2 outline-dodger-blue-11`}
+                        className={`${interactiveBtnClasses} bg-white border-2 border-gray-200 hover:border-primary`}
                         aria-label="새 항목 추가"
                         onClick={onOpenAddModal}
                     >
                         <div className="w-full h-full flex items-center justify-center">
-                            <div className="text-center text-black text-4xl font-medium leading-9">+</div>
+                            <div className="text-center text-gray-400 group-hover:text-primary text-4xl font-light leading-9 transition-colors">+</div>
                         </div>
                     </button>
                 )

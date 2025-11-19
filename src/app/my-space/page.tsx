@@ -95,10 +95,10 @@ export default function MySpacePage() {
         </div>
       </div> */}
 
-      <div className="flex justify-start p-4 w-full">
+      <div className="flex justify-start px-6 pt-6 pb-2 w-full">
         <div className="w-full">
           <SpaceCardHeader title="Pinned" />
-          <SpaceArchiveList 
+          <SpaceArchiveList
             isPinnedList={true}
             isTeamSpace={false}
             spaceId={personalSpaceId!}
@@ -110,10 +110,10 @@ export default function MySpacePage() {
         </div>
       </div>
 
-      <div className="flex justify-start p-4 w-full">
+      <div className="flex justify-start px-6 pt-4 pb-6 w-full">
         <div className="w-full">
           <SpaceCardHeader title="Folder" />
-          <SpaceArchiveList 
+          <SpaceArchiveList
             isPinnedList={false}
             isTeamSpace={false}
             spaceId={personalSpaceId!}

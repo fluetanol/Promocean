@@ -265,33 +265,34 @@ export default function SpaceArchiveItem({
                     </svg>
                 </div>
 
-                <div className="absolute w-full h-14 p-2 left-0 top-30 bg-white/95 backdrop-blur-sm inline-flex justify-center items-center shadow-lg">
-                    <div className="text-center justify-center text-gray-800 text-base font-semibold leading-tight line-clamp-2">
+                {/* 폴더 이름 영역 */}
+                <div className="absolute w-full h-14 px-2 py-2.5 left-0 top-30 bg-white/95 backdrop-blur-sm flex justify-center items-center shadow-lg">
+                    <div className="text-center text-gray-800 text-base font-semibold leading-tight line-clamp-2 px-1">
                         {name}
                     </div>
                 </div>
 
                 {/* Pin 영역 - Reader 권한이 아닐 때만 표시 */}
                 {canEdit && (
-                    <div className="w-6 h-6 absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
-                        <label className="relative block w-6 h-6 cursor-pointer">
+                    <div className="absolute top-2.5 right-2.5 z-10" onClick={(e) => e.stopPropagation()}>
+                        <label className="relative block w-7 h-7 cursor-pointer group/pin">
                             <input
                                 type="checkbox"
                                 checked={isPinnedState}
-                                className="absolute opacity-0 w-6 h-6 cursor-pointer"
+                                className="absolute opacity-0 w-7 h-7 cursor-pointer"
                                 aria-label={`${name} 아카이브 폴더 pinned 설정`}
                                 onChange={handlePinnedClick}
                             />
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                                 isPinnedState
-                                    ? 'bg-white shadow-md'
-                                    : 'bg-white/80 hover:bg-white hover:shadow-md'
+                                    ? 'bg-white shadow-lg scale-105'
+                                    : 'bg-white/90 hover:bg-white group-hover/pin:shadow-md group-hover/pin:scale-105'
                             }`}>
                                 <Pin
                                     className={`w-4 h-4 transition-all duration-200 ${
                                         isPinnedState
-                                            ? 'fill-red-500 stroke-red-600'
-                                            : 'fill-none stroke-gray-600'
+                                            ? 'fill-red-500 stroke-red-600 drop-shadow-sm'
+                                            : 'fill-none stroke-gray-500 group-hover/pin:stroke-gray-700'
                                     }`}
                                 />
                             </div>
@@ -301,9 +302,9 @@ export default function SpaceArchiveItem({
 
                 {/* 수정 및 삭제 버튼 영역 - Reader 권한이 아닐 때만 표시 */}
                 {canEdit && (
-                    <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
                         <button
-                            className="flex-1 px-2 py-1.5 bg-white text-gray-700 text-xs font-medium rounded-lg
+                            className="flex-1 px-2.5 py-2 bg-white text-gray-700 text-xs font-medium rounded-lg
                                 hover:bg-gray-50 hover:shadow-lg active:scale-95 transition-all duration-150 border border-gray-200"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -313,7 +314,7 @@ export default function SpaceArchiveItem({
                             수정
                         </button>
                         <button
-                            className="flex-1 px-2 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg
+                            className="flex-1 px-2.5 py-2 bg-red-500 text-white text-xs font-medium rounded-lg
                                 hover:bg-red-600 hover:shadow-lg active:scale-95 transition-all duration-150"
                             onClick={(e) => {
                                 e.stopPropagation();

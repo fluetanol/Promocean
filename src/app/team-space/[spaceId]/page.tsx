@@ -117,7 +117,7 @@ export default function TeamSpaceArchivePage() {
     <>
     <div className="min-h-screen bg-gray-50">
 
-      <div className="flex justify-start p-4 w-full">
+      <div className="flex justify-start px-6 pt-6 pb-2 w-full">
         <div className="w-full">
           <SpaceCardHeader title="Pinned"/>
           <SpaceArchiveList
@@ -133,7 +133,7 @@ export default function TeamSpaceArchivePage() {
         </div>
       </div>
 
-      <div className="flex justify-start p-4 w-full">
+      <div className="flex justify-start px-6 pt-4 pb-6 w-full">
         <div className="w-full">
           <SpaceCardHeader title="Folder"/>
           <SpaceArchiveList

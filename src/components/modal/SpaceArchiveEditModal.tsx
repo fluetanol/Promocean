@@ -60,7 +60,7 @@ export default function SpaceArchiveEditModal({
                     ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-4'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h1 className="text-3xl font-bold">카테고리 수정</h1>
+                <h1 className="text-3xl font-bold">아카이브 폴더 수정</h1>
 
                 {/* 배경색 영역 */}
                 <div className="flex flex-col w-full gap-4">
