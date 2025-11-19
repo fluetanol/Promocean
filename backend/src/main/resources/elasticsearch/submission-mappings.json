@@ -1,0 +1,59 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "prompt": {
+      "type": "text",
+      "analyzer": "korean_ngram",
+      "search_analyzer": "korean"
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "korean_ngram",
+      "search_analyzer": "korean"
+    },
+    "result": {
+      "type": "text",
+      "analyzer": "korean_ngram",
+      "search_analyzer": "korean"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "voteCount": {
+      "type": "long"
+    },
+    "filePath": {
+      "type": "keyword"
+    },
+    "createdAt": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "updatedAt": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "contestId": {
+      "type": "long"
+    },
+    "memberId": {
+      "type": "long"
+    },
+    "memberNickname": {
+      "type": "text",
+      "analyzer": "korean_ngram",
+      "search_analyzer": "korean",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "profilePath": {
+      "type": "keyword"
+    }
+  }
+}

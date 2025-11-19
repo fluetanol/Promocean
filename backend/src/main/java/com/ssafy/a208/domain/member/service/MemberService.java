@@ -6,6 +6,7 @@ import com.ssafy.a208.domain.member.dto.response.CheckDuplicateRes;
 import com.ssafy.a208.domain.member.dto.response.SearchMemberRes;
 import com.ssafy.a208.domain.member.dto.response.UsableTokenRes;
 import com.ssafy.a208.domain.member.entity.Member;
+import com.ssafy.a208.domain.member.event.MemberUpdatedEvent;
 import com.ssafy.a208.domain.member.exception.AlreadyExistEmailException;
 import com.ssafy.a208.domain.member.exception.AlreadyExistNicknameException;
 import com.ssafy.a208.domain.member.exception.InvalidMemberCheckRequestException;
@@ -16,6 +17,7 @@ import com.ssafy.a208.domain.space.service.SpaceService;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class MemberService {
     private final MemberReader memberReader;
     private final ProfileService profileService;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int TOKEN_AMOUNT = 5;
 
@@ -52,9 +55,19 @@ public class MemberService {
     @Transactional
     public void updateMember(CustomUserDetails userDetails, UpdateMemberReq memberReq) {
         Member member = memberReader.getMemberById(userDetails.memberId());
+        String oldNickname = member.getNickname();
+        String newNickname = oldNickname;
+        String profileFilePath = member.getProfileImage();
+        boolean updated = false;
 
         if (!Objects.isNull(memberReq.nickname()) && !memberReq.nickname().isBlank()) {
+            if(!oldNickname.equals(memberReq.nickname()) &&
+                    memberReader.checkNicknameExist(memberReq.nickname())) {
+                throw new AlreadyExistNicknameException();
+            }
             member.updateNickname(memberReq.nickname());
+            newNickname = memberReq.nickname();
+            updated = true;
         }
 
         if (!Objects.isNull(memberReq.password()) && !memberReq.password().isBlank()) {
@@ -64,6 +77,14 @@ public class MemberService {
 
         if (!Objects.isNull(memberReq.filePath()) && !memberReq.filePath().isBlank()) {
             profileService.updateProfile(memberReq.filePath(), userDetails.memberId());
+            profileFilePath =member.getProfileImage();
+            updated = true;
+        }
+
+        if(updated) {
+            eventPublisher.publishEvent(
+                    new MemberUpdatedEvent(oldNickname, newNickname, profileFilePath)
+            );
         }
     }
 

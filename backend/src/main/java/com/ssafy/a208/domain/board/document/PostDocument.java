@@ -63,4 +63,9 @@ public class PostDocument {
         int replies = replyCount != null ? replyCount : 0;
         return (long) (likes * 10 + replies);
     }
+
+    public void updateMemberInfo(String newNickname, String newProfilePath) {
+        this.authorNickname = newNickname;
+        this.profilePath = newProfilePath;
+    }
 }

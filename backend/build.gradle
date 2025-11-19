@@ -62,8 +62,12 @@ dependencies {
     // elastic search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
-    //redis
+    // Redis 추가
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Kafka 추가
+    implementation 'org.springframework.kafka:spring-kafka'
+
 }
 
 sourceSets {

@@ -10,6 +10,7 @@ import com.ssafy.a208.global.common.enums.PromptType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
@@ -167,5 +168,31 @@ public class ScrapElasticsearchRepositoryImpl {
                     )
             );
         }
+    }
+
+    public void updateMemberInfo(String oldNickname, String newNickname, String newProfilePath) {
+        NativeQuery query = NativeQuery.builder()
+                .withPageable(PageRequest.of(0, 1000))      // 기본이 10이라 크게 줘야 함
+                .withQuery(queryBuilderDsl -> queryBuilderDsl
+                        .term(termQuery -> termQuery
+                                .field("authorNickname")   // 분석 안 된 keyword 필드
+                                .value(oldNickname)
+                        )
+                )
+                .build();
+
+        SearchHits<ScrapDocument> hits = elasticsearchOperations.search(query, ScrapDocument.class);
+
+        List<ScrapDocument> docs = hits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .toList();
+
+        if (docs.isEmpty()) {
+            return;
+        }
+
+        docs.forEach(doc -> doc.updateMemberInfo(newNickname, newProfilePath));
+
+        elasticsearchOperations.save(docs);
     }
 }
