@@ -56,6 +56,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findAllByIdInAndDeletedAtIsNull(Collection<Long> ids);
 
     @Modifying
-    @Query("UPDATE Member m SET m.usableCnt = :count")
+    @Query("UPDATE Member m SET m.usableCnt = :count WHERE m.deletedAt IS NULL")
     int updateAllUsableCount(@Param("count") int count);
 }
