@@ -23,6 +23,8 @@ export default function TeamSpaceArchiveArticlePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const spaceIdFromUrl = Number(params.spaceId);
+  const folderIdFromUrl = Number(params.folderId);
   const articleId = params.articleId as string;
 
   useEffect(() => {
@@ -38,16 +40,34 @@ export default function TeamSpaceArchiveArticlePage() {
         return;
       }
 
-      // spaceId 가져오기
-      const spaceId = spaceStore.currentSpace?.spaceId;
-      if (!spaceId) {
-        setError('스페이스 정보를 찾을 수 없습니다.');
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        const data = await SpaceAPI.getArchiveArticleDetail(spaceId, articleIdNum);
+        // 1. 스페이스 정보 확인 및 로드
+        if (!spaceStore.currentSpace || spaceStore.currentSpace.spaceId !== spaceIdFromUrl) {
+          console.log('스페이스 정보 없음 - 목록 조회');
+
+          try {
+            const teamSpaceList = await SpaceAPI.getTeamSpaceList();
+            const spaces = teamSpaceList?.spaces || [];
+            spaceStore.setAllTeamSpaces(spaces);
+
+            const targetSpace = spaces.find(space => space.spaceId === spaceIdFromUrl);
+
+            if (!targetSpace) {
+              console.error('허가되지 않은 스페이스:', spaceIdFromUrl);
+              router.push('/team-space');
+              return;
+            }
+
+            spaceStore.setCurrentSpace(targetSpace);
+          } catch (error) {
+            console.error('스페이스 목록 조회 실패:', error);
+            router.push('/team-space');
+            return;
+          }
+        }
+
+        // 2. 게시글 데이터 가져오기
+        const data = await SpaceAPI.getArchiveArticleDetail(spaceIdFromUrl, articleIdNum);
 
         if (!data) {
           setError('게시글을 찾을 수 없습니다.');
@@ -59,13 +79,15 @@ export default function TeamSpaceArchiveArticlePage() {
       } catch (err) {
         console.error('Failed to fetch article:', err);
         setError('게시글을 불러오는데 실패했습니다.');
+        // 에러 시 폴더 목록으로 리다이렉션
+        router.push(`/team-space/${spaceIdFromUrl}`);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchArticleData();
-  }, [articleId, spaceStore.currentSpace?.spaceId]);
+  }, [articleId, spaceIdFromUrl]);
 
   // 로딩 상태
   if (isLoading) {

@@ -35,7 +35,19 @@ export interface TeamSpaceHeaderProps {
  * @returns {JSX.Element} 팀 스페이스 헤더 컴포넌트
  */
 export default function TeamSpaceHeader(
-  {nickname, description, spaceId, coverImageUrl}: TeamSpaceHeaderProps) {
+  {nickname: propNickname, description: propDescription, spaceId: propSpaceId, coverImageUrl: propCoverImageUrl}: TeamSpaceHeaderProps) {
+
+  const authStore = useAuthStore();
+  const spaceStore = useSpaceStore();
+  const router = useRouter();
+  const params = useParams();
+
+  // Store에서 현재 스페이스 정보 가져오기 (props보다 우선)
+  const currentSpace = spaceStore.currentSpace;
+  const spaceId = propSpaceId || currentSpace?.spaceId;
+  const nickname = propNickname || currentSpace?.name || "팀 이름";
+  const coverImageUrl = propCoverImageUrl || currentSpace?.spaceCoverUrl || "/default-cover.jpg";
+  const description = propDescription;
 
   console.log("coverImageUrl", coverImageUrl);
   const [isModalOpenState, setIsModalOpenState] = useState(false);
@@ -44,18 +56,14 @@ export default function TeamSpaceHeader(
   const [memberListState, setMemberListState] = useState<SpaceParticipants[]>([]);
   const [ownerMemberState, setOwnerMemberState] = useState<SpaceParticipants | null>(null);
   const [currentUserSpaceNickname, setCurrentUserSpaceNickname] = useState<string>(nickname);
-  const authStore = useAuthStore();
-  const spaceStore = useSpaceStore();
   const username = authStore.user?.nickname;
   const userEmail = authStore.user?.email;
   const userNickname = authStore.user?.nickname;
-  const router = useRouter();
-  const params = useParams();
   const isFolderPage = Boolean(params['folderId']);
   console.log("isFolderPage:", isFolderPage);
 
   // 현재 사용자의 권한 가져오기
-  const userRole = spaceStore.currentSpace?.userRole;
+  const userRole = spaceStore.currentSpace?.userRole || currentSpace?.userRole;
   const isOwner = userRole === "OWNER";
   const isEditor = userRole === "EDITOR";
   const isReader = userRole === "READER";

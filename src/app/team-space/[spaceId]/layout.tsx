@@ -1,32 +1,32 @@
+'use client';
 
+// frontend/src/app/team-space/[spaceId]/layout.tsx
 
-  // frontend/src/app/layout.tsx
-  
-  import type { Metadata } from "next";
-  import Sidebar from "@/components/layout/Sidebar";
-  import { SidebarProvider } from "@/contexts/SidebarContext";
-  import MySpaceHeader from "@/components/layout/SpaceHeader";
-  import MySpaceTabs from "@/components/filter/MySpaceTabs";
 import TeamSpaceHeader from "@/components/layout/TeamSpaceHeader";
-import { cookies } from "next/headers";
-  
-  
-export  default  async function TeamLayout({
-      children
-  }: Readonly<{children: React.ReactNode}>){
+import { useSpaceStore } from "@/store/spaceStore";
+import { useParams } from "next/navigation";
 
-        const cookieStore = await cookies();
-        const teamSpaceInfoCookie = cookieStore.get('teamSpaceInfo');
-        console.log("teamSpaceInfoCookie ", JSON.parse(teamSpaceInfoCookie?.value || '{}'));
+export default function TeamLayout({
+  children
+}: Readonly<{ children: React.ReactNode }>) {
+  const spaceStore = useSpaceStore();
+  const params = useParams();
+  const currentSpace = spaceStore.currentSpace;
 
-        const { spaceId, name, spaceCoverUrl } = JSON.parse(teamSpaceInfoCookie?.value || '{}');
-          return(
-              <div>
-                <TeamSpaceHeader 
-                nickname={name||"팀 이름"} 
-                coverImageUrl={spaceCoverUrl || "defaultCoverUrl"} 
-                spaceId={spaceId}/>
-               {children}
-              </div>
-          )
-  }
+  // URL의 spaceId와 store의 spaceId가 일치하는지 확인
+  const spaceIdFromUrl = Number(params.spaceId);
+  const shouldShowHeader = currentSpace && currentSpace.spaceId === spaceIdFromUrl;
+
+  return (
+    <div>
+      {shouldShowHeader && (
+        <TeamSpaceHeader
+          nickname={currentSpace.name || "팀 이름"}
+          coverImageUrl={currentSpace.spaceCoverUrl || "/default-cover.jpg"}
+          spaceId={currentSpace.spaceId}
+        />
+      )}
+      {children}
+    </div>
+  );
+}

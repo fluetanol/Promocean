@@ -136,43 +136,55 @@ export default function MySpaceMyPostSection() {
 
         {/* 페이지네이션 */}
         {posts.length > 0 && totalPages > 1 && (
-          <div className="flex justify-center py-8">
-            <div className="join overflow-hidden rounded-lg border border-gray-300">
-              {/* 이전 */}
-              <button
-                className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handlePreviousPage}
-                disabled={startPage === 1}
-              >
-                «
-              </button>
+          <div className="relative flex flex-row items-center py-4 px-2 border-gray-200">
+            {/* 왼쪽: 전체 페이지 수 / 게시글 수 */}
+            <div className="flex flex-col text-gray-600 text-xs">
+              <span>전체 페이지 수: {totalPages}</span>
+              <span>전체 게시글 수: {posts.length}</span>
+            </div>
 
-              {/* 페이지 번호 */}
-              {pageNumbers.map((pageNum) => (
-                <input
-                  key={pageNum}
-                  type="radio"
-                  name="page"
-                  aria-label={pageNum.toString()}
-                  className={`join-item btn btn-square bg-background text-text hover:bg-gray-100 border-none ${
-                    pageNum === currentPage
-                      ? "btn-active bg-primary text-white rounded-md"
-                      : "rounded-none"
+            {/* 중앙: 페이지네이션 */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex justify-center">
+              <div className="flex overflow-hidden rounded-lg border border-gray-300">
+                {/* 이전 */}
+                <button
+                  className={`px-2 py-1 text-sm bg-white text-gray-700 hover:bg-gray-100 border-r border-gray-300 transition-colors ${
+                    startPage === 1 ? "opacity-50 cursor-not-allowed" : ""
                   }`}
-                  onClick={() => handlePageChange(pageNum)}
-                  readOnly
-                  checked={pageNum === currentPage}
-                />
-              ))}
+                  onClick={handlePreviousPage}
+                  disabled={startPage === 1}
+                >
+                  «
+                </button>
 
-              {/* 다음 */}
-              <button
-                className="join-item btn bg-background text-text hover:bg-gray-100 rounded-none border-none disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleNextPage}
-                disabled={endPage >= totalPages}
-              >
-                »
-              </button>
+                {/* 페이지 번호 */}
+                {pageNumbers.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    aria-label={pageNum.toString()}
+                    className={`w-7 h-7 text-sm flex items-center justify-center border-r border-gray-300 last:border-r-0 transition-colors ${
+                      pageNum === currentPage
+                        ? "bg-primary text-white font-medium"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                {/* 다음 */}
+                <button
+                  className={`px-2 py-1 text-sm bg-white text-gray-700 hover:bg-gray-100 border-l border-gray-300 transition-colors ${
+                    endPage >= totalPages ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={handleNextPage}
+                  disabled={endPage >= totalPages}
+                >
+                  »
+                </button>
+              </div>
             </div>
           </div>
         )}

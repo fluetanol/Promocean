@@ -27,8 +27,9 @@ export default function SignInForm() {
         nickname: payload.data!.nickname,
         profileUrl: payload.data!.profileUrl,
         personalSpaceId: payload.data!.personalSpaceId,
+        isRead : payload.data!.isRead
       };
-      
+      console.log(user);
       useAuthStore.getState().login(user, token);
       
       router.push('/');

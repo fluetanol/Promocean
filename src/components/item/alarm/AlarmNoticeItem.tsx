@@ -24,8 +24,12 @@ export default function AlarmNoticeItem({
 
     const handleItemClick = () => {
         if (isRemove) return;
-        // TODO: 대회 공지 페이지로 이동
-        router.push(`/contest/${contestId}/notice/${noticeId}`);
+        // 대회 페이지로 이동 후 공지사항 모달 열기
+        router.push(`/contest/${contestId}?tab=notice`);
+        // 첫 번째 네비게이션 완료 후 모달 열기
+        setTimeout(() => {
+            router.push(`/contest/${contestId}/notice/${noticeId}`);
+        }, 100);
     };
 
     const { messageHeading, messageParts } = parseMessage(message);

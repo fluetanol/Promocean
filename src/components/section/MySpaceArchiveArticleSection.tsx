@@ -11,6 +11,7 @@ import { ArticleData } from "@/types/apiTypes/space";
 import SpaceAPI from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
+import MarkdownViewer from "@/components/etc/MarkdownViewer";
 
 interface MySpaceArchiveArticleSectionProps {
   articleData: ArticleData;
@@ -28,6 +29,7 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
     const hashtagList: HashtagItemProps[] = articleData.tags.map((tag: string) => ({ tag }));
 
     const [isDeleting, setIsDeleting] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const handleEdit = () => {
       const currentFolder = folderStore.currentFolder;
@@ -125,7 +127,7 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
         {articleData.description && (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">설명</h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{articleData.description}</p>
+            <MarkdownViewer content={articleData.description} />
           </div>
         )}
 
@@ -133,7 +135,7 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
         {articleData.prompt && (
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-sm font-medium text-gray-900 mb-1">프롬프트</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{articleData.prompt}</p>
+            <MarkdownViewer content={articleData.prompt} />
           </div>
         )}
 
@@ -144,13 +146,13 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
             {articleData.sampleQuestion && (
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="text-sm font-medium text-blue-900 mb-1">질문</h3>
-                <p className="text-gray-700">{articleData.sampleQuestion}</p>
+                <MarkdownViewer content={articleData.sampleQuestion} />
               </div>
             )}
             {articleData.sampleAnswer && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <h3 className="text-sm font-medium text-green-900 mb-1">답변</h3>
-                <p className="text-gray-700">{articleData.sampleAnswer}</p>
+                <MarkdownViewer content={articleData.sampleAnswer} />
               </div>
             )}
           </div>
@@ -159,14 +161,29 @@ export default function MySpaceArchiveArticleSection({ articleData }: MySpaceArc
         {/* 이미지 */}
         {articleData.fileUrl && (
           <div className="flex flex-row items-center justify-center">
-            <div className="relative w-full max-w-2xl aspect-video overflow-hidden">
-              <Image
-                src={articleData.fileUrl}
-                alt="첨부 이미지"
-                fill
-                className="object-contain"
-              />
-            </div>
+            {!imageError ? (
+              <div className="relative w-full max-w-2xl aspect-video overflow-hidden rounded-lg border border-gray-200">
+                <Image
+                  src={articleData.fileUrl}
+                  alt="첨부 이미지"
+                  fill
+                  className="object-contain"
+                  onError={() => {
+                    console.error('이미지 로드 실패:', articleData.fileUrl);
+                    setImageError(true);
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-full max-w-2xl aspect-video flex flex-col items-center justify-center bg-red-50 border-2 border-red-300 rounded-lg">
+                <svg className="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="text-lg text-red-600 font-semibold mb-2">이미지를 불러올 수 없습니다</p>
+                <p className="text-sm text-red-500">이미지 파일에 접근할 수 없거나 손상되었습니다</p>
+                <p className="text-xs text-gray-500 mt-2 px-4 text-center break-all">{articleData.fileUrl}</p>
+              </div>
+            )}
           </div>
         )}
 

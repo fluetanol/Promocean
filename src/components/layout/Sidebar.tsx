@@ -2,7 +2,7 @@
 
 // frontend/src/components/layout/Sidebar.tsx
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import SidebarHeader from '@/components/layout/SidebarHeader'
 import SidebarSection from '@/components/section/SidebarSection'
 import SidebarFooter from '@/components/layout/SidebarFooter'
@@ -26,7 +26,7 @@ import { usePathname } from 'next/navigation';
  */
 export default function Sidebar() {
   const { isCollapsed, onTransitionEnd } = useSidebar();
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, user } = useAuthStore();
   const pathname = usePathname();
   const sidebarRef = React.useRef<HTMLDivElement>(null);
   const alarmButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -87,6 +87,14 @@ const alarmItems : SidebarItemProps[] = [{
     'title': '알림',
     'href': '/notifications',
 }];
+
+  // 로그인 시 isRead 값을 확인하여 알림 뱃지 표시
+  useEffect(() => {
+    if (isLoggedIn && user && user.isRead === false) {
+      console.log('로그인 시 읽지 않은 알림 있음 - 뱃지 표시');
+      setHasNewAlarm(true);
+    }
+  }, [isLoggedIn, user]);
 
   React.useEffect(() => {
     const sidebar = sidebarRef.current;

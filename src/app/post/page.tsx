@@ -12,7 +12,7 @@ import PostingArchiveFolderSection from "@/components/section/PostingArchiveFold
 import { PostingFloatingItemProps } from "@/types/itemType";
 import TitleInput from "@/components/editor/TitleInput";
 import HashtagInput from "@/components/editor/HashtagInput";
-import { buildPromptFromLexical, extractTextFromLexical } from "@/utils/lexicalUtils";
+import { buildPromptFromLexical, extractTextFromLexical, convertLexicalToMarkdown } from "@/utils/lexicalUtils";
 import { PromptAPI } from "@/api/prompt";
 import { PostAPI, PostArticleRequest } from "@/api/post";
 import { PostAPI as CommunityPostAPI } from "@/api/community/post";
@@ -75,6 +75,10 @@ function PostPageContent() {
   // 토큰 잔량 관련 상태
   const [remainingTokens, setRemainingTokens] = useState<number | null>(null);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+
+  // 에러 상태 관리
+  const [promptError, setPromptError] = useState(false);
+  const [examplePromptError, setExamplePromptError] = useState(false);
 
   // 아카이브 타입인지 확인
   const isArchiveType = postType === 'my-space' || postType === 'team-space';
@@ -305,14 +309,19 @@ function PostPageContent() {
             "TEXT": "text",
             "IMAGE": "image",
             "text": "text",
-            "image": "image"
+            "image": "image",
+            "텍스트": "text",
+            "이미지": "image"
           };
-          let mappedType = promptTypeMap[communityPostDetailData.type] || "text";
-          
+
+          console.log('커뮤니티 원본 타입:', communityPostDetailData.type, '타입:', typeof communityPostDetailData.type);
+          let mappedType = promptTypeMap[String(communityPostDetailData.type)] || "text";
+
           // fileUrl이 있으면 이미지 타입으로 설정
           if (communityPostDetailData.fileUrl) {
             mappedType = "image";
           }
+          console.log('커뮤니티 매핑된 타입:', mappedType);
 
           // 카테고리 변환 (API 코드 -> 표시 이름)
           const categoryMap: { [key: string]: string } = {
@@ -326,20 +335,34 @@ function PostPageContent() {
           };
           const mappedCategory = categoryMap[communityPostDetailData.category] || "work";
 
+          // 프롬프트 타입과 카테고리 먼저 설정
+          setSelectedPromptType(mappedType);
+          setSelectedCategory(mappedCategory);
+
           // 폼 데이터 채우기
           setTitle(communityPostDetailData.title);
           setTags(communityPostDetailData.tags);
           setDescriptionState(textToLexicalJSON(communityPostDetailData.description));
           setUsedPrompt(textToLexicalJSON(communityPostDetailData.prompt));
           setExamplePrompt(textToLexicalJSON(communityPostDetailData.sampleQuestion));
-          setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer));
-          setSelectedPromptType(mappedType);
-          setSelectedCategory(mappedCategory);
 
-          // fileUrl이 있으면 이미지 설정
-          if (communityPostDetailData.fileUrl) {
-            setUploadedImageUrl(communityPostDetailData.fileUrl);
-            setUploadedImageKey(communityPostDetailData.fileUrl);
+          // 이미지 타입인 경우 이미지 URL 처리
+          if (mappedType === 'image') {
+            if (communityPostDetailData.fileUrl) {
+              setUploadedImageUrl(communityPostDetailData.fileUrl);
+              // CloudFront URL에서 key 추출: https://d3qr7nnlhj7oex.cloudfront.net/articles/xxx.png -> articles/xxx.png
+              const keyMatch = communityPostDetailData.fileUrl.match(/cloudfront\.net\/(.+)$/);
+              const extractedKey = keyMatch ? keyMatch[1] : communityPostDetailData.fileUrl;
+              setUploadedImageKey(extractedKey);
+              console.log('커뮤니티 이미지 로드 - URL:', communityPostDetailData.fileUrl, 'Key:', extractedKey);
+              setAnswerPrompt(''); // 이미지가 있으면 텍스트 답변은 비움
+            } else {
+              // fileUrl이 없으면 sampleAnswer를 텍스트로 설정
+              setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer));
+            }
+          } else {
+            // 텍스트 타입인 경우 sampleAnswer를 그대로 설정
+            setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer));
           }
 
           setIsLoadingArticle(false);
@@ -409,10 +432,20 @@ function PostPageContent() {
           const promptTypeMap: { [key: string]: "text" | "image" } = {
             "1": "text",
             "2": "image",
+            "TEXT": "text",
+            "IMAGE": "image",
             "text": "text",
-            "image": "image"
+            "image": "image",
+            "텍스트": "text",
+            "이미지": "image"
           };
-          const mappedType = promptTypeMap[data.type] || "text";
+
+          console.log('아카이브 원본 타입:', data.type, '타입:', typeof data.type);
+          const mappedType = promptTypeMap[String(data.type)] || "text";
+          console.log('매핑된 타입:', mappedType);
+
+          // 프롬프트 타입 먼저 설정
+          setSelectedPromptType(mappedType);
 
           // 폼 데이터 채우기
           setTitle(data.title);
@@ -420,13 +453,25 @@ function PostPageContent() {
           setDescriptionState(textToLexicalJSON(data.description));
           setUsedPrompt(textToLexicalJSON(data.prompt));
           setExamplePrompt(textToLexicalJSON(data.sampleQuestion));
-          setAnswerPrompt(textToLexicalJSON(data.sampleAnswer));
-          setSelectedPromptType(mappedType);
 
-          // 이미지 타입인 경우 fileUrl 설정
-          if (mappedType === 'image' && data.fileUrl) {
-            setUploadedImageUrl(data.fileUrl);
-            setUploadedImageKey(data.fileUrl); // 또는 적절한 key 값
+          // 이미지 타입인 경우 이미지 URL 처리
+          if (mappedType === 'image') {
+            // fileUrl이 있으면 이미지로 설정
+            if (data.fileUrl) {
+              setUploadedImageUrl(data.fileUrl);
+              // CloudFront URL에서 key 추출: https://d3qr7nnlhj7oex.cloudfront.net/articles/xxx.png -> articles/xxx.png
+              const keyMatch = data.fileUrl.match(/cloudfront\.net\/(.+)$/);
+              const extractedKey = keyMatch ? keyMatch[1] : data.fileUrl;
+              setUploadedImageKey(extractedKey);
+              console.log('아카이브 이미지 로드 - URL:', data.fileUrl, 'Key:', extractedKey);
+              setAnswerPrompt(''); // 이미지가 있으면 텍스트 답변은 비움
+            } else {
+              // fileUrl이 없으면 sampleAnswer를 텍스트로 설정 (혹시 모를 경우)
+              setAnswerPrompt(textToLexicalJSON(data.sampleAnswer));
+            }
+          } else {
+            // 텍스트 타입인 경우 sampleAnswer를 그대로 설정
+            setAnswerPrompt(textToLexicalJSON(data.sampleAnswer));
           }
         }
       } catch (error) {
@@ -493,15 +538,15 @@ function PostPageContent() {
           return;
         }
 
-        const description = extractTextFromLexical(descriptionState);
-        const prompt = extractTextFromLexical(usedPrompt);
+        const description = convertLexicalToMarkdown(descriptionState);
+        const prompt = convertLexicalToMarkdown(usedPrompt);
         let result = '';
-        
+
         if (selectedPromptType === 'text') {
-          result = extractTextFromLexical(answerPrompt);
+          result = convertLexicalToMarkdown(answerPrompt);
         } else if (selectedPromptType === 'image') {
           // 이미지 타입: 이미지 URL 또는 텍스트 결과
-          result = uploadedImageKey || generatedImageKey || extractTextFromLexical(answerPrompt);
+          result = uploadedImageKey || generatedImageKey || convertLexicalToMarkdown(answerPrompt);
         }
 
         // 산출물 수정 모드
@@ -563,9 +608,9 @@ function PostPageContent() {
     }
 
     try {
-      // Lexical JSON에서 텍스트 추출
-      const description = extractTextFromLexical(descriptionState);
-      const prompt = extractTextFromLexical(usedPrompt);
+      // Lexical JSON에서 마크다운으로 변환
+      const description = convertLexicalToMarkdown(descriptionState);
+      const prompt = convertLexicalToMarkdown(usedPrompt);
 
       // 길이 검증
       if (title.length > 100) {
@@ -593,8 +638,8 @@ function PostPageContent() {
       // 프롬프트 타입에 따라 추가 필드 설정
       if (selectedPromptType === 'text') {
         // 예시 질문과 답변은 선택 사항
-        const sampleQuestion = examplePrompt.trim() ? extractTextFromLexical(examplePrompt) : '';
-        const sampleAnswer = answerPrompt.trim() ? extractTextFromLexical(answerPrompt) : '';
+        const sampleQuestion = examplePrompt.trim() ? convertLexicalToMarkdown(examplePrompt) : '';
+        const sampleAnswer = answerPrompt.trim() ? convertLexicalToMarkdown(answerPrompt) : '';
 
         // 예시 질문이 있을 경우에만 길이 검증
         if (sampleQuestion && sampleQuestion.length > 200) {
@@ -665,6 +710,9 @@ function PostPageContent() {
 
         console.log('=== 전송할 articlePayload ===');
         console.log('tags:', articlePayload.tags);
+        console.log('filePath:', articlePayload.filePath);
+        console.log('uploadedImageKey:', uploadedImageKey);
+        console.log('generatedImageKey:', generatedImageKey);
         console.log('전체 payload:', articlePayload);
 
         if (isEditMode && articleIdParam) {
@@ -777,14 +825,46 @@ function PostPageContent() {
   };
 
   const handleAISubmit = async () => {
+    // 에러 상태 초기화
+    setPromptError(false);
+    setExamplePromptError(false);
+
     // 입력 검증
-    if (selectedPromptType == 'text' && (!usedPrompt || !examplePrompt)) {
-      alert('사용 프롬프트와 예시 질문을 모두 입력해주세요.');
-      return;
+    if (selectedPromptType == 'text') {
+      const hasPromptError = !usedPrompt || extractTextFromLexical(usedPrompt).trim() === '';
+      const hasExampleError = !examplePrompt || extractTextFromLexical(examplePrompt).trim() === '';
+
+      if (hasPromptError || hasExampleError) {
+        setPromptError(hasPromptError);
+        setExamplePromptError(hasExampleError);
+
+        // 첫 번째 에러 필드로 스크롤
+        setTimeout(() => {
+          const errorElement = document.querySelector(hasPromptError ? '[data-field="prompt"]' : '[data-field="example-prompt"]');
+          if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+
+        return;
+      }
     }
-    else if(selectedPromptType == 'image' && !usedPrompt){
-      alert('사용 프롬프트를 입력해주세요')
-      return;
+    else if(selectedPromptType == 'image') {
+      const hasPromptError = !usedPrompt || extractTextFromLexical(usedPrompt).trim() === '';
+
+      if (hasPromptError) {
+        setPromptError(true);
+
+        // 프롬프트 필드로 스크롤
+        setTimeout(() => {
+          const errorElement = document.querySelector('[data-field="prompt"]');
+          if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+
+        return;
+      }
     }
 
     setIsGeneratingAnswer(true);
@@ -1045,10 +1125,20 @@ function PostPageContent() {
             <PostingWriteSection
               title="프롬프트"
               placeholder="프롬프트를 입력하세요..."
-              onChange={setUsedPrompt}
+              onChange={(content) => {
+                setUsedPrompt(content);
+                setPromptError(false);
+              }}
               value={usedPrompt}
               isSubmitButton={selectedPromptType === 'image'}
               onSubmit={handleAISubmit}
+              hasError={promptError}
+              errorMessage={
+                selectedPromptType === 'text'
+                  ? "프롬프트를 입력해주세요. AI 생성을 위해 필수 항목입니다."
+                  : "프롬프트를 입력해주세요. 이미지 생성을 위해 필수 항목입니다."
+              }
+              dataField="prompt"
             />
 
             {/* submission 타입일 때는 예시 질문 없이 바로 결과 표시 */}
@@ -1159,11 +1249,17 @@ function PostPageContent() {
                       <PostingWriteSection
                         title="예시 질문 프롬프트"
                         placeholder="예시 질문을 입력하세요..."
-                        onChange={setExamplePrompt}
+                        onChange={(content) => {
+                          setExamplePrompt(content);
+                          setExamplePromptError(false);
+                        }}
                         value={examplePrompt}
                         isSubmitButton={true}
                         onSubmit={handleAISubmit}
                         isLoading={isGeneratingAnswer}
+                        hasError={examplePromptError}
+                        errorMessage="예시 질문을 입력해주세요. AI 답변 생성을 위해 필수 항목입니다."
+                        dataField="example-prompt"
                       />
 
                       {/* 답변 프롬프트 */}

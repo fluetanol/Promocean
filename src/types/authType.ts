@@ -19,6 +19,8 @@ export interface AuthResponse {
     email: string;
     profileUrl: string;
     personalSpaceId: number;
+    isRead : boolean; //알림 읽음 여부
+                      //false면 알림 표시 하면 됨
   } | null;
 }
 

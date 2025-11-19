@@ -6,7 +6,6 @@ import Link from "next/link";
 import { CommunityBoardItemProps } from "@/types/itemType";
 import Heart from "@/components/icon/Heart";
 import ChatBubbleBottomCenterText from "@/components/icon/ChatBubbleBottomCenterText";
-import { ScrapAPI } from "@/api/community";
 import { getPostImageUrl } from "@/utils/imageUtils";
 
 export interface SpaceScrapItemProps {
@@ -39,30 +38,18 @@ export default function SpaceScrapItem({
     const [isScrapped, setIsScrapped] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleScrapClick = async (e: React.MouseEvent) => {
+    const handleScrapClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
         if (isLoading) return;
 
-        try {
-            setIsLoading(true);
-            // postId를 number로 변환하여 API 호출
-            await ScrapAPI.delete(Number(postId));
+        // 즉시 UI 업데이트 (API 호출은 부모 컴포넌트에서 유예 후 처리)
+        setIsScrapped(false);
 
-            // 스크랩 상태 업데이트
-            setIsScrapped(false);
-
-            // 부모 컴포넌트에 스크랩 취소 알림
-            if (onScrapToggle) {
-                onScrapToggle(postId);
-            }
-        } catch (error) {
-            console.error("Failed to delete scrap:", error);
-            // 에러 발생 시 스크랩 상태 유지
-            alert("스크랩 취소에 실패했습니다. 다시 시도해주세요.");
-        } finally {
-            setIsLoading(false);
+        // 부모 컴포넌트에 스크랩 취소 알림
+        if (onScrapToggle) {
+            onScrapToggle(postId);
         }
     };
 

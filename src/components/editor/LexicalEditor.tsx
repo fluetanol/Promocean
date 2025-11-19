@@ -35,6 +35,7 @@ interface LexicalEditorProps {
   handleSubmit?: () => void;
   isLoading?: boolean;
   value?: string; // Lexical JSON 문자열
+  hasError?: boolean;
 }
 
 function EditorErrorBoundary({ children }: { children: React.ReactNode }) {
@@ -94,6 +95,7 @@ export default function LexicalEditor({
   handleSubmit,
   isLoading = false,
   value,
+  hasError = false,
 }: LexicalEditorProps) {
   const initialConfig = {
     namespace: 'PromoceanEditor',
@@ -150,7 +152,7 @@ export default function LexicalEditor({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="rounded-lg overflow-hidden border-[2px] border-[#f9fafb] focus-within:border-[2px] focus-within:border-primary outline-none transition-colors duration-100">
+      <div className={`rounded-lg overflow-hidden border-[2px] ${hasError ? 'border-red-400 focus-within:border-red-500' : 'border-[#f9fafb] focus-within:border-primary'} outline-none transition-colors duration-100`}>
         <ToolbarPlugin title={title}/>
         <div className="relative">
           <RichTextPlugin

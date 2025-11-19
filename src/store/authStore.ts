@@ -9,12 +9,16 @@ import { setAuthToken, clearAuthToken } from '@/lib/authToken';
  * @property email - 사용자 이메일
  * @property nickname - 사용자 닉네임
  * @property profileUrl - 사용자 프로필 이미지 URL
+ * @property personalSpaceId - 개인 스페이스 ID
+ * @property isRead - 알림 읽음 여부 (false면 알림 표시 하면 됨)
  */
 interface User {
   email: string;
   nickname: string;
   profileUrl: string;
   personalSpaceId: number;
+  isRead : boolean; //알림 읽음 여부
+                    //false면 알림 표시 하면 됨
 }
 
 /**
