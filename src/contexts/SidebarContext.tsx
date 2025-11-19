@@ -57,7 +57,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   }, [isExpanding, isCollapsing, isCollapsed]);
 
   React.useEffect(() => {
-    document.documentElement.style.setProperty('--sidebar-width', isCollapsed ? '4rem' : '14.5rem');
+    document.documentElement.style.setProperty('--sidebar-width', isCollapsed ? '4rem' : '13rem');
   }, [isCollapsed]);
 
   return (

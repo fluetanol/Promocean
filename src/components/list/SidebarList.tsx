@@ -16,7 +16,7 @@ interface SidebarListProps {
  */
 export default function SidebarList({ sidebarList }: SidebarListProps) {
   return (
-    <ul>
+    <ul className="flex flex-col gap-0.5">
       {sidebarList.map((sidebarItem, index) => (
         <SidebarItem
           key={index}

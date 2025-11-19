@@ -37,7 +37,8 @@ export default function CombinedSearchFilter({
 
   const [selectedSorter, setSelectedSorter] = useState(searchParams.get("sorter") || defaultSorter);
   const [isSorterOpen, setIsSorterOpen] = useState(false);
-  const [selected, setSelected] = useState("전체");
+  // "전체" 제거, 기본값을 "제목"으로 설정
+  const [selected, setSelected] = useState("제목");
   const [isOpen, setIsOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
 
@@ -185,8 +186,8 @@ export default function CombinedSearchFilter({
       params.set("sorter", selectedSorter);
     }
     
-    // 검색 파라미터 추가 (전체가 아닐 때만)
-    if (selected !== "전체" && keyword.trim()) {
+    // 검색 파라미터 추가
+    if (keyword.trim()) {
       const paramKey = searchParamMapping[selected];
       if (paramKey) {
         params.set(paramKey, keyword.trim());

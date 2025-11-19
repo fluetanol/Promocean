@@ -18,12 +18,12 @@ export default function ContestSearchFilter() {
   const searchParams = useSearchParams();
 
   // search Options: title, status, tag
-  const searchOptions = ["전체", "제목", "상태", "태그"];
+  const searchOptions = ["제목", "상태", "태그"];
   const sorterOptions = {"createdDesc": "생성일순", "endDesc": "마감일순"};
 
   const [selectedSorter, setSelectedSorter] = useState(searchParams.get("sorter") || "createdDesc");
   const [isSorterOpen, setIsSorterOpen] = useState(false);
-  const [selected, setSelected] = useState("전체");
+  const [selected, setSelected] = useState("제목");
   const [isOpen, setIsOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
 

@@ -24,18 +24,18 @@ export default function SidebarHeader() {
   };
 
   return (
-    <div className="mb-8">
+    <div className="mb-6">
       <div className="flex items-center justify-between">
         <Link 
           href={isCollapsed ? "#" : "/"} 
           className="block"
           onClick={handleLogoClick}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             
             {/* 메인 로고 */}
             <Promocean />
-            {!isCollapsed && <h1 className="text-xl font-bold">PromOcean</h1>}
+            {!isCollapsed && <h1 className="text-md font-bold">Promocean</h1>}
           </div>
         </Link>
         
@@ -46,7 +46,7 @@ export default function SidebarHeader() {
             className="p-1 hover:bg-gray-100 rounded transition-colors"
             aria-label="사이드바 토글"
           >
-            <ChevronLeft />
+            <ChevronLeft className="size-4"/>
           </button>
         )}
       </div>

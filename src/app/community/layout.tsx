@@ -6,6 +6,9 @@ import CommunityTabs from "@/components/filter/CommunityTabs";
 import { PostAPI } from "@/api/community";
 import { Suspense } from "react";
 
+// ISR: 60초마다 재생성
+export const revalidate = 60;
+
 /**
  * CommunityLayout component
  * @description CommunityLayout component is a community layout component that displays the community layout content

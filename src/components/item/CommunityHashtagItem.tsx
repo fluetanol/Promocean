@@ -17,7 +17,7 @@ export default function CommunityHashtagItem( { tag }: { tag: string } ) {
   }
   return (
     <span
-      className="inline-flex items-center text-xs text-gray-600 hover:text-primary transition-colors cursor-pointer"
+      className="inline-flex items-center text-xs text-gray-700 hover:text-primary transition-colors cursor-pointer"
       onClick={handleHashtagClick}
       >
       #{tag}

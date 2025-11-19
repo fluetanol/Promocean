@@ -37,6 +37,8 @@ export default function SidebarAlarmModal({
     const [width, setWidth] = useState(384); // 기본값 24rem = 384px
     const [isResizingState, setIsResizingState] = useState(false);
     const [isRemoveModeState, setIsRemoveModeState] = useState(false);
+    const [showText, setShowText] = useState(true); // 텍스트 표시 여부
+    const showTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // 개별 알람 선택 상태 관리 (alarmId를 key로 사용)
     const [selectedAlarms, setSelectedAlarms] = useState<Set<number>>(new Set());
@@ -279,6 +281,36 @@ export default function SidebarAlarmModal({
 
 
 
+    // isAlarm 변경 시 텍스트 표시/숨김 처리
+    useEffect(() => {
+        // 기존 timeout 정리
+        if (showTextTimeoutRef.current) {
+            clearTimeout(showTextTimeoutRef.current);
+            showTextTimeoutRef.current = null;
+        }
+
+        if (isAlarm) {
+            // 열릴 때: transition이 끝난 후 텍스트 표시
+            showTextTimeoutRef.current = setTimeout(() => {
+                setShowText(true);
+                showTextTimeoutRef.current = null;
+            }, 200);
+        } else {
+            // 닫힐 때: 즉시 텍스트 숨김 (다음 렌더 사이클에서 처리)
+            showTextTimeoutRef.current = setTimeout(() => {
+                setShowText(false);
+                showTextTimeoutRef.current = null;
+            }, 0);
+        }
+
+        return () => {
+            if (showTextTimeoutRef.current) {
+                clearTimeout(showTextTimeoutRef.current);
+                showTextTimeoutRef.current = null;
+            }
+        };
+    }, [isAlarm]);
+
     // 바깥 클릭 감지
     const modalRef = useRef<HTMLDivElement>(null);
 
@@ -308,14 +340,23 @@ export default function SidebarAlarmModal({
         };
     }, [isAlarm, setIsAlarm, alarmButtonRef]);
 
+    // transition 완료 핸들러 (필요시 확장 가능)
+    const handleTransitionEnd = useCallback((e: React.TransitionEvent) => {
+        // transition 완료 시 추가 로직이 필요하면 여기에 추가
+        if (e.propertyName === 'width') {
+            // 필요시 처리
+        }
+    }, []);
+
     return(
     <div
         ref={(node) => {
             if (modalRef) modalRef.current = node;
             if (resizeRef) resizeRef.current = node;
         }}
+        onTransitionEnd={handleTransitionEnd}
         className ={`
-       fixed ${ isCollapsed ? 'left-16' : 'left-58'}
+       fixed ${ isCollapsed ? 'left-16' : 'left-52'}
        ${ isAlarm ? 'p-2' : 'p-0'}
        h-screen
        flex flex-col z-50
@@ -329,22 +370,28 @@ export default function SidebarAlarmModal({
        }}
        >
  
-             <AlarmModalHeader handleRemoveClick={handleRemoveClick}/>
+             {showText && (
+                <>
+                    <AlarmModalHeader handleRemoveClick={handleRemoveClick}/>
 
-             <AlarmModalSmallHeader
-                isRemoveModeState={isRemoveModeState}
-                selectedAlarms={selectedAlarms}
-                alarmListState={alarmListState}
-                handleRemoveAllClick={handleRemoveAllClick}
-                handleDeleteClick={handleDeleteSelectedAlarms}
-             />
+                    <AlarmModalSmallHeader
+                        isRemoveModeState={isRemoveModeState}
+                        selectedAlarms={selectedAlarms}
+                        alarmListState={alarmListState}
+                        handleRemoveAllClick={handleRemoveAllClick}
+                        handleDeleteClick={handleDeleteSelectedAlarms}
+                    />
+                </>
+             )}
 
-            <AlarmList
-                alarmListState={alarmListState}
-                isRemove={isRemoveModeState}
-                selectedAlarms={selectedAlarms}
-                onAlarmToggle={handleAlarmToggle}
-            />
+            {showText && (
+                <AlarmList
+                    alarmListState={alarmListState}
+                    isRemove={isRemoveModeState}
+                    selectedAlarms={selectedAlarms}
+                    onAlarmToggle={handleAlarmToggle}
+                />
+            )}
 
             {/* 리사이즈 핸들 */}
             {isAlarm && (

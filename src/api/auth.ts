@@ -27,7 +27,7 @@ export const authAPI = {
     });
 
     // 응답 헤더에서 토큰 추출
-    const token = 
+    const token =
       response.headers.get('Authorization')?.replace('Bearer ', '') ||
       response.headers.get('X-Access-Token') ||
       null;
@@ -35,7 +35,7 @@ export const authAPI = {
     // 응답 파싱
     const contentType = response.headers.get('content-type') || '';
     let payload: AuthResponse;
-    
+
     if (contentType.includes('application/json')) {
       payload = await response.json();
     } else {
@@ -68,7 +68,7 @@ export const authAPI = {
   async signUp(userData: SignUpRequest): Promise<void> {
     const endpoint = `/api/v1/members/join`;
     const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
-    
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -80,7 +80,7 @@ export const authAPI = {
     // 응답 파싱
     const contentType = response.headers.get('content-type') || '';
     let payload: AuthResponse;
-    
+
     if (contentType.includes('application/json')) {
       payload = await response.json();
     } else {
@@ -98,7 +98,7 @@ export const authAPI = {
     if (!payload) {
       throw new Error('회원가입 응답이 없습니다.');
     }
-    
+
     if (payload.message) {
       throw new Error(payload.message);
     }
@@ -142,8 +142,6 @@ export const authAPI = {
   },
 
 
-
-
   async getMemberinfo(params : {email? : string, nickname? : string}): Promise<MemberInfo> {
 
     const searchParams = new URLSearchParams();
@@ -162,6 +160,37 @@ export const authAPI = {
     return res.data
   },
 
+  /**
+   * 회원탈퇴 API
+   * @endpoint /api/v1/members/withdrawal
+   * @returns 회원탈퇴 응답 데이터
+   */
+  async withdrawal(): Promise<void> {
+    await apiFetch<ApiResponse<null>>('/api/v1/members/withdrawal', {
+      method: 'DELETE',
+    });
+
+    // 회원탈퇴 성공 시 로그아웃 처리
+    const { logout } = useAuthStore.getState();
+    logout();
+
+    return;
+  },
+
+  /**
+   * 회원 정보 수정 API
+   * @endpoint /api/v1/members/me
+   * @param updateData - 회원 정보 수정 데이터 (filePath, password, nickname)
+   * @returns 회원 정보 수정 응답 데이터
+   */
+  async updateMember(updateData: { filePath?: string; password?: string; nickname?: string }): Promise<void> {
+    await apiFetch<ApiResponse<null>>('/api/v1/members', {
+      method: 'PATCH',
+      body: JSON.stringify(updateData),
+    });
+
+    return;
+  }, // <- updateMember 함수를 닫는 괄호
 
   /**
    * 잔여 토큰 조회 API
@@ -184,11 +213,10 @@ export interface getRestTokenResponse{
 }
 
 
-
-  export interface MemberInfo{
+export interface MemberInfo{
 
     nickname: string;
     email: string;
     profileUrl: string | null;
 
-  }
+}

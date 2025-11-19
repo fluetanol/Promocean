@@ -127,7 +127,7 @@ export default function PaginationFooter({
         <div className="ml-auto">
           <button
             type="button"
-            className="px-2 py-1 text-xs rounded-md text-gray-700 cursor-pointer"
+            className="bg-primary px-2 py-1 text-xs rounded-lg text-white cursor-pointer"
             onClick={onWritePost}
           >
             {writeButtonText}

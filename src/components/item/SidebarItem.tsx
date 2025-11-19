@@ -17,7 +17,7 @@ export default function SidebarItem({ icon, title, href, onClick, showBadge, isA
   const { isCollapsed, showText, isCollapsing } = useSidebar();
 
   const baseClass =
-    'flex w-full items-center py-2 text-sm font-medium rounded-md transition-colors';
+    'flex w-full items-center py-1.5 text-xs font-medium rounded-md transition-colors';
 
   // 활성화 상태에 따른 스타일 적용
   const activeClass = isActive
@@ -25,7 +25,7 @@ export default function SidebarItem({ icon, title, href, onClick, showBadge, isA
     : 'text-[#343434] hover:bg-primary hover:text-white';
 
   // transition 완료 후 접는 중이 아닐 때만 justify-center 적용
-  const layoutClass = (isCollapsed && !isCollapsing) ? 'px-2 justify-center' : 'pl-1 pr-8';
+  const layoutClass = (isCollapsed && !isCollapsing) ? 'px-2 justify-center' : 'pl-[7.25px] pr-8'; // 펼쳤을떄 위치 맞추기
   const className = `${baseClass} ${activeClass} ${layoutClass}`;
 
   if (onClick) {
@@ -37,14 +37,14 @@ export default function SidebarItem({ icon, title, href, onClick, showBadge, isA
         className={`${className} relative`}
         title={isCollapsed ? title : undefined}
       >
-        <span className="flex-shrink-0 relative">
+        <span className="flex-shrink-0 relative w-4 h-4 flex items-center justify-center">
           {icon}
           {showBadge && (
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
           )}
         </span>
         {showText && (
-          <span className="ml-4 whitespace-nowrap">{title}</span>
+          <span className="ml-2.5 whitespace-nowrap">{title}</span>
         )}
       </button>
     );
@@ -56,14 +56,14 @@ export default function SidebarItem({ icon, title, href, onClick, showBadge, isA
       className={`${className} relative`}
       title={isCollapsed ? title : undefined}
     >
-      <span className="flex-shrink-0 relative">
+      <span className="flex-shrink-0 relative w-4 h-4 flex items-center justify-center">
         {icon}
         {showBadge && (
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         )}
       </span>
       {showText && (
-        <span className="ml-4 whitespace-nowrap">{title}</span>
+        <span className="ml-2.5 whitespace-nowrap">{title}</span>
       )}
     </Link>
   );

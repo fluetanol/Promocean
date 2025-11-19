@@ -4,6 +4,9 @@ import ContestHeader from "@/components/layout/ContestHeader";
 import CommunityFloatingSection from "@/components/section/CommunityFloatingSection";
 import { PostAPI } from "@/api/community";
 
+// ISR: 60초마다 재생성
+export const revalidate = 60;
+
 /**
  * ContestLayout component
  * @description ContestLayout component is a contest layout component that displays the contest layout content

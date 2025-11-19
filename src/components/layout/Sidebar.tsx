@@ -14,7 +14,6 @@ import UserGroup from '@/components/icon/UserGroup'
 import { SidebarItemProps } from '@/types/itemType'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { useAuthStore } from '@/store/authStore'
-import SidebarSimpleSection from '../section/SidebarSimpleSection';
 import AlarmBell from '../icon/AlarmBell';
 import { AlarmItemProps } from '../item/AlarmItem';
 import SidebarAlarmModal from '../modal/SidebarAlarmModal';
@@ -111,23 +110,12 @@ const alarmItems : SidebarItemProps[] = [{
     <div
       ref={sidebarRef}
       className={`fixed left-0 top-0 ${
-        isCollapsed ? 'w-16' : 'w-58'
-      } h-screen p-4 border-r border-gray-200 flex flex-col transition-[width] duration-200 overflow-hidden shrink-0`}
-      style={{ backgroundColor: '#fdfdfc', color: '#343434' }}
+        isCollapsed ? 'w-16' : 'w-52'
+      } h-screen p-4 border-r border-gray-200/50 flex flex-col transition-[width] duration-200 overflow-hidden shrink-0`}
+      style={{ borderRightWidth: '0px', backgroundColor: '#fdfdfc', color: '#343434' }}
     >
       <div className="flex-1">
         <SidebarHeader />
-        
-       <SidebarSimpleSection
-        title="알림"
-        sidebarList={alarmItems}
-        isAlarm={isAlarm}
-        setIsAlarm={setIsAlarm}
-        setAlarmList={setAlarmListState}
-        hasNewAlarm={hasNewAlarm}
-        setHasNewAlarm={setHasNewAlarm}
-        alarmButtonRef={alarmButtonRef}
-       />
 
         <SidebarSection title="게시판" sidebarList={communityItems} />
 
@@ -137,7 +125,15 @@ const alarmItems : SidebarItemProps[] = [{
       </div>
 
       <div className="mt-auto">
-        <SidebarFooter />
+        <SidebarFooter 
+          alarmItems={alarmItems}
+          isAlarm={isAlarm}
+          setIsAlarm={setIsAlarm}
+          setAlarmList={setAlarmListState}
+          hasNewAlarm={hasNewAlarm}
+          setHasNewAlarm={setHasNewAlarm}
+          alarmButtonRef={alarmButtonRef}
+        />
       </div>
     </div>
 

@@ -30,7 +30,7 @@ export default function RootLayout({
             <Sidebar />
             <div>
             </div>
-            <main className="bg-background min-h-screen transition-all duration-300" style={{ marginLeft: 'var(--sidebar-width, 14.5rem)' }} id="main-content">{children}</main>
+            <main className="bg-background min-h-screen transition-all duration-300" style={{ marginLeft: 'var(--sidebar-width, 13rem)' }} id="main-content">{children}</main>
           </div>
         </SidebarProvider>
       </body>

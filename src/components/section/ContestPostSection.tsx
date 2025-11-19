@@ -34,8 +34,8 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
       <div className="flex flex-col gap-3 border-gray-200 pb-5">
 
         {/* 제목 */}
-        <div className="mb-3 flex flex-row items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="mb-2 flex flex-row items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">
             {contestPostData.title}
           </h1>
 
@@ -53,17 +53,17 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
             <div className="flex flex-row items-center gap-4">
 
               {/* 대회 타입 */}
-              <div className="flex flex-row items-center gap-2">
-                <Tag />
-                <span className="text-sm font-medium text-gray-700">대회 타입</span>
+              <div className="flex flex-row items-center gap-1.5">
+                <Tag className="size-5" />
+                <span className="text-sm text-gray-700">대회 타입</span>
               </div>
 
               {/* 상태 */}
-              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700">
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+                <span className="bg-gray-100 text-gray-700 px-2.5 py-0.75 rounded-full text-xs font-medium">
                   {contestPostData.type}
                 </span>
-                <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
+                <span className="bg-gray-100 text-gray-700 px-2.5 py-0.75 rounded-full text-xs font-medium">
                   {contestPostData.status}
                 </span>
               </div>
@@ -76,10 +76,10 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
             ].map((item, index) => (
               <div key={index} className="flex items-center gap-4">
                 <div className="flex flex-row items-center gap-2">
-                  <Calendar />
-                  <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                  <Calendar className="size-4.5" />
+                  <span className="text-sm text-gray-700">{item.label}</span>
                 </div>
-                <span className="text-sm text-gray-700">{item.value}</span>
+                <span className="text-xs text-gray-700">{item.value}</span>
               </div>
             ))}
           </div>

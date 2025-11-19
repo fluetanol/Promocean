@@ -11,7 +11,7 @@ export default function CommunityBoardFilterSection() {
   return (
     <div className="flex flex-row items-center justify-end gap-3 w-full pb-4 bg-gray-50 border-gray-200">
       <CombinedSearchFilter
-        searchOptions={["전체", "제목", "작성자", "내용", "태그"]}
+        searchOptions={["제목", "작성자", "내용", "태그"]}
         sorterOptions={{ latest: "최신순", oldest: "오래된 순", popular: "인기순" }}
         defaultSorter="latest"
         route="/community"

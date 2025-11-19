@@ -4,6 +4,9 @@ import HeroSection from "@/components/section/HeroSection";
 import PostCardSection from "@/components/section/PostCardSection";
 import { PostAPI } from "@/api/community";
 
+// ISR: 60초마다 재생성
+export const revalidate = 60;
+
 /**
  * Home component
  * @description Home component is a home component that displays the home page content
