@@ -7,6 +7,7 @@ import SpaceAPI from "@/api/space";
 import { Space } from "lucide-react";
 import { colorCodeBackToFront } from "@/utils/colorController";
 import { PostMySpaceArchiveFolderRequest } from "@/types/apiTypes/space";
+import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 
 
 export interface SpaceArchiveAddModalProps{
@@ -18,11 +19,12 @@ export interface SpaceArchiveAddModalProps{
 }
 
 export default function SpaceArchiveAddModal({ isOpen, spaceId, onCloseAddModal, archiveItemListState, setArchiveItemListState }: SpaceArchiveAddModalProps) {
-    
+
     const [selectedColorState, setSelectedColorState] = useState("#000000")
     const [showColorPickerState, setShowColorPickerState] = useState(false);
     const [titleState, setTitleState] = useState("");
     const [titleErrorState, setTitleErrorState] = useState(false);
+    const folderStore = useArchiveFolderStore();
 
 
     const onToggleColorPicker = () => {
@@ -60,13 +62,17 @@ export default function SpaceArchiveAddModal({ isOpen, spaceId, onCloseAddModal,
             console.log("Response Datazz:", res);
             
         const newArchiveData : SpaceArchiveData = {
-            folderId : res.folderId, // 임시 ID, 실제로는 백엔드에서 받아와야 함
+            folderId : res.folderId,
             name: res.name,
             color: colorCodeBackToFront(res.color),
             isPinned: res.isPinned
             };
 
+        // 로컬 상태 업데이트
         setArchiveItemListState([...archiveItemListState, newArchiveData]);
+
+        // 전역 스토어에도 추가 (글쓰기 페이지에서 즉시 반영되도록)
+        folderStore.addFolder(newArchiveData);
 
         // setArchiveItemListState([]);
         // 추가 후 모달 닫기 및 상태 초기화

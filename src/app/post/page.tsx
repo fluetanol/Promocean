@@ -408,6 +408,7 @@ function PostPageContent() {
           setDescriptionState(textToLexicalJSON(communityPostDetailData.description));
           setUsedPrompt(textToLexicalJSON(communityPostDetailData.prompt));
           setExamplePrompt(textToLexicalJSON(communityPostDetailData.sampleQuestion));
+          setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer || ''));
 
           // fileUrl이 있으면 이미지 설정
           if (communityPostDetailData.fileUrl) {
@@ -505,6 +506,7 @@ function PostPageContent() {
           setDescriptionState(textToLexicalJSON(data.description));
           setUsedPrompt(textToLexicalJSON(data.prompt));
           setExamplePrompt(textToLexicalJSON(data.sampleQuestion));
+          setAnswerPrompt(textToLexicalJSON(data.sampleAnswer || ''));
 
           // 이미지 타입인 경우 fileUrl 설정
           if (mappedType === 'image' && data.fileUrl) {
