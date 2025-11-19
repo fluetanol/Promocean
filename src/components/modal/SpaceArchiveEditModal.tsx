@@ -55,51 +55,38 @@ export default function SpaceArchiveEditModal({
         >
             <form
                 onSubmit={handleSubmit}
-                className={`flex flex-col bg-background w-[540px] h-[500px] rounded-2xl p-10 gap-5 shadow-xl
+                className={`flex flex-col bg-background w-[540px] rounded-2xl p-10 gap-6 shadow-xl
                     transition-all duration-300 ease-out
                     ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-4'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h1 className="text-[2.5rem] font-semibold">카테고리 수정</h1>
+                <h1 className="text-3xl font-bold">카테고리 수정</h1>
 
                 {/* 배경색 영역 */}
-                <div className="flex flex-row w-full h-[146px] p-2.5 bg-white justify-between rounded-xl shadow-inner">
-                    <div
-                        className="flex w-[304px] rounded-lg justify-center items-center text-2xl font-medium"
-                        style={{ backgroundColor: selectedColorState }}
+                <div className="flex flex-col w-full gap-4">
+                    {/* 색상 미리보기 */}
+                    <div className="flex w-full h-32 rounded-xl shadow-md justify-center items-center">
+                        <div
+                            className="flex w-full h-full rounded-xl justify-center items-center text-2xl font-medium shadow-inner"
+                            style={{ backgroundColor: selectedColorState }}
+                        >
+                            {selectedColorState}
+                        </div>
+                    </div>
+
+                    {/* 컬러 팔레트 버튼 */}
+                    <button
+                        type="button"
+                        className="flex flex-row w-full px-4 py-3 rounded-lg border-2 border-primary gap-3 justify-center items-center
+                          transition-all duration-200 hover:bg-primary/10 active:scale-95"
+                        onClick={onToggleColorPicker}
                     >
-                        {selectedColorState}
-                    </div>
-
-                    <div className="flex flex-col w-[136px] px-2 py-2.5 justify-center gap-y-2.5">
-                        {/* 사진 버튼 */}
-                        <button
-                            type="button"
-                            className="flex flex-row w-full px-3 py-2.5 rounded-4xl border-2 border-primary gap-1
-                              transition-all duration-200 hover:bg-primary/10 active:scale-95 active:brightness-95"
-                        >
-                            <div className="w-8 h-8 bg-primary rounded-lg"></div>
-                            <div className="flex flex-1 text-[0.75rem] font-semibold justify-center items-center">
-                                사진
-                            </div>
-                        </button>
-
-                        {/* 컬러 팔레트 버튼 */}
-                        <button
-                            type="button"
-                            className="flex flex-row w-full px-3 py-2.5 rounded-4xl border-2 border-primary gap-1
-                              transition-all duration-200 hover:bg-primary-content/10 active:scale-95 active:brightness-95"
-                            onClick={onToggleColorPicker}
-                        >
-                            <div
-                                className={`w-8 h-8 rounded-lg`}
-                                style={{ backgroundColor: selectedColorState }}
-                            ></div>
-                            <div className="flex flex-1 text-[0.75rem] font-semibold justify-center items-center">
-                                컬러 팔레트
-                            </div>
-                        </button>
-                    </div>
+                        <div
+                            className="w-6 h-6 rounded-md shadow-sm"
+                            style={{ backgroundColor: selectedColorState }}
+                        ></div>
+                        <span className="text-sm font-semibold">컬러 팔레트 열기</span>
+                    </button>
                 </div>
 
                 {/* 컬러 피커 팝업 */}
@@ -112,11 +99,12 @@ export default function SpaceArchiveEditModal({
                 )}
 
                 {/* 입력창 */}
-                <div>
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-700">폴더 이름</label>
                     <input
                         type="text"
-                        placeholder="제목을 입력하세요"
-                        className={`flex w-full h-12 shadow p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all
+                        placeholder="폴더 이름을 입력하세요"
+                        className={`flex w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all
                             ${titleErrorState ? 'border-red-500' : 'border-gray-300'}`}
                         value={titleState}
                         onChange={(e) => {
@@ -125,17 +113,17 @@ export default function SpaceArchiveEditModal({
                         }}
                     />
                     {titleErrorState && (
-                        <p className="text-red-500 text-sm mt-1">제목을 입력해주세요</p>
+                        <p className="text-red-500 text-sm">폴더 이름을 입력해주세요</p>
                     )}
                 </div>
 
                 {/* 하단 버튼 영역 */}
-                <div className="flex flex-row py-2 justify-center gap-8 mt-auto">
+                <div className="flex flex-row justify-end gap-3 mt-2">
                     {/* 취소 버튼 */}
                     <button
                         type="button"
-                        className="flex px-5 py-3 bg-gray-300 w-40 justify-center rounded-4xl
-                            hover:bg-gray-400 active:scale-95 transition-all duration-150"
+                        className="px-6 py-2.5 bg-gray-200 text-gray-700 font-medium rounded-lg
+                            hover:bg-gray-300 active:scale-95 transition-all duration-150"
                         onClick={onClose}
                     >
                         취소
@@ -145,8 +133,8 @@ export default function SpaceArchiveEditModal({
                     <input
                         type="submit"
                         value="수정"
-                        className="flex px-5 py-3 bg-primary text-background w-40 justify-center rounded-4xl
-                            cursor-pointer transition-all duration-150 hover:bg-primary/80 active:scale-95"
+                        className="px-6 py-2.5 bg-primary text-white font-medium rounded-lg
+                            cursor-pointer transition-all duration-150 hover:bg-primary/90 active:scale-95"
                     />
                 </div>
             </form>

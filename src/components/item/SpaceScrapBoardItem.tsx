@@ -33,7 +33,7 @@ export default function SpaceScrapBoardItem({ postId, tags, category, replyCnt, 
       {/* LEFT : 이미지 + 텍스트 */}
       <div className="flex items-start gap-4 min-w-0">
         {/* 썸네일 */}
-        <div className="relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-100">
+        <div className="relative shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-100">
             <Image
               src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, postId)}
               alt={title}

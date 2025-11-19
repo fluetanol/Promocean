@@ -131,9 +131,9 @@ export default function SpaceScrapItem({
             <button
                 onClick={handleScrapClick}
                 disabled={isLoading}
-                className="absolute top-3 right-3 z-10 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full
-                    shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center
-                    hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute -top-1.5 right-3 z-15 w-9 h-9 scale-120 
+                    hover:drop-shadow-2xl transition-all duration-200 flex items-center justify-center
+                    hover:scale-130 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="스크랩 해제"
             >
                 {isLoading ? (
@@ -159,10 +159,10 @@ export default function SpaceScrapItem({
                     </svg>
                 ) : (
                     <svg
-                        className="w-8 h-15"
+                        className="w-15 h-15 stroke-current drop-shadow-2xl"
                         fill={isScrapped ? "#FFC107" : "none"}
                         stroke={isScrapped ? "#F59E0B" : "currentColor"}
-                        strokeWidth="2"
+                        strokeWidth="1"
                         viewBox="0 0 24 24"
                     >
                         <path

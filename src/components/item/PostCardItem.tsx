@@ -13,7 +13,7 @@ import { getPostImageUrl } from '@/utils/imageUtils'
  * @description 인기 프롬프트 카드 – 가로 롤링 리스트용 경량 카드
  * @returns {React.ReactNode}
  */
-export default function PostCardItem({ postId, title, tags, category, likeCnt, replyCnt, fileUrl }: CommunityFloatingItemProps & { category: string }) {
+export default function PostCardItem({ postId, title, tags, likeCnt, replyCnt, fileUrl }: CommunityFloatingItemProps) {
   const imgUrl = getPostImageUrl(fileUrl, postId)
   const displayedTags = tags.slice(0, 3)
   const hiddenTagCount = tags.length - displayedTags.length
@@ -31,10 +31,7 @@ export default function PostCardItem({ postId, title, tags, category, likeCnt, r
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/60 opacity-0 transition-opacity duration-500 group-hover:opacity-60" />
 
-          {/* Category Badge */}
-          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur">
-            {category}
-          </span>
+
 
           {/* Floating Stats */}
           <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-gray-900/70 px-2.5 py-1 text-white shadow-lg backdrop-blur">

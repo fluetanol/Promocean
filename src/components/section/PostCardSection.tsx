@@ -19,7 +19,6 @@ interface PostCardSectionProps {
 export default function PostCardSection({postSectionTitle, postCardList }: PostCardSectionProps) {
   const posts = postCardList.map(item => ({
     ...item,
-    category: "AI"
   }));
 
   return (

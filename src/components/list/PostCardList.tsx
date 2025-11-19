@@ -6,7 +6,7 @@ import { CommunityFloatingItemProps } from '@/types/itemType'
 import { useEffect, useRef } from 'react'
 
 interface PostCardListProps {
-  posts: (CommunityFloatingItemProps & { category: string })[]
+  posts: (CommunityFloatingItemProps )[]
 }
 
 /**
