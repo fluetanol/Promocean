@@ -45,7 +45,9 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
       setSubmissionData(updatedData);
       // 목록 갱신을 위해 페이지 새로고침
       router.refresh();
+      alert('투표에 성공했습니다.');
     } catch (error) {
+      console.error('투표에 실패했습니다.', error);
       alert('투표에 실패했습니다.');
     }
   };
@@ -91,7 +93,7 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
         ) : (
           <>
             {/* 헤더 - 제목 */}
-            <div className="mb-6 pb-4 border-gray-200 flex flex-col justify-between items-start gap-4">
+            <div className="flex flex-row items-center justify-between w-full mb-6 pb-4 border-gray-200 gap-4 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900">
                 {submissionData.description}
               </h2>
@@ -104,7 +106,6 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
                 {submissionData.type}
               </span> */}
 
-              <div className="flex flex-row items-center justify-between w-full">
                 {/* 작성자 정보 */}
                 <CommunityPostUserProfileItem
                   profileUrl={submissionData.profileUrl}
@@ -113,11 +114,10 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
                 />
 
                 {/* 추천수 */}
-                <div className="flex items-center gap-1 transition-colors">
+                {/* <div className="flex items-center gap-1 transition-colors">
                   <Heart />
                   <span className="text-sm font-medium">{submissionData.voteCnt}</span>
-                </div>
-              </div>
+                </div> */}
             </div>
 
             {/* 텍스트 or 이미지 결과 */}

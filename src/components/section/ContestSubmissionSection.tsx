@@ -25,7 +25,7 @@ export default function ContestSubmissionSection({
     <div>
       <div className="flex flex-row items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">제출 목록</h2>
-        <ContestSubmissionButtonSection />
+        <ContestSubmissionButtonSection endAt={endAt} />
       </div>
       {!isContestEnded ? (
         <div className="mt-8 text-center py-12">

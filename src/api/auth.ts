@@ -134,10 +134,15 @@ export const authAPI = {
       await apiFetch<{ message: string | null; data: null }>(`/api/v1/auth/logout`, {
         method: 'POST',
       });
-    } catch (error) {
+    } catch {
+      // 에러가 발생해도 로그아웃은 진행
     }
     const { logout } = useAuthStore.getState();
     logout();
+    // 클라이언트 사이드 리다이렉트는 호출하는 쪽에서 처리
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   },
 
 
