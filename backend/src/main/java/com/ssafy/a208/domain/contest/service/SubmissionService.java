@@ -69,7 +69,7 @@ public class SubmissionService {
         Submission submission = Submission.builder()
                 .prompt(submissionCreateReq.prompt())
                 .description(submissionCreateReq.description())
-                .result(type == PromptType.TEXT ? submissionCreateReq.result() : null)
+                .result(submissionCreateReq.result())
                 .type(type)
                 .contest(contest)
                 .member(member)
