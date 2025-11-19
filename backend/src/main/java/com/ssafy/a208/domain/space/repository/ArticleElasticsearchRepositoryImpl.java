@@ -24,11 +24,18 @@ public class ArticleElasticsearchRepositoryImpl {
 
     private final ElasticsearchOperations elasticsearchOperations;
 
-    public SearchHits<ArticleDocument> searchWithNativeQuery(Long folderId, String titleKeyword,
+    public SearchHits<ArticleDocument> searchWithNativeQuery(Long spaceId, Long folderId, String titleKeyword,
             String tagKeyword,
             Integer promptType, SortType sort, int page, int size) {
 
         List<Query> filters = new ArrayList<>();
+
+        if(spaceId != null){
+            filters.add(TermQuery.of(t -> t
+                    .field("spaceId")
+                    .value(spaceId)
+            )._toQuery());
+        }
 
         if (folderId != null) {
             filters.add(TermQuery.of(t -> t

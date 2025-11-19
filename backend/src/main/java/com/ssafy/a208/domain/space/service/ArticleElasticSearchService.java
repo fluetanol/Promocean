@@ -22,11 +22,11 @@ public class ArticleElasticSearchService {
     private final ArticleElasticsearchRepositoryImpl articleSearchRepository;
     private final ArticleElasticSearchRepository articleElasticSearchRepository;
 
-    public Page<ArticleListItemQueryRes> getArticles(Long folderId, String titleKeyword,
+    public Page<ArticleListItemQueryRes> getArticles(Long spaceId, Long folderId, String titleKeyword,
             String tagKeyword, Integer promptType, SortType sort, int page, int size) {
 
         SearchHits<ArticleDocument> searchHits = articleSearchRepository.searchWithNativeQuery(
-                folderId, titleKeyword, tagKeyword, promptType, sort, page, size);
+                spaceId, folderId, titleKeyword, tagKeyword, promptType, sort, page, size);
 
         List<ArticleListItemQueryRes> content = searchHits.stream()
                 .map(hit -> {
@@ -47,6 +47,7 @@ public class ArticleElasticSearchService {
     public void indexArticle(Article article, String fileUrl, Set<String> tags) {
         ArticleDocument articleDocument = ArticleDocument.builder()
                 .articleId(article.getId())
+                .spaceId(article.getFolder().getSpace().getId())
                 .folderId(article.getFolder().getId())
                 .title(article.getTitle())
                 .filePath(fileUrl)

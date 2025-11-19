@@ -54,7 +54,36 @@ public class PostLikeReader {
         return postLikeRepository.existsByPostIdAndMemberAndDeletedAtIsNull(postId, member);
     }
 
-    public int countByPost(Post post) {
-        return (int) postLikeRepository.countByPostAndDeletedAtIsNull(post);
+    /**
+     * 특정 게시글과 멤버의 좋아요 존재 여부 확인
+     *
+     * @param post 게시글 엔티티
+     * @param member 멤버 엔티티
+     * @return 좋아요 존재 여부
+     */
+    public boolean existsByPostAndMember(Post post, Member member) {
+        return postLikeRepository.existsByPostAndMemberAndDeletedAtIsNull(post, member);
     }
+
+    /**
+     * 특정 게시글의 좋아요 개수 조회 (삭제되지 않은 것만)
+     *
+     * @param post 게시글 엔티티
+     * @return 좋아요 개수
+     */
+    public int countByPost(Post post) {
+        return postLikeRepository.countByPostAndDeletedAtIsNull(post);
+    }
+
+    /**
+     * 특정 게시글의 모든 좋아요 조회 (삭제 포함)
+     * 게시글 삭제 시 좋아요 일괄 삭제용
+     *
+     * @param post 게시글 엔티티
+     * @return 좋아요 리스트
+     */
+    public List<PostLike> getAllByPost(Post post) {
+        return postLikeRepository.findByPost(post);
+    }
+
 }

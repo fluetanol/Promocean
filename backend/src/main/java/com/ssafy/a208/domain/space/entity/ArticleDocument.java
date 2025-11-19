@@ -23,6 +23,8 @@ public class ArticleDocument {
     @Id
     private Long articleId;
 
+    private Long spaceId;
+
     private Long folderId;
 
     private String title;
