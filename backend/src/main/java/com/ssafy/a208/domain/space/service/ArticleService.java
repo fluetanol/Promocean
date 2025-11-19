@@ -107,7 +107,7 @@ public class ArticleService {
         }
 
         Page<ArticleListItemQueryRes> articles = articleElasticSearchService
-                .getArticles(folderId, title, tag, type, sort, page, size);
+                .getArticles(spaceId, folderId, title, tag, type, sort, page, size);
 
         List<ArticleInfo> articleInfos = articles.stream()
                 .map(article -> ArticleInfo.builder()
