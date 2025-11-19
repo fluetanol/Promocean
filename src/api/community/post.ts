@@ -100,9 +100,9 @@ export class PostAPI {
    * @description 인기글 데이터를 조회하는 API입니다.
    * @returns {Promise<{ popularPosts: CommunityFloatingItemProps[] }>}
    */
-  static async getPopular(page: string = "9") {
+  static async getPopular(limit: string = "9") {
     const params = new URLSearchParams();
-    params.set('page', page);
+    params.set('limit', limit);
     const response = await apiFetch<ApiResponse<{ posts: CommunityFloatingItemProps[] }>>(`/api/v1/posts/trending?${params.toString()}`);
     return { popularPosts: response.data.posts };
   }

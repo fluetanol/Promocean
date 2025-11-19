@@ -20,7 +20,7 @@ export default async function CommunityLayout({
   children: React.ReactNode;
 }) {
   // 인기글 데이터 가져오기
-  const { popularPosts } = await PostAPI.getPopular();
+  const { popularPosts } = await PostAPI.getPopular("3");
 
   return (
     <div className="min-h-screen bg-gray-50">

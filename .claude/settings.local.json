@@ -8,7 +8,9 @@
       "Bash(npm run storybook:*)",
       "Bash(npm run build:*)",
       "Bash(Select-String -Pattern \"Failed to compile|Type error|Successfully|Compiled successfully\")",
-      "Bash(Select-Object -First 10)"
+      "Bash(Select-Object -First 10)",
+      "Bash(Get-ChildItem -Path \"c:\\Users\\SSAFY\\Desktop\\S13P31A208\\src\\app\\team-space\" -Filter \"page.tsx\" -Recurse)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ],
     "deny": [],
     "ask": []

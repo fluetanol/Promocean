@@ -265,7 +265,7 @@ export default function SpaceArchiveItem({
                     </svg>
                 </div>
 
-                <div className="absolute w-full h-14 p-2 left-0 top-30 bg-white/95 backdrop-blur-sm inline-flex justify-center items-center shadow-lg z-10">
+                <div className="absolute w-full h-14 p-2 left-0 top-30 bg-white/95 backdrop-blur-sm inline-flex justify-center items-center shadow-lg">
                     <div className="text-center justify-center text-gray-800 text-base font-semibold leading-tight line-clamp-2">
                         {name}
                     </div>
@@ -273,7 +273,7 @@ export default function SpaceArchiveItem({
 
                 {/* Pin 영역 - Reader 권한이 아닐 때만 표시 */}
                 {canEdit && (
-                    <div className="w-6 h-6 absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-6 h-6 absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
                         <label className="relative block w-6 h-6 cursor-pointer">
                             <input
                                 type="checkbox"
@@ -301,7 +301,7 @@ export default function SpaceArchiveItem({
 
                 {/* 수정 및 삭제 버튼 영역 - Reader 권한이 아닐 때만 표시 */}
                 {canEdit && (
-                    <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute bottom-16 left-0 w-full flex flex-row gap-1.5 px-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={(e) => e.stopPropagation()}>
                         <button
                             className="flex-1 px-2 py-1.5 bg-white text-gray-700 text-xs font-medium rounded-lg
                                 hover:bg-gray-50 hover:shadow-lg active:scale-95 transition-all duration-150 border border-gray-200"
