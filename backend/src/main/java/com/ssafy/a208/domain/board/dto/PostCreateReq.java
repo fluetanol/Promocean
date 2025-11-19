@@ -41,7 +41,6 @@ public record PostCreateReq(
         @Schema(description = "프롬프트 타입 (1:텍스트, 2:이미지)", example = "1", required = true)
         Integer promptType,
 
-        @Size(max = 200, message = "예시 질문은 200자까지 작성할 수 있습니다.")
         @Schema(description = "예시 질문 (텍스트 프롬프트인 경우 필수)", example = "오늘 옷 추천해줘")
         String sampleQuestion,
 

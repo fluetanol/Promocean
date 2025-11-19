@@ -46,4 +46,8 @@ public class SubmissionDocument {
         this.memberNickname = newNickname;
         this.profilePath = newProfilePath;
     }
+
+    public void updateVoteCount(long newVoteCount) {
+        this.voteCount = newVoteCount;
+    }
 }

@@ -75,12 +75,12 @@ public class SubmissionService {
                 .member(member)
                 .build();
 
+        submissionRepository.save(submission);
+
         String fileUrl = null;
         if(type == PromptType.IMAGE) {
             fileUrl = submissionFileService.createSubmissionFile(submission);
         }
-
-        submissionRepository.save(submission);
 
         SubmissionDocument document = SubmissionDocument.builder()
                 .id(submission.getId())
