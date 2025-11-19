@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import com.ssafy.a208.domain.contest.document.SubmissionDocument;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -154,5 +155,12 @@ public class SubmissionElasticsearchRepositoryImpl implements SubmissionElastics
         docs.forEach(doc -> doc.updateMemberInfo(newNickname, newProfilePath));
 
         operations.save(docs);
+    }
+
+    @Override
+    public void updateVoteCount(Long id, int voteCount) {
+        SubmissionDocument doc = operations.get(id.toString(), SubmissionDocument.class);
+        Objects.requireNonNull(doc).updateVoteCount(voteCount);
+        operations.save(doc);
     }
 }
