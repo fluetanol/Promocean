@@ -179,6 +179,7 @@ export interface CommunityPostItemResponse {
   likeCnt: number
   replyCnt: number
   isLiked: boolean
+  isScraped: boolean
   createdAt: string
   replies: {
     replyId: number

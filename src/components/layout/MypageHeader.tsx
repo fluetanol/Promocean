@@ -25,6 +25,7 @@ export default function MypageHeader() {
               src={profileUrl}
               alt="프로필 이미지"
               fill
+              sizes="64px"
               className="object-cover"
             />
           ) : (

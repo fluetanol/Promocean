@@ -4,6 +4,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, use } from "react";
+import Image from "next/image";
 import { SubmissionAPI } from "@/api/contest";
 import { ContestSubmissionDetailData } from "@/types/itemType";
 import CommunityPostUserProfileItem from "@/components/item/CommunityPostUserProfileItem";
@@ -40,7 +41,6 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
         if (error instanceof Error && error.message.includes('404')) {
           setSubmissionDetailData(null);
         } else {
-          console.error('산출물 조회 실패:', error);
           setSubmissionDetailData(null);
         }
       } finally {
@@ -93,7 +93,6 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
       setIsEditing(false);
       router.refresh();
     } catch (error) {
-      console.error('수정 실패:', error);
       alert('산출물 수정에 실패했습니다.');
     }
   };
@@ -111,12 +110,13 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
       router.back();
       router.refresh();
     } catch (error) {
-      console.error('삭제 실패:', error);
       alert('산출물 삭제에 실패했습니다.');
     }
   };
 
   const isAuthor = user && submissionDetailData && user.nickname === submissionDetailData.author;
+  // 모달 페이지와 동일한 로직: "텍스트"가 아니면 이미지로 처리
+  const isText = submissionDetailData?.type === "텍스트" ? true : false;
 
   return (
     <div
@@ -151,18 +151,29 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
           </>
         ) : (
           <>
-            {/* 헤더 */}
-            <div className="mb-6 pb-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">내 산출물</h2>
-            </div>
+            <div className="flex flex-row items-center justify-between mb-6 pb-4 border-b border-gray-200">
 
-            {/* 작성자 정보 */}
-            <div className="mb-6">
-              <CommunityPostUserProfileItem
-                profileUrl={submissionDetailData.profileUrl}
-                author={submissionDetailData.author}
-                createdAt=""
-              />
+              {/* 헤더 */}
+              <div className="mb-2">
+                <h2 className="text-2xl font-bold text-gray-900">내 산출물</h2>
+              </div>
+
+              {/* 투표 수 */}
+              {!isEditing && (
+                <div className="flex flex-row items-center gap-2">
+                  <h3 className="text-sm font-medium text-gray-700">투표 수</h3>
+                  <span className="text-sm text-gray-700 font-medium">{submissionDetailData.voteCnt}표</span>
+                </div>
+              )}
+
+              {/* 작성자 정보 */}
+              <div className="mb-2">
+                <CommunityPostUserProfileItem
+                  profileUrl={submissionDetailData.profileUrl}
+                  author={submissionDetailData.author}
+                  createdAt=""
+                  />
+              </div>
             </div>
 
             {/* 산출물 정보 */}
@@ -217,19 +228,23 @@ export default function ContestMySubmissionModal({ params }: { params: Promise<{
                       className="w-full min-h-[200px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
                       placeholder="결과를 입력하세요"
                     />
+                  ) : !isText && submissionDetailData.result ? (
+                    <div className="mb-6 flex items-center justify-center">
+                      <div className="relative w-full max-w-2xl aspect-video overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={submissionDetailData.result}
+                          alt={submissionDetailData.description}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
                   ) : (
                     <div className="p-4 bg-gray-50 rounded-lg">
                       <p className="text-gray-700 whitespace-pre-wrap">{submissionDetailData.result}</p>
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* 투표 수 */}
-              {!isEditing && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">투표 수</h3>
-                  <span className="text-base text-gray-900 font-medium">{submissionDetailData.voteCnt}표</span>
                 </div>
               )}
             </div>

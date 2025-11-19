@@ -20,15 +20,26 @@ if (!BASE_URL) {
  */
 export async function apiFetch<T = unknown>(
   input: string,
-  init: RequestInit = {}
+  init: RequestInit & { token?: string | null } = {}
 ): Promise<T> {
-  const token = typeof window !== 'undefined' ? getAuthToken() : null;
+  // 클라이언트에서는 쿠키에서, 서버에서는 전달된 token 사용
+  let token: string | null = null;
+  if (typeof window !== 'undefined') {
+    // 클라이언트 환경
+    token = getAuthToken();
+  } else if (init.token !== undefined) {
+    // 서버 환경에서 token이 전달된 경우
+    token = init.token;
+  }
 
-  const headers = new Headers(init.headers || {});
+  // init에서 token 제거 (fetch에 전달되지 않도록)
+  const { token: _, ...fetchInit } = init;
+  
+  const headers = new Headers(fetchInit.headers || {});
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const isFormData =
-    typeof FormData !== 'undefined' && init.body instanceof FormData;
+    typeof FormData !== 'undefined' && fetchInit.body instanceof FormData;
   if (!isFormData && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
@@ -37,7 +48,7 @@ export async function apiFetch<T = unknown>(
 
   const response = await fetch(url, {
     cache: 'no-store',
-    ...init,
+    ...fetchInit,
     headers: headers as HeadersInit,
   });
 

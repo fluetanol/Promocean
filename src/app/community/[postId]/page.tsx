@@ -5,6 +5,7 @@ import CommunityLikeShareSection from "@/components/section/CommunityLikeShareSe
 import CommunityCommentSection from "@/components/section/CommunityCommentSection";
 import { CommunityPostItemProps, HashtagItemProps, CommunityCommentItemProps } from "@/types/itemType";
 import { PostAPI } from "@/api/community";
+import { getServerAuthToken } from "@/lib/serverAuthToken";
 
 interface CommunityPostPageProps {
   params: Promise<{ postId: string }>;
@@ -20,7 +21,10 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
   const postId = parseInt(postIdStr, 10);
 
   try {
-    const { communityPostDetailData } = await PostAPI.getDetail(postId);
+    // 서버 환경에서 쿠키에서 토큰 가져오기
+    const token = await getServerAuthToken();
+    
+    const { communityPostDetailData } = await PostAPI.getDetail(postId, token);
 
     const hashtagList: HashtagItemProps[] = communityPostDetailData.tags.map((tag: string) => ({ tag }));
     
@@ -38,7 +42,12 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
         <CommunityPostDetailSection communityPostData={communityPostData} hashtagList={hashtagList} />
 
         {/* 좋아요 및 스크랩 섹션 */}
-        <CommunityLikeShareSection likeCnt={communityPostDetailData.likeCnt} isLiked={communityPostDetailData.isLiked} postId={postId} />
+        <CommunityLikeShareSection 
+          likeCnt={communityPostDetailData.likeCnt} 
+          isLiked={communityPostDetailData.isLiked} 
+          isScraped={communityPostDetailData.isScraped}
+          postId={postId} 
+        />
 
         {/* 구분선 */}
         <hr className="border-gray-200" />

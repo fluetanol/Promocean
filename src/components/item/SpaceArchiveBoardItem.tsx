@@ -49,6 +49,7 @@ export default function SpaceArchiveBoardItem( { articleId, title, category, tag
               src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, articleId)}
               alt={title}
               fill
+              sizes="64px"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               onError={() => {
                 console.log('이미지 로드 실패:', fileUrl);

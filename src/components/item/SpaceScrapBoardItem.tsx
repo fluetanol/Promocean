@@ -38,6 +38,7 @@ export default function SpaceScrapBoardItem({ postId, tags, category, replyCnt, 
               src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, postId)}
               alt={title}
               fill
+              sizes="64px"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
 

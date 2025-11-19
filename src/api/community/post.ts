@@ -113,11 +113,13 @@ export class PostAPI {
    * @endpoint /api/v1/posts/{postId}
    * @description 커뮤니티 게시글 상세 데이터를 조회하는 API입니다.
    * @param {number} postId - 게시글 ID
+   * @param {string | null} [token] - 서버 환경에서 사용할 토큰 (선택사항)
    * @returns {Promise<{ communityPostDetailData: CommunityPostItemResponse }>}
    */
-  static async getDetail(postId: number) {
-    const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`);
-    
+  static async getDetail(postId: number, token?: string | null) {
+    const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`, {
+      token,
+    });
     const communityPostDetailData = response.data;
     
     return {

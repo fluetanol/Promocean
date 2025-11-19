@@ -57,7 +57,6 @@ export default function MySpaceArchiveArticlePage() {
 
         setArticleData(data);
       } catch (err) {
-        console.error('Failed to fetch article:', err);
         setError('게시글을 불러오는데 실패했습니다.');
       } finally {
         setIsLoading(false);

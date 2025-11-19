@@ -22,7 +22,6 @@ export const SpaceAPI = {
     async getSpaceArchiveFoldersData(spaceId : number) : Promise<GetSpaceArchiveFoldersResponse | null> {
         if(!spaceId){ return null;}
 
-        console.log("API spaceId ", spaceId);
         const res = await apiFetch <ApiResponse<GetSpaceArchiveFoldersResponse>>(`/api/v1/spaces/${spaceId}/folders`, {
             method: "GET",
         });
@@ -39,13 +38,11 @@ export const SpaceAPI = {
         if(!personalSpaceId){
             return null;
         }
-        console.log("폴더 데이터!! ", folderData)
         const res = await apiFetch<ApiResponse<PostMySpaceArchiveFolderResponse>>(`/api/v1/spaces/${personalSpaceId}/folders`, {
             method: "POST",
             body: JSON.stringify(folderData),
         });
 
-        console.log("API Res ",res);
         return res.data;
     },
 
@@ -62,7 +59,6 @@ export const SpaceAPI = {
             method: "DELETE",
         });
 
-        console.log("Delete API Res ",res);
 
         return res.data;
     },
@@ -74,13 +70,10 @@ export const SpaceAPI = {
         if(!personalSpaceId || !folderId) {
             return null;
         }
-        console.log("폴더 수정 시도 ",folderId)
         const res = await apiFetch<NoArgsResponse>(`/api/v1/spaces/${personalSpaceId}/folders/${folderId}`, {
             method: "PATCH",
             body: JSON.stringify(folderData),
         });
-
-        console.log("Patch API Res ",res);
 
         return res;
     },
@@ -97,8 +90,6 @@ export const SpaceAPI = {
             method: "PATCH"
         });
 
-        console.log("Patch API Res ",res);
-
         return res.data;
     },
 
@@ -112,9 +103,6 @@ export const SpaceAPI = {
         const res = await apiFetch<ApiResponse<GetTeamSpaceListResponse>>(`/api/v1/spaces`, {
             method: "GET"
         });
-
-        console.log("Get Team Space List API Res ",res);
-
         return res.data;
     },
 
@@ -126,9 +114,6 @@ export const SpaceAPI = {
             method: "POST",
             body: JSON.stringify(teamSpaceData),
         });
-
-        console.log("Post Team Space Create API Res ",res);
-
         return res.data;
     },
 
@@ -136,14 +121,9 @@ export const SpaceAPI = {
         * 팀 스페이스를 삭제하는 API입니다.
     */
     async deleteTeamSpace(teamSpaceId : number) : Promise<DeleteTeamSpaceResponse | null> {
-        console.log("Delete Team Space ID ", teamSpaceId);    
-    
         const res = await apiFetch<ApiResponse<DeleteTeamSpaceResponse>>(`/api/v1/spaces/${teamSpaceId}`, {
             method: "DELETE",
         });
-
-        console.log("Delete Team Space API Res ",res);
-
         return res.data;
     },
 
@@ -155,8 +135,6 @@ export const SpaceAPI = {
             method: "PATCH",
             body: JSON.stringify(teamSpaceData),
         });
-
-        console.log("Patch Team Space API Res ",res);
         return res;
     },
     
@@ -172,8 +150,6 @@ export const SpaceAPI = {
             method: "PUT",
             body: JSON.stringify(archiveArticleData),
         });
-
-        console.log("Put Archive Article API Res ",res);
         return res;
     },
 
@@ -184,8 +160,6 @@ export const SpaceAPI = {
         const res = await apiFetch<NoArgsResponse>(`/api/v1/spaces/${spaceId}/folders/${folderId}/articles/${articleId}`, {
             method: "DELETE",
         });
-
-        console.log("Delete Archive Article API Res ",res);
         return res;
     },
 
@@ -222,8 +196,6 @@ export const SpaceAPI = {
         queryParams.append("page", params.page?.toString() || "1");
         queryParams.append("size", params.size?.toString() || "10");
         queryParams.append("sort", params.sort || "latest");
-
-        console.log(`/api/v1/spaces/${spaceId}/articles?${queryParams.toString()}`)
 
     //    ?type=${type}&tag=${tag}&title=${title}&page=${page}&size=${size}&sort=${sort}
     //    folders/${folderId}/
@@ -264,21 +236,17 @@ export const SpaceAPI = {
     */
     async postSpaceParticipantInvite(spaceId : number, inviteData : ParticipantReqs) : Promise<NoArgsResponse | null> {
 
-        console.log("data ", inviteData, spaceId)
         const res = await apiFetch<ApiResponse<NoArgsResponse>>(`/api/v1/spaces/${spaceId}/participants`,
             {
                 method : "POST",
                 body : JSON.stringify(inviteData),
             }
         )
-        console.log(res);
         return res.data;
     },
 
 
     async patchSpaceParticipantRole(spaceId:number, patchData : SimpleSpaceParticipant) : Promise<NoArgsResponse | null> {
-        console.log("patchData ", patchData);   
-        
         const res = await apiFetch<ApiResponse<NoArgsResponse>>(`/api/v1/spaces/${spaceId}/participants`,
             {
                 method : "PATCH",

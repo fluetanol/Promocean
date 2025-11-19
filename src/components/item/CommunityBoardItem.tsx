@@ -10,7 +10,7 @@ import UserSimpleProfile from "@/components/etc/UserSimpleProfile";
 import IconCount from "@/components/etc/IconCount";
 import { getPostImageUrl } from "@/utils/imageUtils";
 
-export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
+export default function CommunityBoardItem({ postId, author, profileUrl, title, description, category, tags, likeCnt, replyCnt, fileUrl, priority }: CommunityBoardItemProps & { priority?: boolean }) {
   
   const imgUrl = getPostImageUrl(fileUrl, postId);
 
@@ -27,6 +27,8 @@ export default function CommunityBoardItem({ postId, author, profileUrl, title, 
           src={imgUrl}
           alt={title}
           fill
+          sizes="64px"
+          priority={priority}
           className="object-cover transition-transform duration-300 group-hover:scale-115"
         />
       </div>

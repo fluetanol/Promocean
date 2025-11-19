@@ -135,7 +135,6 @@ export const authAPI = {
         method: 'POST',
       });
     } catch (error) {
-      console.error('로그아웃 API 실패:', error);
     }
     const { logout } = useAuthStore.getState();
     logout();

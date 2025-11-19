@@ -12,7 +12,7 @@ import { getPostImageUrl } from '@/utils/imageUtils'
  * @description PostCardItem component is a post card item component that displays the post card item content
  * @returns {React.ReactNode}
  */
-export default function PostCardItem({ postId, title, tags, category, likeCnt, replyCnt, fileUrl }: CommunityFloatingItemProps & { category: string }) {
+export default function PostCardItem({ postId, title, tags, category, likeCnt, replyCnt, fileUrl, priority }: CommunityFloatingItemProps & { category: string; priority?: boolean }) {
   const imgUrl = getPostImageUrl(fileUrl, postId);
   return (
     <Link href={`/community/${postId}`} className="block group">
@@ -24,6 +24,8 @@ export default function PostCardItem({ postId, title, tags, category, likeCnt, r
             src={imgUrl}
             alt={title}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
             className="object-cover transition-transform duration-300"
           />
         </div>

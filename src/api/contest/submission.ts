@@ -22,14 +22,11 @@ export class SubmissionAPI {
    */
   static async list(contestId: number) {
     try {
-      const response = await apiFetch<ApiResponse<{
-        submissions: ContestSubmissionItemProps[];
-      }>>(`/api/v1/contests/${contestId}/submissions`);
+      const response = await apiFetch<ApiResponse<{submissions: ContestSubmissionItemProps[];}>>(`/api/v1/contests/${contestId}/submissions`);
       return {
-        contestSubmissionList: response.data.submissions,
+        contestSubmissionList: response.data.submissions || [],
       };
     } catch (error) {
-      console.error(error);
       return {
         contestSubmissionList: [],
       };
@@ -51,7 +48,7 @@ export class SubmissionAPI {
       submissionData: response.data,
     };
   }
-
+  
   /**
    * 대회 내 산출물 목록 데이터 조회하는 API입니다.
    * @page /contest/[contestId]?tab=my-submission
@@ -59,9 +56,9 @@ export class SubmissionAPI {
    * @description 대회 내 산출물 목록 데이터를 조회하는 API입니다.
    * @param {number} contestId - 대회 ID
    * @returns {Promise<{ contestMySubmissionItem: ContestSubmissionDetailData }>}
-   */
-  static async getMySubmission(contestId: number) {
-    const response = await apiFetch<ApiResponse<ContestSubmissionDetailData>>(`/api/v1/contests/${contestId}/submissions/me`);
+  */
+ static async getMySubmission(contestId: number) {
+   const response = await apiFetch<ApiResponse<ContestSubmissionDetailData>>(`/api/v1/contests/${contestId}/submissions/me`);
     return {
       contestMySubmissionItem: response.data,
     };
@@ -84,18 +81,24 @@ export class SubmissionAPI {
     description: string,
     result: string
   ) {
-    const response = await apiFetch<ApiResponse<{ submissionId: number }>>(`/api/v1/contests/${contestId}/submissions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        prompt,
-        description,
-        result,
-      }),
-    });
-    return {
-      message: response.message,
-      data: response.data,
+    const requestBody = {
+      prompt,
+      description,
+      result,
     };
+    
+    try {
+      const response = await apiFetch<ApiResponse<{ submissionId: number }>>(`/api/v1/contests/${contestId}/submissions`, {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+      });
+      return {
+        message: response.message,
+        data: response.data,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

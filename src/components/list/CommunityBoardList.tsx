@@ -27,10 +27,11 @@ export default function CommunityBoardList({ communityBoardList }: CommunityBoar
 
   return (
     <div className="flex flex-col divide-y divide-gray-100 space-y-4">
-      {communityBoardList.map((item) => (
+      {communityBoardList.map((item, index) => (
         <CommunityBoardItem
           key={item.postId}
           {...item}
+          priority={index === 0}
         />
       ))}
     </div>

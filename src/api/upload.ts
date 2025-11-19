@@ -9,7 +9,6 @@ export const UploadAPI = {
 
         const res = await apiFetch<ApiResponse<getImagesS3UploadResponse>>(`/api/v1/images?filename=${encodeURIComponent(fileName)}`, {
         });
-        console.log("getImagesS3Upload response:", res);
         return res.data;
     },
 

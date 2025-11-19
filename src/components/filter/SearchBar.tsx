@@ -10,7 +10,6 @@ export default function SearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("검색어:", keyword);
   };
 
   return (

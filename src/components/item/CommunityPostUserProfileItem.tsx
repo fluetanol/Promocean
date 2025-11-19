@@ -24,6 +24,7 @@ export default function CommunityPostUserProfileItem({ profileUrl, author, creat
             src={profileUrl}
             alt={author}
             fill
+            sizes="40px"
             className="object-cover"
           />
         </div>

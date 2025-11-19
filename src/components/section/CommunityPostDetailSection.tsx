@@ -96,6 +96,7 @@ export default function CommunityPostDetailSection( { communityPostData, hashtag
                 src={communityPostData.fileUrl}
                 alt="첨부 이미지"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 672px"
                 className="object-contain"
               />
             </div>

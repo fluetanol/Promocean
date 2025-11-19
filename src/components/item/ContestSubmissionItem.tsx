@@ -32,6 +32,7 @@ export default function ContestSubmissionItem({ submissionId, author, profileUrl
             src={imgUrl}
             alt={description}
             fill
+            sizes="80px"
             className="object-cover"
           />
       </div>

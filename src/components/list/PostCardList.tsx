@@ -19,6 +19,7 @@ export default function PostCardList({ posts }: PostCardListProps) {
         <PostCardItem
           key={index}
           {...post}
+          priority={index === 0}
         />
       ))}
     </div>

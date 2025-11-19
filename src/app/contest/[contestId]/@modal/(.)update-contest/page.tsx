@@ -38,7 +38,6 @@ export default function ContestUpdateModal() {
         setEndAt(contestData.endAt?.split('T')[0] || '');
         setVoteEndAt(contestData.voteEndAt?.split('T')[0] || '');
       } catch (error) {
-        console.error('대회 정보 조회 실패:', error);
         router.back();
       }
     };
@@ -108,7 +107,6 @@ export default function ContestUpdateModal() {
       router.refresh();
       router.back();
     } catch (error) {
-      console.error('대회 수정 실패:', error);
       alert(`대회 수정에 실패했습니다. ${error}`);
     } finally {
       setIsSubmitting(false);

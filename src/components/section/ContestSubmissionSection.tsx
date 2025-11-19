@@ -11,15 +11,15 @@ import ContestSubmissionButtonSection from "@/components/section/ContestSubmissi
 */
 export default function ContestSubmissionSection({ 
   contestSubmissionList, 
-  voteEndAt 
+  endAt 
 }: { 
   contestSubmissionList: ContestSubmissionItemProps[]
-  voteEndAt: string
+  endAt: string
 }) {
-  // 투표 종료 여부 확인
-  const voteEnd = new Date(voteEndAt);
+  // 제출 종료 여부 확인
+  const contestEnd = new Date(endAt);
   const now = new Date();
-  const isVoteEnded = now >= voteEnd;
+  const isContestEnded = now >= contestEnd;
 
   return (
     <div>
@@ -27,9 +27,9 @@ export default function ContestSubmissionSection({
         <h2 className="text-xl font-semibold text-gray-900">제출 목록</h2>
         <ContestSubmissionButtonSection />
       </div>
-      {!isVoteEnded ? (
+      {!isContestEnded ? (
         <div className="mt-8 text-center py-12">
-          <p className="text-gray-500 text-lg">대회가 종료된 이후에 산출물을 확인할 수 있습니다.</p>
+          <p className="text-gray-500 text-lg">제출이 종료된 이후에 산출물을 확인할 수 있습니다.</p>
         </div>
       ) : contestSubmissionList.length === 0 ? (
         <div className="mt-8 text-center py-12">

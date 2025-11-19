@@ -54,9 +54,6 @@ export default function MySpacePage() {
         
         folderStore.setAllFolderList(res.folders);
 
-
-        console.log("data!! ", res);
-
         //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.
         const newArchiveItemListState : SpaceArchiveData[] = [];
         const newPinnedItemListState : SpaceArchiveData[] = [];
@@ -75,7 +72,6 @@ export default function MySpacePage() {
         setArchiveItemListState(newArchiveItemListState || []);
         setIsLoadingState(false);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
         setIsLoadingState(false);
       }
     };

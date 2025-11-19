@@ -117,7 +117,7 @@ export default function ContestPostSection({ contestPostData, ContestNoticeList,
         {currentTab === 'submission' && (
           <ContestSubmissionSection 
             contestSubmissionList={contestSubmissionList} 
-            voteEndAt={contestPostData.voteEndAt}
+            endAt={contestPostData.endAt}
           />
         )}
         

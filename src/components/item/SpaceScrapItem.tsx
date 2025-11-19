@@ -69,6 +69,7 @@ export default function SpaceScrapItem({
                         src={fileUrl ? fileUrl : getPostImageUrl(fileUrl, postId)}
                         alt={title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 {/* 카테고리 배지 - 이미지 위 좌측 상단 */}

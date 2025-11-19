@@ -30,8 +30,6 @@ export const TagAPI = {
             method : 'GET',
         });
 
-        console.log("TagAPI.getTagAutoCompleteList response:", res.data);
-
         return res;
     }
 }

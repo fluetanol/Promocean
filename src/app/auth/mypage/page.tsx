@@ -129,7 +129,6 @@ export default function MyPage() {
         alert('변경할 내용이 없습니다.');
       }
     } catch (error) {
-      console.error('프로필 수정 실패:', error);
       alert(error instanceof Error ? error.message : '프로필 수정에 실패했습니다.');
     } finally {
       setIsLoading(false);
@@ -152,7 +151,6 @@ export default function MyPage() {
       alert('회원탈퇴가 완료되었습니다.');
       router.push('/');
     } catch (error) {
-      console.error('회원탈퇴 실패:', error);
       alert(error instanceof Error ? error.message : '회원탈퇴에 실패했습니다.');
     } finally {
       setIsWithdrawing(false);
@@ -184,6 +182,7 @@ export default function MyPage() {
                       src={profileImagePreview}
                       alt="프로필 이미지"
                       fill
+                      sizes="96px"
                       className="object-cover"
                     />
                   ) : (

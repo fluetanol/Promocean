@@ -44,6 +44,17 @@ function PostPageContent() {
   const isEditMode = mode === "edit" && (articleIdParam || postIdParam || submissionIdParam);
   const isSubmissionType = postType === 'submission';
 
+  // CloudFront URL에서 S3 key 추출 함수
+  const extractS3KeyFromUrl = (url: string): string => {
+    if (!url) return '';
+    const cloudfrontPrefix = 'https://d3qr7nnlhj7oex.cloudfront.net/';
+    if (url.startsWith(cloudfrontPrefix)) {
+      return url.replace(cloudfrontPrefix, '');
+    }
+    // 이미 key 형식이면 그대로 반환
+    return url;
+  };
+
   // 폼 상태 관리
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]); // 배열로 변경
@@ -52,7 +63,7 @@ function PostPageContent() {
   const [examplePrompt, setExamplePrompt] = useState("");
   const [answerPrompt, setAnswerPrompt] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("work");
-  const [selectedPromptType, setSelectedPromptType] = useState("text");
+  const [selectedPromptType, setSelectedPromptType] = useState<string>("text");
   const [selectedFolder, setSelectedFolder] = useState("");
   const [selectedFolderId , setSelectedFolderId] = useState<number | null>(
     folderIdParam ? parseInt(folderIdParam, 10) : null
@@ -120,14 +131,26 @@ function PostPageContent() {
         }
         
         const { contestData } = await ContestAPI.getDetail(contestId);
-        // 대회 타입을 promptType으로 설정 (TEXT -> text, IMAGE -> image)
+        console.log('대회 정보 로드:', contestData.type, '전체 데이터:', contestData);
+        // 대회 타입을 promptType으로 설정 (다양한 형식 지원)
         const typeMap: { [key: string]: string } = {
           "TEXT": "text",
           "IMAGE": "image",
           "text": "text",
-          "image": "image"
+          "image": "image",
+          "이미지": "image",
+          "텍스트": "text",
+          "1": "text",  // PromptType.TEXT = 1
+          "2": "image", // PromptType.IMAGE = 2
         };
-        setSelectedPromptType(typeMap[contestData.type] || "text");
+        // 숫자 타입도 처리 (PromptType.TEXT = 1, PromptType.IMAGE = 2)
+        let mappedType = typeMap[contestData.type] || typeMap[String(contestData.type)] || typeMap[String(contestData.type).toUpperCase()];
+        if (!mappedType && typeof contestData.type === 'number') {
+          mappedType = contestData.type === 1 ? "text" : contestData.type === 2 ? "image" : "text";
+        }
+        mappedType = mappedType || "text";
+        console.log('설정할 프롬프트 타입:', mappedType, '원본 타입:', contestData.type, '타입 체크:', typeof contestData.type);
+        setSelectedPromptType(mappedType);
         setContestType(contestData.type);
       } catch (error) {
         console.error('대회 정보 로드 실패:', error);
@@ -175,23 +198,43 @@ function PostPageContent() {
             return;
           }
 
-          const { submissionData } = await SubmissionAPI.getDetail(contestId, submissionId);
+          // 내 산출물 수정은 조회 기간과 관계없이 항상 가능해야 하므로 getMySubmission 사용
+          const { contestMySubmissionItem: submissionData } = await SubmissionAPI.getMySubmission(contestId);
 
           if (!submissionData) {
             alert('산출물을 찾을 수 없습니다.');
             router.back();
             return;
           }
+          
+          // submissionId가 일치하는지 확인 (보안을 위해)
+          if (submissionData.submissionId !== submissionId) {
+            alert('본인의 산출물만 수정할 수 있습니다.');
+            router.back();
+            return;
+          }
 
           // 대회 정보도 가져와서 타입 설정
           const { contestData } = await ContestAPI.getDetail(contestId);
+          console.log('수정 모드 - 대회 정보 로드:', contestData.type, '전체 데이터:', contestData);
           const typeMap: { [key: string]: string } = {
             "TEXT": "text",
             "IMAGE": "image",
             "text": "text",
-            "image": "image"
+            "image": "image",
+            "이미지": "image",
+            "텍스트": "text",
+            "1": "text",  // PromptType.TEXT = 1
+            "2": "image", // PromptType.IMAGE = 2
           };
-          setSelectedPromptType(typeMap[contestData.type] || "text");
+          // 숫자 타입도 처리 (PromptType.TEXT = 1, PromptType.IMAGE = 2)
+          let mappedType = typeMap[contestData.type] || typeMap[String(contestData.type)] || typeMap[String(contestData.type).toUpperCase()];
+          if (!mappedType && typeof contestData.type === 'number') {
+            mappedType = contestData.type === 1 ? "text" : contestData.type === 2 ? "image" : "text";
+          }
+          mappedType = mappedType || "text";
+          console.log('수정 모드 - 설정할 프롬프트 타입:', mappedType, '원본 타입:', contestData.type, '타입 체크:', typeof contestData.type);
+          setSelectedPromptType(mappedType);
           setContestType(contestData.type);
 
           // Lexical JSON 형식으로 변환하는 헬퍼 함수
@@ -236,11 +279,31 @@ function PostPageContent() {
           // 결과 설정 (타입에 따라 다르게)
           const submissionType = typeMap[submissionData.type] || "text";
           if (submissionType === 'image' && submissionData.result) {
-            // 이미지 타입인 경우 URL로 설정
+            // 이미지 타입인 경우
+            const resultValue = submissionData.result;
+            console.log('수정 모드 - 이미지 결과:', resultValue);
+            
+            // CloudFront URL인지 S3 key인지 확인
+            let imageUrl: string;
+            let s3Key: string;
+            
+            if (resultValue.startsWith('http://') || resultValue.startsWith('https://')) {
+              // CloudFront URL인 경우
+              imageUrl = resultValue;
+              s3Key = extractS3KeyFromUrl(resultValue);
+            } else {
+              // S3 key인 경우
+              s3Key = resultValue;
+              imageUrl = `https://d3qr7nnlhj7oex.cloudfront.net/${resultValue}`;
+            }
+            
+            console.log('수정 모드 - 이미지 설정:', { imageUrl, s3Key });
+            
             setAnswerPrompt('');
-            setUploadedImageUrl(submissionData.result);
-            setUploadedImageKey(submissionData.result);
-            setGeneratedImageUrl(submissionData.result);
+            setUploadedImageUrl(imageUrl); // 렌더링용: 전체 URL
+            setUploadedImageKey(s3Key); // 전송용: S3 key만
+            setGeneratedImageUrl(imageUrl);
+            setGeneratedImageKey(s3Key);
           } else {
             // 텍스트 타입인 경우
             setAnswerPrompt(textToLexicalJSON(submissionData.result));
@@ -346,23 +409,12 @@ function PostPageContent() {
           setUsedPrompt(textToLexicalJSON(communityPostDetailData.prompt));
           setExamplePrompt(textToLexicalJSON(communityPostDetailData.sampleQuestion));
 
-          // 이미지 타입인 경우 이미지 URL 처리
-          if (mappedType === 'image') {
-            if (communityPostDetailData.fileUrl) {
-              setUploadedImageUrl(communityPostDetailData.fileUrl);
-              // CloudFront URL에서 key 추출: https://d3qr7nnlhj7oex.cloudfront.net/articles/xxx.png -> articles/xxx.png
-              const keyMatch = communityPostDetailData.fileUrl.match(/cloudfront\.net\/(.+)$/);
-              const extractedKey = keyMatch ? keyMatch[1] : communityPostDetailData.fileUrl;
-              setUploadedImageKey(extractedKey);
-              console.log('커뮤니티 이미지 로드 - URL:', communityPostDetailData.fileUrl, 'Key:', extractedKey);
-              setAnswerPrompt(''); // 이미지가 있으면 텍스트 답변은 비움
-            } else {
-              // fileUrl이 없으면 sampleAnswer를 텍스트로 설정
-              setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer));
-            }
-          } else {
-            // 텍스트 타입인 경우 sampleAnswer를 그대로 설정
-            setAnswerPrompt(textToLexicalJSON(communityPostDetailData.sampleAnswer));
+          // fileUrl이 있으면 이미지 설정
+          if (communityPostDetailData.fileUrl) {
+            const imageUrl = communityPostDetailData.fileUrl;
+            const s3Key = extractS3KeyFromUrl(imageUrl);
+            setUploadedImageUrl(imageUrl); // 렌더링용: 전체 URL
+            setUploadedImageKey(s3Key); // 전송용: S3 key만
           }
 
           setIsLoadingArticle(false);
@@ -454,24 +506,12 @@ function PostPageContent() {
           setUsedPrompt(textToLexicalJSON(data.prompt));
           setExamplePrompt(textToLexicalJSON(data.sampleQuestion));
 
-          // 이미지 타입인 경우 이미지 URL 처리
-          if (mappedType === 'image') {
-            // fileUrl이 있으면 이미지로 설정
-            if (data.fileUrl) {
-              setUploadedImageUrl(data.fileUrl);
-              // CloudFront URL에서 key 추출: https://d3qr7nnlhj7oex.cloudfront.net/articles/xxx.png -> articles/xxx.png
-              const keyMatch = data.fileUrl.match(/cloudfront\.net\/(.+)$/);
-              const extractedKey = keyMatch ? keyMatch[1] : data.fileUrl;
-              setUploadedImageKey(extractedKey);
-              console.log('아카이브 이미지 로드 - URL:', data.fileUrl, 'Key:', extractedKey);
-              setAnswerPrompt(''); // 이미지가 있으면 텍스트 답변은 비움
-            } else {
-              // fileUrl이 없으면 sampleAnswer를 텍스트로 설정 (혹시 모를 경우)
-              setAnswerPrompt(textToLexicalJSON(data.sampleAnswer));
-            }
-          } else {
-            // 텍스트 타입인 경우 sampleAnswer를 그대로 설정
-            setAnswerPrompt(textToLexicalJSON(data.sampleAnswer));
+          // 이미지 타입인 경우 fileUrl 설정
+          if (mappedType === 'image' && data.fileUrl) {
+            const imageUrl = data.fileUrl;
+            const s3Key = extractS3KeyFromUrl(imageUrl);
+            setUploadedImageUrl(imageUrl); // 렌더링용: 전체 URL
+            setUploadedImageKey(s3Key); // 전송용: S3 key만
           }
         }
       } catch (error) {
@@ -519,6 +559,15 @@ function PostPageContent() {
           return;
         }
       } else if (selectedPromptType === 'image') {
+        // 이미지 키 상태 확인 (디버깅용)
+        console.log('제출 시 이미지 키 상태 확인:', {
+          generatedImageKey,
+          uploadedImageKey,
+          generatedImageUrl,
+          uploadedImageUrl,
+          answerPrompt: answerPrompt.trim()
+        });
+        
         if (!generatedImageKey && !uploadedImageKey && !answerPrompt.trim()) {
           alert('결과 이미지를 업로드하거나 AI로 생성하거나 텍스트로 입력해주세요.');
           return;
@@ -545,9 +594,67 @@ function PostPageContent() {
         if (selectedPromptType === 'text') {
           result = convertLexicalToMarkdown(answerPrompt);
         } else if (selectedPromptType === 'image') {
-          // 이미지 타입: 이미지 URL 또는 텍스트 결과
-          result = uploadedImageKey || generatedImageKey || convertLexicalToMarkdown(answerPrompt);
+          // 이미지 타입: 이미지 키 우선순위 (업로드 > AI 생성 > 텍스트)
+          // 상태 값을 직접 확인
+          const currentUploadedKey = uploadedImageKey;
+          const currentGeneratedKey = generatedImageKey;
+          
+          console.log('이미지 키 확인 (제출 시점):', {
+            currentUploadedKey,
+            currentGeneratedKey,
+            uploadedImageUrl,
+            generatedImageUrl
+          });
+          
+          if (currentUploadedKey && currentUploadedKey.trim()) {
+            result = currentUploadedKey.trim();
+          } else if (currentGeneratedKey && currentGeneratedKey.trim()) {
+            result = currentGeneratedKey.trim();
+          } else if (answerPrompt.trim()) {
+            // 텍스트로 입력된 경우 (S3 key 형식일 수도 있음)
+            const textResult = extractTextFromLexical(answerPrompt);
+            // 이미 CloudFront URL이면 키로 변환, 아니면 그대로 사용
+            result = extractS3KeyFromUrl(textResult) || textResult;
+          }
+          
+          console.log('이미지 제출 데이터:', { 
+            uploadedImageKey: currentUploadedKey, 
+            generatedImageKey: currentGeneratedKey, 
+            result,
+            resultLength: result?.length,
+            uploadedImageUrl,
+            generatedImageUrl,
+            selectedPromptType
+          });
+          
+          // 이미지 타입인데 result가 비어있으면 에러
+          if (!result || result.trim() === '') {
+            console.error('이미지 키가 비어있음:', {
+              uploadedImageKey: currentUploadedKey,
+              generatedImageKey: currentGeneratedKey,
+              answerPrompt: answerPrompt.trim(),
+              selectedPromptType,
+              uploadedImageUrl,
+              generatedImageUrl
+            });
+            alert('이미지를 업로드하거나 AI로 생성해주세요.');
+            return;
+          }
+          
+          // result가 제대로 설정되었는지 최종 확인
+          console.log('최종 result 값:', result, '타입:', typeof result, '길이:', result.length);
         }
+
+        // API 호출 전 최종 확인
+        console.log('제출 전 최종 데이터:', {
+          contestId,
+          prompt,
+          description,
+          result,
+          selectedPromptType,
+          isEditMode,
+          submissionIdParam
+        });
 
         // 산출물 수정 모드
         if (isEditMode && submissionIdParam) {
@@ -557,6 +664,7 @@ function PostPageContent() {
             return;
           }
 
+          console.log('수정 API 호출:', { contestId, submissionId, prompt, description, result });
           await SubmissionAPI.update(contestId, submissionId, prompt, description, result);
 
           console.log('산출물 수정 성공');
@@ -566,6 +674,14 @@ function PostPageContent() {
           router.push(`/contest/${contestId}`);
         } else {
           // 산출물 생성 모드
+          // API 요청 본문 확인
+          const requestBody = {
+            prompt,
+            description,
+            result,
+          };
+          console.log('생성 API 호출:', { contestId, ...requestBody });
+          console.log('요청 본문 (JSON):', JSON.stringify(requestBody));
           const response = await SubmissionAPI.create(contestId, prompt, description, result);
 
           console.log('산출물 제출 성공:', response);
@@ -708,13 +824,6 @@ function PostPageContent() {
           tags : requestData.tags
         };
 
-        console.log('=== 전송할 articlePayload ===');
-        console.log('tags:', articlePayload.tags);
-        console.log('filePath:', articlePayload.filePath);
-        console.log('uploadedImageKey:', uploadedImageKey);
-        console.log('generatedImageKey:', generatedImageKey);
-        console.log('전체 payload:', articlePayload);
-
         if (isEditMode && articleIdParam) {
           // 수정 모드
           const articleId = parseInt(articleIdParam, 10);
@@ -808,6 +917,12 @@ function PostPageContent() {
       // CloudFront URL 생성 (key를 사용)
       const cloudfrontUrl = `https://d3qr7nnlhj7oex.cloudfront.net/${uploadData.key}`;
       
+      console.log('이미지 업로드 성공:', { 
+        key: uploadData.key, 
+        cloudfrontUrl,
+        uploadData 
+      });
+      
       // 기존 AI 생성 이미지 제거 (단일 이미지만 허용)
       setGeneratedImageUrl("");
       setGeneratedImageKey("");
@@ -815,6 +930,11 @@ function PostPageContent() {
       // 새로운 업로드 이미지 설정
       setUploadedImageUrl(cloudfrontUrl);
       setUploadedImageKey(uploadData.key);
+      
+      console.log('이미지 상태 업데이트:', { 
+        uploadedImageUrl: cloudfrontUrl, 
+        uploadedImageKey: uploadData.key 
+      });
 
       console.log('이미지 업로드 성공:', uploadData);
       alert('이미지가 성공적으로 업로드되었습니다!');
@@ -825,46 +945,20 @@ function PostPageContent() {
   };
 
   const handleAISubmit = async () => {
-    // 에러 상태 초기화
-    setPromptError(false);
-    setExamplePromptError(false);
-
+    console.log('handleAISubmit 호출:', { selectedPromptType, isSubmissionType, contestType });
+    
     // 입력 검증
-    if (selectedPromptType == 'text') {
-      const hasPromptError = !usedPrompt || extractTextFromLexical(usedPrompt).trim() === '';
-      const hasExampleError = !examplePrompt || extractTextFromLexical(examplePrompt).trim() === '';
-
-      if (hasPromptError || hasExampleError) {
-        setPromptError(hasPromptError);
-        setExamplePromptError(hasExampleError);
-
-        // 첫 번째 에러 필드로 스크롤
-        setTimeout(() => {
-          const errorElement = document.querySelector(hasPromptError ? '[data-field="prompt"]' : '[data-field="example-prompt"]');
-          if (errorElement) {
-            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 100);
-
-        return;
-      }
+    if (selectedPromptType == 'text' && !isSubmissionType && (!usedPrompt || !examplePrompt)) {
+      alert('사용 프롬프트와 예시 질문을 모두 입력해주세요.');
+      return;
     }
-    else if(selectedPromptType == 'image') {
-      const hasPromptError = !usedPrompt || extractTextFromLexical(usedPrompt).trim() === '';
-
-      if (hasPromptError) {
-        setPromptError(true);
-
-        // 프롬프트 필드로 스크롤
-        setTimeout(() => {
-          const errorElement = document.querySelector('[data-field="prompt"]');
-          if (errorElement) {
-            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 100);
-
-        return;
-      }
+    else if (selectedPromptType == 'text' && isSubmissionType && !usedPrompt) {
+      alert('프롬프트를 입력해주세요.');
+      return;
+    }
+    else if(selectedPromptType == 'image' && !usedPrompt){
+      alert('사용 프롬프트를 입력해주세요')
+      return;
     }
 
     setIsGeneratingAnswer(true);
@@ -874,17 +968,27 @@ function PostPageContent() {
       
 
       if(selectedPromptType === 'text'){
-              // Lexical JSON에서 텍스트 추출
-      const { systemMessage, userMessage } = buildPromptFromLexical(usedPrompt, examplePrompt);
-      console.log('추출된 텍스트:');
-      console.log('사용 프롬프트:', systemMessage);
-      console.log('예시 질문:', userMessage);
+        // Lexical JSON에서 텍스트 추출
+        let systemMessage: string;
+        let userMessage: string;
+        
+        if (isSubmissionType) {
+          // submission 타입일 때는 프롬프트만 사용하고, 프롬프트를 exampleQuestion으로도 사용
+          const promptText = extractTextFromLexical(usedPrompt);
+          systemMessage = promptText;
+          userMessage = promptText; // 프롬프트를 그대로 exampleQuestion으로 사용
+        } else {
+          // 일반 타입일 때는 기존대로
+          const result = buildPromptFromLexical(usedPrompt, examplePrompt);
+          systemMessage = result.systemMessage;
+          userMessage = result.userMessage;
+        }
 
-      // PromptAPI를 통해 백엔드 호출
+        // PromptAPI를 통해 백엔드 호출
         const response = await PromptAPI.postTextPrompt({
-        prompt: systemMessage,
-        exampleQuestion: userMessage,
-      });
+          prompt: systemMessage,
+          exampleQuestion: userMessage,
+        });
       
       // 응답을 answerPrompt에 설정 (Lexical JSON 형식으로 변환)
       const lexicalAnswer = {
@@ -931,12 +1035,27 @@ function PostPageContent() {
           prompt: systemMessage,
         })
 
+        console.log('AI 이미지 생성 응답:', response);
 
         //그냥 이미지 URL
         const url = response.cloudfrontUrl;
 
         //back 에 넣어야 할 image key (s3 key)
         const key = response.key;
+        
+        // 키가 없으면 에러
+        if (!key || key.trim() === '') {
+          console.error('이미지 키가 없음:', response);
+          alert('이미지 생성에 실패했습니다. 키가 없습니다.');
+          setIsGeneratingAnswer(false);
+          return;
+        }
+        
+        console.log('AI 이미지 생성 성공:', { 
+          url, 
+          key, 
+          response 
+        });
 
         // 기존 업로드된 이미지 제거 (단일 이미지만 허용)
         setUploadedImageUrl("");
@@ -945,6 +1064,11 @@ function PostPageContent() {
         // AI 생성 이미지 상태 업데이트
         setGeneratedImageUrl(url);
         setGeneratedImageKey(key);
+        
+        console.log('AI 이미지 상태 업데이트 완료:', { 
+          url, 
+          key 
+        });
 
       } 
 
@@ -1130,15 +1254,9 @@ function PostPageContent() {
                 setPromptError(false);
               }}
               value={usedPrompt}
-              isSubmitButton={selectedPromptType === 'image'}
+              isSubmitButton={selectedPromptType === 'image' || (isSubmissionType && selectedPromptType === 'text')}
               onSubmit={handleAISubmit}
-              hasError={promptError}
-              errorMessage={
-                selectedPromptType === 'text'
-                  ? "프롬프트를 입력해주세요. AI 생성을 위해 필수 항목입니다."
-                  : "프롬프트를 입력해주세요. 이미지 생성을 위해 필수 항목입니다."
-              }
-              dataField="prompt"
+              isLoading={isGeneratingAnswer}
             />
 
             {/* submission 타입일 때는 예시 질문 없이 바로 결과 표시 */}
@@ -1149,6 +1267,7 @@ function PostPageContent() {
                   placeholder="결과를 입력하세요..."
                   onChange={setAnswerPrompt}
                   value={answerPrompt}
+                  isSubmitButton={false}
                 />
               ) : (
                 <div>
@@ -1177,6 +1296,7 @@ function PostPageContent() {
                             src={generatedImageUrl}
                             alt="AI 생성 이미지"
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
                             className="object-contain"
                           />
                         </div>
@@ -1204,41 +1324,65 @@ function PostPageContent() {
                             src={uploadedImageUrl}
                             alt="업로드된 이미지"
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
                             className="object-contain"
                           />
                         </div>
                       </div>
                     )}
 
-                    {/* 텍스트 결과 입력 */}
+                    {/* 이미지가 없을 때만 텍스트 입력 또는 업로드 UI 표시 */}
                     {!generatedImageUrl && !uploadedImageUrl && (
-                      <PostingWriteSection
-                        title="결과 (텍스트로 입력)"
-                        placeholder="결과를 텍스트로 입력하거나 이미지를 업로드하세요..."
-                        onChange={setAnswerPrompt}
-                        value={answerPrompt}
-                      />
+                      <>
+                        {/* 텍스트 결과 입력 - title은 상위 h3에서 이미 표시되므로 제거 */}
+                        <PostingWriteSection
+                          title=""
+                          placeholder="결과를 텍스트로 입력하거나 이미지를 업로드하세요..."
+                          onChange={setAnswerPrompt}
+                          value={answerPrompt}
+                        />
+
+                        {/* 이미지 업로드 버튼 */}
+                        <label
+                          htmlFor="image-upload"
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500">
+                            이미지를 업로드하거나
+                            <br />
+                            AI 생성 버튼을 눌러 이미지를 생성하세요
+                          </span>
+                          <input
+                            id="image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </>
                     )}
 
-                    {/* 이미지 업로드 버튼 */}
-                    <label
-                      htmlFor="image-upload"
-                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                    >
-                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-500">
-                        이미지를 업로드하거나
-                        <br />
-                        AI 생성 버튼을 눌러 이미지를 생성하세요
-                      </span>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
+                    {/* 이미지가 있을 때 추가 업로드 버튼 */}
+                    {(generatedImageUrl || uploadedImageUrl) && (
+                      <div className="mt-4">
+                        <label
+                          htmlFor="image-upload-replace"
+                          className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-md cursor-pointer transition-colors"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          이미지 변경
+                          <input
+                            id="image-upload-replace"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
               )
@@ -1297,6 +1441,7 @@ function PostPageContent() {
                                 src={generatedImageUrl}
                                 alt="AI 생성 이미지"
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
                                 className="object-contain"
                               />
                             </div>
@@ -1324,6 +1469,7 @@ function PostPageContent() {
                                 src={uploadedImageUrl}
                                 alt="업로드된 이미지"
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
                                 className="object-contain"
                               />
                             </div>

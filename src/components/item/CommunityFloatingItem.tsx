@@ -26,6 +26,7 @@ export default function CommunityFloatingItem({ postId, title, tags, fileUrl, li
             src={imgUrl}
             alt={title}
             fill
+            sizes="(max-width: 768px) 100vw, 192px"
             className="object-cover transition-transform duration-300 group-hover:scale-110"
           />
           {/* 아이콘들 (좋아요/댓글) - 이미지 우측 하단 */}

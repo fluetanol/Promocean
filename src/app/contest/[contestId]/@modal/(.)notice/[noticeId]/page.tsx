@@ -68,7 +68,6 @@ export default function ContestNoticeModal({ params }: { params: Promise<{ conte
       setIsEditing(false);
       router.refresh();
     } catch (error) {
-      console.error('공지사항 수정 실패:', error);
       alert('공지사항 수정에 실패했습니다.');
     }
   };
@@ -82,7 +81,6 @@ export default function ContestNoticeModal({ params }: { params: Promise<{ conte
       router.refresh();
       router.back();
     } catch (error) {
-      console.error('공지사항 삭제 실패:', error);
       alert('공지사항 삭제에 실패했습니다.');
     }
   };

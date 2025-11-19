@@ -28,7 +28,6 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
         const { submissionData } = await SubmissionAPI.getDetail(contestId, submissionId);
         setSubmissionData(submissionData);
       } catch (err) {
-        console.error('산출물 조회 실패:', err);
         setError(err instanceof Error ? err : new Error('산출물을 불러올 수 없습니다.'));
       }
     };
@@ -39,8 +38,16 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
 
   // 투표 버튼 클릭 시 실행되는 함수
   const handleVoteSubmission = async () => {
-    VoteAPI.create(contestId, submissionId);
-    router.refresh();
+    try {
+      await VoteAPI.create(contestId, submissionId);
+      // 투표 후 상세 데이터 다시 조회하여 voteCnt 갱신
+      const { submissionData: updatedData } = await SubmissionAPI.getDetail(contestId, submissionId);
+      setSubmissionData(updatedData);
+      // 목록 갱신을 위해 페이지 새로고침
+      router.refresh();
+    } catch (error) {
+      alert('투표에 실패했습니다.');
+    }
   };
   
 
@@ -57,7 +64,7 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
         className="relative bg-white p-6 rounded-xl shadow-xl w-[90vw] max-w-[800px] max-h-[80vh] overflow-y-auto flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {!submissionData ? (
+        {!submissionData && error ? (
           <>
             {/* 헤더 - 데이터 없을 때 */}
             <div className="mb-6 pb-4 border-b border-gray-200">
@@ -66,7 +73,19 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
             
             {/* 에러 메시지 */}
             <div className="text-center py-8 text-gray-500">
-              산출물을 불러올 수 없습니다.
+              {error.message || '산출물을 불러올 수 없습니다.'}
+            </div>
+          </>
+        ) : !submissionData ? (
+          <>
+            {/* 헤더 - 데이터 없을 때 */}
+            <div className="mb-6 pb-4 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">산출물</h2>
+            </div>
+            
+            {/* 로딩 메시지 */}
+            <div className="text-center py-8 text-gray-500">
+              로딩 중...
             </div>
           </>
         ) : (
@@ -109,6 +128,7 @@ export default function ContestSubmissionModal({ params }: { params: Promise<{ c
                     src={submissionData.result}
                     alt={submissionData.description}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
                     className="object-contain"
                   />
                 </div>

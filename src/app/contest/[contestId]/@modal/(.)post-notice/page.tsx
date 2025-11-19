@@ -52,7 +52,6 @@ export default function ContestPostNoticeModal() {
       router.refresh();
       router.back();
     } catch (error) {
-      console.error('공지사항 작성 실패:', error);
       alert(`공지사항 작성에 실패했습니다. ${error}`);
     } finally {
       setIsSubmitting(false);

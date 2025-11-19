@@ -130,7 +130,6 @@ export class ContestAPI {
         contestData: response.data,
       };
     } catch (error) {
-      console.error('대회 상세 페이지 데이터 조회 실패:', error);
       throw new Error('대회를 찾을 수 없습니다');
     }
   }

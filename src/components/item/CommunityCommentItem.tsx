@@ -116,6 +116,7 @@ export default function CommunityCommentItem({ replyId, author, profileUrl, cont
                 src={profileUrl}
                 alt={author}
                 fill
+                sizes="40px"
                 className="object-cover"
               />
             </div>

@@ -45,7 +45,13 @@ export default function UserSimpleProfile({
     <div className="flex flex-row items-center gap-2">
       {isValidProfileUrl ? (
         <div className={`relative ${imageSizeClass} rounded-full overflow-hidden flex-shrink-0`}>
-          <Image src={profileUrl} alt={nickname} fill className="object-cover" />
+          <Image 
+            src={profileUrl} 
+            alt={nickname} 
+            fill 
+            sizes={imageSize === 'sm' ? '24px' : imageSize === 'md' ? '32px' : imageSize === 'lg' ? '40px' : '40px'}
+            className="object-cover" 
+          />
         </div>
       ) : (
         <div className={`${imageSizeClass} rounded-full bg-gray-200 flex items-center justify-center text-xs flex-shrink-0`}>

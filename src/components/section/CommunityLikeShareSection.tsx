@@ -16,16 +16,21 @@ import SpaceAPI from "@/api/space";
  * @description 좋아요, 스크랩, 아카이브 섹션입니다.
  * @returns {React.ReactNode}
  */
-export default function CommunityLikeShareSection({ likeCnt: initialLikeCnt, isLiked: initialIsLiked, postId 
+export default function CommunityLikeShareSection({ 
+  likeCnt: initialLikeCnt, 
+  isLiked: initialIsLiked, 
+  isScraped: initialIsScraped,
+  postId 
 }: { 
   likeCnt: number; 
   isLiked: boolean; 
+  isScraped: boolean;
   postId: number;
 }) {
   const [isLiked, setIsLiked] = useState<boolean>(initialIsLiked);
   const [likeCnt, setLikeCnt] = useState<number>(initialLikeCnt);
 
-  const [isScraped, setIsScraped] = useState<boolean>(false);
+  const [isScraped, setIsScraped] = useState<boolean>(initialIsScraped);
   
   // 좋아요 함수
   const handleLikeClick = async () => {
