@@ -23,8 +23,7 @@ export function BlockTypeSelector({ blockType }: BlockTypeSelectorProps) {
     <select
       value={blockType}
       onChange={(e) => handleBlockTypeChange(e.target.value)}
-      className="px-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100 focus:outline-none
-      "
+      className="px-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100 focus:outline-none"
     >
       <option value="paragraph">본문</option>
       <option value="h1">제목 1</option>

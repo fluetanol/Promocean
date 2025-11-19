@@ -160,8 +160,30 @@ export const authAPI = {
     });
 
     return res.data
+  },
+
+
+  /**
+   * 잔여 토큰 조회 API
+   * @endpoint /api/v1/auth/rest-token
+   * @returns 
+   */
+  async getRestToken() : Promise<getRestTokenResponse> {
+    const res = await apiFetch<ApiResponse<getRestTokenResponse>>('/api/v1/members/token', {
+      method: 'GET',
+    });
+
+    return res.data
+
   }
+
 };
+
+export interface getRestTokenResponse{
+    usableToken : number;
+}
+
+
 
   export interface MemberInfo{
 

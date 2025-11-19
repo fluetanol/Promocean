@@ -15,7 +15,7 @@ import { getPostImageUrl } from "@/utils/imageUtils";
  */
 export default function MyPostBoardItem({ postId, title, category, tags, likeCnt, replyCnt, fileUrl }: CommunityBoardItemProps) {
  
-  console.log('MyPostBoardItem fileUrl:', fileUrl);
+  // console.log('MyPostBoardItem fileUrl:', fileUrl);
  
   return (
     <Link

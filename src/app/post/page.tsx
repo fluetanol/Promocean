@@ -24,6 +24,7 @@ import { Upload } from "lucide-react";
 import { useSpaceStore } from "@/store/spaceStore";
 import SpaceAPI from "@/api/space";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
+import { authAPI } from "@/api/auth";
 
 /**
  * PostPageContent component (useSearchParams를 사용하는 내부 컴포넌트)
@@ -71,6 +72,10 @@ function PostPageContent() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [uploadedImageKey, setUploadedImageKey] = useState<string>("");
 
+  // 토큰 잔량 관련 상태
+  const [remainingTokens, setRemainingTokens] = useState<number | null>(null);
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+
   // 아카이브 타입인지 확인
   const isArchiveType = postType === 'my-space' || postType === 'team-space';
   
@@ -78,6 +83,24 @@ function PostPageContent() {
   const [contestType, setContestType] = useState<string>("text");
   const [isLoadingContest, setIsLoadingContest] = useState(false);
   
+  // 페이지 로드 시 토큰 잔량 조회
+  useEffect(() => {
+    const fetchRemainingTokens = async () => {
+      setIsLoadingTokens(true);
+      try {
+        const tokenData = await authAPI.getRestToken();
+        setRemainingTokens(tokenData.usableToken);
+      } catch (error) {
+        console.error('토큰 잔량 조회 실패:', error);
+        setRemainingTokens(null);
+      } finally {
+        setIsLoadingTokens(false);
+      }
+    };
+
+    fetchRemainingTokens();
+  }, []);
+
   // 산출물 제출 모드일 때 대회 정보 로드
   useEffect(() => {
     if (!isSubmissionType || !contestIdParam) return;
@@ -529,17 +552,9 @@ function PostPageContent() {
       return;
     }
 
-    if (selectedPromptType === 'text') {
-      if (!examplePrompt.trim()) {
-        alert('예시 질문 프롬프트를 입력해주세요.');
-        return;
-      }
-
-      if (!answerPrompt.trim()) {
-        alert('답변 프롬프트를 입력해주세요.');
-        return;
-      }
-    } else if (selectedPromptType === 'image') {
+    // 예시 질문과 답변은 선택 사항으로 변경 (필수 아님)
+    // 이미지 타입일 때만 이미지 검증
+    if (selectedPromptType === 'image') {
       // 이미지 타입일 때는 AI 생성 이미지나 업로드된 이미지 중 하나는 있어야 함
       if (!generatedImageKey && !uploadedImageKey) {
         alert('결과 이미지를 업로드하거나 AI로 생성해주세요.');
@@ -577,10 +592,12 @@ function PostPageContent() {
 
       // 프롬프트 타입에 따라 추가 필드 설정
       if (selectedPromptType === 'text') {
-        const sampleQuestion = extractTextFromLexical(examplePrompt);
-        const sampleAnswer = extractTextFromLexical(answerPrompt);
+        // 예시 질문과 답변은 선택 사항
+        const sampleQuestion = examplePrompt.trim() ? extractTextFromLexical(examplePrompt) : '';
+        const sampleAnswer = answerPrompt.trim() ? extractTextFromLexical(answerPrompt) : '';
 
-        if (sampleQuestion.length > 200) {
+        // 예시 질문이 있을 경우에만 길이 검증
+        if (sampleQuestion && sampleQuestion.length > 200) {
           alert('예시 질문은 200자 이하로 입력해주세요.');
           return;
         }
@@ -853,7 +870,15 @@ function PostPageContent() {
 
 
       alert('AI 응답이 생성되었습니다!');
-      
+
+      // AI 생성 후 토큰 잔량 업데이트
+      try {
+        const tokenData = await authAPI.getRestToken();
+        setRemainingTokens(tokenData.usableToken);
+      } catch (error) {
+        console.error('토큰 잔량 업데이트 실패:', error);
+      }
+
     } catch (error) {
       console.error('AI 생성 요청 실패:', error);
       alert('AI 응답 생성에 실패했습니다. 콘솔을 확인하세요.');
@@ -945,7 +970,36 @@ function PostPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {/* 토큰 잔량 표시 - Sticky */}
+      <div className="sticky top-0 z-50 bg-gray-50 pt-4 pb-2">
+        <div className="max-w-7xl mx-auto px-4 flex justify-end">
+          <div className="inline-flex items-center gap-3 bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-700">AI 토큰</span>
+            </div>
+            <div className="h-5 w-px bg-gray-300"></div>
+            {isLoadingTokens ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-gray-500">로딩 중...</span>
+              </div>
+            ) : remainingTokens !== null ? (
+              <div className="flex items-center gap-1.5">
+                <span className="text-2xl font-bold text-primary">{remainingTokens.toLocaleString()}</span>
+                <span className="text-sm text-gray-500">개 남음</span>
+              </div>
+            ) : (
+              <span className="text-sm text-gray-500">조회 실패</span>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4">
+
         {/* 페이지 제목 표시
         {isEditMode && !isSubmissionType && (
           <div className="mb-6">

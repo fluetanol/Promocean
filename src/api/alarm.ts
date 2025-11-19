@@ -49,12 +49,12 @@ export function connectAlarmSSE(
   eventSource.onmessage = (event: MessageEvent) => {
     console.log("📩 SSE 메시지 수신됨:", event);
     try {
-      console.log('📨 SSE 메시지 상세:', {
-        data: event.data,
-        lastEventId: (event as MessageEventWithLastEventId).lastEventId,
-        type: event.type,
-        origin: event.origin,
-      });
+      // console.log('📨 SSE 메시지 상세:', {
+      //   data: event.data,
+      //   lastEventId: (event as MessageEventWithLastEventId).lastEventId,
+      //   type: event.type,
+      //   origin: event.origin,
+      // });
       onMessage({
         id: (event as MessageEventWithLastEventId).lastEventId,
         data: event.data,
@@ -66,10 +66,10 @@ export function connectAlarmSSE(
 
   // 에러 발생 (EventSource는 자동으로 재연결 시도함)
   eventSource.onerror = (error: Event) => {
-    console.log('ℹ️ SSE 연결 상태 변경:', {
-      readyState: eventSource.readyState,
-      url: eventSource.url,
-    });
+    // console.log('ℹ️ SSE 연결 상태 변경:', {
+    //   readyState: eventSource.readyState,
+    //   url: eventSource.url,
+    // });
 
     // readyState: 0 = CONNECTING, 1 = OPEN, 2 = CLOSED
     if (eventSource.readyState === EventSource.CLOSED) {

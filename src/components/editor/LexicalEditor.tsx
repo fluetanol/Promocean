@@ -167,24 +167,25 @@ export default function LexicalEditor({
           {isSubmitButton && (
           <button
             type="button"
-            className="absolute right-5 bottom-5
-            w-14 h-14 bg-primary rounded-full text-white
-            hover:bg-primary/70
-            active:bg-primary/90
-            transition-colors duration-200
-            disabled:bg-gray-400 disabled:cursor-not-allowed
-            flex items-center justify-center
-            "
+            className="absolute right-5 bottom-5 group px-5 py-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg text-white hover:from-primary/90 hover:to-primary/70 active:from-primary active:to-primary/90 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center gap-2.5 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             onClick={handleSubmit}
             disabled={isLoading}
           >
             {isLoading ? (
-              <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-sm font-semibold">생성 중...</span>
+              </>
             ) : (
-              '테스트'
+              <>
+                <svg className="w-5 h-5 text-white group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span className="text-sm font-semibold">AI 생성</span>
+              </>
             )}
           </button>
           )}

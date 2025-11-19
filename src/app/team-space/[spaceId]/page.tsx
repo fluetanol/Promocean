@@ -81,11 +81,6 @@ export default function TeamSpaceArchivePage() {
   return (
     <>
     <div className="min-h-screen bg-gray-50">
-      <div className="flex justify-end-safe">
-        <div className="shrink-0 min-w-[380px]">
-          <MySpaceArchiveFilterSection buttonMode="search"/>
-        </div>
-      </div>
 
       <div className="flex justify-start p-4 w-full">
         <div className="w-full">
