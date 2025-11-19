@@ -16,6 +16,7 @@ import com.ssafy.a208.global.common.enums.ContestStatus;
 import com.ssafy.a208.global.common.enums.PromptType;
 import com.ssafy.a208.global.image.service.S3Service;
 import com.ssafy.a208.global.security.dto.CustomUserDetails;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,14 +49,22 @@ public class ContestService {
         contestValidator.validateDate(true, contestCreateReq);
 
         PromptType type = PromptType.valueOf(contestCreateReq.type());
+        LocalDateTime endAt = contestCreateReq.endAt()
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59);
+        LocalDateTime voteEndAt = contestCreateReq.voteEndAt()
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59);
 
         Contest contest =  Contest.builder()
                 .title(contestCreateReq.title())
                 .content(contestCreateReq.content())
                 .type(type)
                 .startAt(contestCreateReq.startAt())
-                .endAt(contestCreateReq.endAt())
-                .voteEndAt(contestCreateReq.voteEndAt())
+                .endAt(endAt)
+                .voteEndAt(voteEndAt)
                 .host(host)
                 .build();
 
@@ -139,12 +148,21 @@ public class ContestService {
         contestValidator.validateRole(member.getRole());
         contestValidator.validateDate(false, contestCreateReq);
 
+        LocalDateTime endAt = contestCreateReq.endAt()
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59);
+        LocalDateTime voteEndAt = contestCreateReq.voteEndAt()
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59);
+
         contest.updateContest(
                 contestCreateReq.title(),
                 contestCreateReq.content(),
                 contestCreateReq.startAt(),
-                contestCreateReq.endAt(),
-                contestCreateReq.voteEndAt()
+                endAt,
+                voteEndAt
         );
     }
 }

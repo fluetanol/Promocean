@@ -54,6 +54,7 @@ public class VoteService {
                 .build();
 
         voteRepository.save(vote);
+        submission.increaseVoteCount();
         eventPublisher.publishEvent(new VoteCreatedEvent(submissionId));
     }
 
