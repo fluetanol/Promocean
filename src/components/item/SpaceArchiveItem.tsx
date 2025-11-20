@@ -274,7 +274,7 @@ export default function SpaceArchiveItem({
 
                 {/* Pin 영역 - Reader 권한이 아닐 때만 표시 */}
                 {canEdit && (
-                    <div className="absolute top-2.5 right-2.5 z-10" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute top-2.5 right-2.5" onClick={(e) => e.stopPropagation()}>
                         <label className="relative block w-7 h-7 cursor-pointer group/pin">
                             <input
                                 type="checkbox"

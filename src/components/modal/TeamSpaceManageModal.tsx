@@ -11,7 +11,7 @@ import { ChangeSpaceRoleToValue, SpaceRole, TeamSpaceRole } from "@/enum/TeamSpa
 import { Space } from "lucide-react";
 import { authAPI } from "@/api/auth";
 import { useAuthStore } from "@/store/authStore";
-import { useSpaceStore } from "@/store/spaceStore";
+import { TeamSpaceInfo, useSpaceStore } from "@/store/spaceStore";
 
 export interface TeamSpacePageProps {
     spaceId? : number;
@@ -55,7 +55,7 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
     const [searchError, setSearchError] = useState("");
     // 수정 탭 state
     const [editSpaceImageState, setEditSpaceImageState] = useState<File | null>(null);
-    const [editSpaceNameState, setEditSpaceNameState] = useState(teamName);
+    const [editSpaceNameState, setEditSpaceNameState] = useState(currentSpace?.name || teamName);
     // 삭제 탭 state
     const [deleteInputState, setDeleteInputState] = useState("");
     const deleteConfirmText = `${teamName}를 삭제 하겠습니다`;
@@ -80,6 +80,7 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
         const presignedUrl = s3res?.presignedUrl;
         const key = s3res?.key;
 
+
         if(s3res && editSpaceImageState) {
 
             // 이미지가 있을 때만 업로드 진행
@@ -96,6 +97,7 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
 
             alert(`${teamName}이 수정되었습니다`);
             const file = editSpaceImageState;
+
             if (file) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -114,6 +116,12 @@ export default function TeamSpaceManageModal( { spaceId, isModalOpenState, handl
                 ...currentSpace!,
                 name : editSpaceNameState,
             })
+
+            const patchRes = await SpaceAPI.patchTeamSpace(spaceId!, {
+                name: editSpaceNameState,
+            });
+
+
             alert(`${teamName}이 수정되었습니다`);
             console.log("No image to upload, just update name");
             handleModalClose();

@@ -67,8 +67,8 @@ export interface DeleteTeamSpaceResponse{
 }
 
 export interface PatchTeamSpaceRequest{
-    name : string;
-    spaceCoverPath : string;
+    name? : string;
+    spaceCoverPath? : string;
 }
 
 export interface PutArchiveArticleRequest{
