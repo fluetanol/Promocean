@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+/* @plugin "daisyui"; */
+/* @tailwind base;
+@tailwind components; */
+@tailwind utilities;
+
+:root {
+  /* PromOcean Color Palette */
+  --primary: #0094f7;
+  --secondary: #a6fbfc;
+  --background: #fdfdfc;
+  --text: #343434;
+  --dark-mode: #213477;
+  
+  /* Legacy colors for compatibility */
+  --foreground: var(--text);
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-background: var(--background);
+  --color-text: var(--text);
+  --color-dark-mode: var(--dark-mode);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Dark mode styles (currently disabled) */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--dark-mode);
+    --text: #ffffff;
+  }
+} */
+
+body {
+  color: var(--text);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+@layer utilities {
+  @keyframes postcard-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: postcard-marquee 35s linear infinite;
+  }
+}

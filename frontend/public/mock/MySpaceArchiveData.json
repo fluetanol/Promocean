@@ -1,0 +1,57 @@
+{
+  "pinned": [
+    {
+      "title": "AI 챗봇",
+      "bgColor": "#0949ad",
+      "isPinned": true
+    },
+    {
+      "title": "이미지 생성",
+      "bgColor": "#fbbf24",
+      "isPinned": true
+    },
+    {
+      "title": "스파팸",
+      "bgColor": "#6ee7b7",
+      "isPinned": true
+    },
+    {
+      "title": "카드 이름",
+      "bgColor": "#ff6f61",
+      "isPinned": true
+    },
+    {
+      "title": "바보",
+      "bgColor": "#a855f7",
+      "isPinned": true
+    }
+  ],
+  
+  "normal": [
+    {
+      "title": "문서 작성",
+      "bgColor": "#fef08a",
+      "isPinned": false
+    },
+    {
+      "title": "코드 생성",
+      "bgColor": "#fbcfe8",
+      "isPinned": false
+    },
+    {
+      "title": "데이터 분석",
+      "bgColor": "#99f6e4",
+      "isPinned": false
+    },
+    {
+      "title": "프로젝트 관리",
+      "bgColor": "#c7d2fe",
+      "isPinned": false
+    },
+    {
+      "title": "학습 도우미",
+      "bgColor": "#bbf7d0",
+      "isPinned": false
+    }
+  ]
+}

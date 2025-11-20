@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket: ${AWS_S3_BUCKET}
+
+cloudfront:
+  domain: ${CLOUDFRONT_DOMAIN}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration_time: ${JWT_EXPIRATION_TIME}
+
+gms:
+  api:
+    key: ${GMS_API_KEY}
+    base-url: https://gms.ssafy.io/gmsapi
+    gpt:
+      url: ${gms.api.base-url}/api.openai.com/v1/chat/completions
+      model: gpt-5
+    gemini:
+      url: ${gms.api.base-url}/generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent
