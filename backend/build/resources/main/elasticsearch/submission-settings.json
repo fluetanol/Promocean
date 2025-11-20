@@ -1,0 +1,34 @@
+{
+  "index": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1,
+    "analysis": {
+      "filter": {
+        "submission_ngram_filter": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3
+        }
+      },
+      "analyzer": {
+        "korean": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_readingform"
+          ]
+        },
+        "korean_ngram": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_readingform",
+            "submission_ngram_filter"
+          ]
+        }
+      }
+    }
+  }
+}

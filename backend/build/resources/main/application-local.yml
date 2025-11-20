@@ -1,0 +1,79 @@
+spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/test_promocean
+##    url: jdbc:postgresql://localhost:5432/promocean
+#    username: promocean_user
+##    username: postgres
+#    password: ssafy
+  datasource:
+    url: jdbc:postgresql://promocean.c18ug4q8qiho.ap-northeast-2.rds.amazonaws.com:5432/promocean
+    username: postgres
+    password: rkqoWkdWkd123!
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6380
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      properties:
+        compression.type: gzip
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: trending-post-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: com.ssafy.a208.*
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: AKIAZPWN23S2VGRXRHEN
+        secret-key: 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
+
+      s3:
+        bucket: promocean-bucket
+  elasticsearch:
+    api-key: cmRhTmJab0JPNC1pdkNnd2sydW06VE5CVkdGb2NxUUlkWFdnYnhsbXg0UQ==
+    host: ebe00bbbc05c4ac58bb66f2ca297fb51.ap-northeast-2.aws.elastic-cloud.com:443
+    password: KrOzxUL9pLI4K8KkAjzME6XQ
+    username: elastic
+cloudfront:
+  domain: d3qr7nnlhj7oex.cloudfront.net
+
+
+jwt:
+  secret: YWJjZGFic2Rhc2QxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcA==
+  expiration_time: 8670000
+
+# GMS API 설정
+gms:
+  api:
+    key: S13P32A208-5b9a0f32-7743-4e30-8365-75df5b1ab61f
+    base-url: https://gms.ssafy.io/gmsapi
+    gpt:
+      url: ${gms.api.base-url}/api.openai.com/v1/chat/completions
+      model: gpt-5
+    gemini:
+      url: ${gms.api.base-url}/generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent
+
+# 로컬 전용 로깅 설정
+logging:
+  level:
+    com.ssafy.a208: DEBUG
+
+
+server:
+  address: 0.0.0.0
