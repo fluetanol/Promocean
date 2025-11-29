@@ -62,8 +62,8 @@ export function useAlarmSSE(
       // SSE 연결 시작
       eventSourceRef.current = connectAlarmSSE(handleAlarmMessage, handleAlarmError);
       console.log('🚀 알람 SSE 연결 시작');
-      console.log('📡 연결 상태:', eventSourceRef.current.readyState);
-      console.log('🌐 연결 URL:', eventSourceRef.current.url);
+     // console.log('📡 연결 상태:', eventSourceRef.current.readyState);
+      //console.log('🌐 연결 URL:', eventSourceRef.current.url);
     } catch (error) {
       console.error('❌ SSE 연결 실패:', error);
     }

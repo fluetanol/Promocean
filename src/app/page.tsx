@@ -33,7 +33,7 @@ export default async function Home() {
       <OngoingContestSection contests={contestCardList} />
       </div>
       <footer className="mt-20 mb-10 text-center text-sm text-gray-400">
-        &copy; 2024 Your Company. All rights reserved.
+        &copy; 2025 Promocean. All rights reserved.
       </footer>  
     </>
   );

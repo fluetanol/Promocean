@@ -44,12 +44,18 @@ export const GachaAPI = {
      * @slug /api/v1/gacha/my-emojis
      * @method GET
      */
-    async getGachaList():Promise<getGachaListResponse>{  
-        const res = await apiFetch<ApiResponse<getGachaListResponse>>('/api/v1/gacha/my-emojis', {
+    async getGachaList():Promise<getGachaListResponse | null>{  
+        try{
+            const res = await apiFetch<ApiResponse<getGachaListResponse>>('/api/v1/gacha/my-emojis', {
             method : 'GET',
-        });
+            });
+            return res.data;
+        }
+        catch(error){
+            console.error("Error fetching gacha list: ", error);
+        }
 
-        return res.data;
+        return null;
     },
 
 
@@ -58,11 +64,35 @@ export const GachaAPI = {
      * @slug /api/v1/gacha/draw
      * @method POST
      */
-    async drawGacha () : Promise<EmojiItem> {
-        const res = await apiFetch<ApiResponse<EmojiItem>>('/api/v1/gacha/draw', {
-            method : 'POST',
-        });
+    async drawGacha () : Promise<EmojiItem | null>{ 
+        try{
+            const res = await apiFetch<ApiResponse<EmojiItem>>('/api/v1/gacha/draw', {
+                method : 'POST',
+            });
+            return res.data;
+        }
+        catch(error){
+            console.error("Error drawing gacha: ", error);
+        }
 
-        return res.data;
+        return null;
+    },
+
+
+
+    async getGachaMileage() : Promise<number>{
+        try{
+            const res = await apiFetch<ApiResponse<number>>('/api/v1/gacha/mileage', {
+                method : 'GET',
+            });
+            console.log("Gacha mileage response: ", res);
+            return res.data;
+        }
+        catch(error){
+            console.error("Error fetching gacha mileage: ", error);
+        } 
+
+        return 0;
     }
+
 }

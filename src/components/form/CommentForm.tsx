@@ -30,9 +30,13 @@ export default function CommentForm({ postId, onSuccess }: CommentFormProps) {
 
   useEffect(() => {
     const fetchData = async () => {
+    
       const res = await GachaAPI.getGachaList();
-      setGachaList(res.categories);
-      
+      if(res && res.categories)
+        setGachaList(res.categories);
+      else{
+        console.error("Failed to fetch gacha list for CommentForm.");
+      }
     }
     fetchData();
   },[])

@@ -37,17 +37,17 @@ export function connectAlarmSSE(
   // EventSource는 GET 요청만 가능하므로 token을 쿼리 파라미터로 전달
   const url = `${BASE_URL}/api/v1/alarms/connect?token=${token}`;
 
-  console.log('🔗 SSE 연결 URL:', url);
+  //console.log('🔗 SSE 연결 URL:', url);
   const eventSource = new EventSource(url);
 
   // 연결 성공
   eventSource.onopen = () => {
-    console.log('✅ SSE 연결 성공 (OPEN)');
+    //console.log('✅ SSE 연결 성공 (OPEN)');
   };
 
   // 메시지 수신
   eventSource.onmessage = (event: MessageEvent) => {
-    console.log("📩 SSE 메시지 수신됨:", event);
+    //console.log("📩 SSE 메시지 수신됨:", event);
     try {
       // console.log('📨 SSE 메시지 상세:', {
       //   data: event.data,
@@ -75,7 +75,7 @@ export function connectAlarmSSE(
     if (eventSource.readyState === EventSource.CLOSED) {
       console.log('📴 SSE 연결이 닫혔습니다. (타임아웃 또는 서버 종료)');
     } else if (eventSource.readyState === EventSource.CONNECTING) {
-      console.log('🔄 SSE 자동 재연결 시도 중...');
+      //console.log('🔄 SSE 자동 재연결 시도 중...');
     }
 
     if (onError) {

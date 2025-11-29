@@ -15,7 +15,7 @@ interface EmoticonItem {
 
 export default function EmoticonTab() {
   // 임시 데이터 (추후 API로 대체)
-  const [mileage] = useState(1500);
+  const [mileage, setMileage] = useState(0);
   const [emoticonsState, setEmoticonsState] = useState<getGachaListResponse>({
     categories: [],
     totalCount: 0,
@@ -23,16 +23,27 @@ export default function EmoticonTab() {
   const [currentEmojiCategoryState, setCurrentEmojiCategoryState] = useState<EmojiCategory | null>(null);
 
 
-
   useEffect(()=>{
     const fetchData = async () => {
       const res = await GachaAPI.getGachaList();
+      if(res){
       console.log("res : ", res);
       setEmoticonsState(res);
       setCurrentEmojiCategoryState(res.categories[0] || null);
+      }
+      else{
+        console.error("Failed to fetch gacha list.");
+      }
     };
 
+    const fetchMileage = async() =>{
+      const initialMileage = await GachaAPI.getGachaMileage();
+      console.log("Initial mileage fetched and set.", initialMileage);
+      setMileage(initialMileage);
+    }
+
     fetchData();
+     fetchMileage();
   }, [])
 
   //현재 선택된 카테고리에 따른 이모티콘만 가져옵니다.
@@ -49,7 +60,7 @@ export default function EmoticonTab() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm opacity-90 mb-1">보유 마일리지</p>
-            <p className="text-3xl font-bold">{mileage.toLocaleString()} M</p>
+            <p className="text-3xl font-bold">{mileage} M</p>
           </div>
           <div className="text-5xl">💰</div>
         </div>

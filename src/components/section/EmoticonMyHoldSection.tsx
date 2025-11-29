@@ -65,12 +65,12 @@ export default function EmoticonMyHoldSection({ emoticonsState, currentEmojiCate
                     <Image
                       src={emoticon.imageUrl}
                       alt={emoticon.emojiId.toString()}
-                      width={80}
-                      height={80}
+                      width={100}
+                      height={100}
                       className="mx-auto mb-2"
                     />
-                    <p className="text-sm font-medium text-gray-900">{emoticon.emojiId}</p>
-                    <p className="text-xs text-gray-500">획득일: {new Date(emoticon.obtainedAt).toLocaleDateString()}</p>
+                    {/* <p className="text-sm font-medium text-gray-900">{emoticon.emojiId}</p> */}
+                    <p className="py-1 text-xs text-gray-500">획득일: {new Date(emoticon.obtainedAt).toLocaleDateString()}</p>
                   </div>
                 ))}
               </div>
