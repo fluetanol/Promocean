@@ -24,12 +24,12 @@ export default async function Home() {
   return (
     <>
       <HeroSection />
+      <div>실제 사이트는 동작은 하지 않습니다.</div>
       <div className = "flex flex-col gap-2 pt-8">
       <PostCardSection
         postSectionTitle="인기 프롬프트"
         postCardList={popularPosts}
       />
-      
       <OngoingContestSection contests={contestCardList} />
       </div>
       <footer className="mt-20 mb-10 text-center text-sm text-gray-400">
