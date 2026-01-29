@@ -46,48 +46,66 @@ export async function apiFetch<T = unknown>(
 
   const url = input.startsWith('http') ? input : `${BASE_URL}${input}`;
 
+  try{
+
   const response = await fetch(url, {
     cache: 'no-store',
     ...fetchInit,
     headers: headers as HeadersInit,
   });
 
-  // --- 응답 파싱 ---
-  const contentType = response.headers.get('content-type') || '';
-  let payload: unknown;
 
-  try {
-    if (contentType.includes('application/json')) {
-      payload = await response.json();
-    } else {
-      const textPayload = await response.text();
-      if (textPayload.trim().startsWith('<!DOCTYPE') || textPayload.trim().startsWith('<html')) {
-        if (response.status === 404) throw new Error('404 요청한 리소스를 찾을 수 없습니다.');
-        throw new Error(`${response.status} 서버 에러가 발생했습니다.`);
+    // --- 응답 파싱 ---
+    const contentType = response.headers.get('content-type') || '';
+    let payload: unknown;
+
+    try {
+      if (contentType.includes('application/json')) {
+        payload = await response.json();
+      } else {
+        const textPayload = await response.text();
+        if (textPayload.trim().startsWith('<!DOCTYPE') || textPayload.trim().startsWith('<html')) {
+          if (response.status === 404) throw new Error('404 요청한 리소스를 찾을 수 없습니다.');
+          throw new Error(`${response.status} 서버 에러가 발생했습니다.`);
+        }
+        payload = textPayload;
       }
-      payload = textPayload;
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      payload = {};
     }
+
+    // --- 에러 처리 ---
+    if (!response.ok) {
+      let errorMessage = '요청이 실패했습니다.';
+      if (typeof payload === 'string') {
+        if (!payload.trim().startsWith('<!DOCTYPE') && !payload.trim().startsWith('<html')) {
+          errorMessage = payload || errorMessage;
+        }
+      } else if (payload && typeof payload === 'object') {
+        const payloadObj = payload as Record<string, unknown>;
+        if ('message' in payloadObj && typeof payloadObj.message === 'string' && payloadObj.message) {
+          errorMessage = payloadObj.message;
+        }
+      }
+      if (response.status === 404) errorMessage = '요청한 리소스를 찾을 수 없습니다.';
+      throw new Error(`${response.status} ${errorMessage}`);
+    }
+      return payload as T;
+
   } catch (error) {
-    if (error instanceof Error) throw error;
-    payload = {};
+    console.log('알수 없는 서버 에러로 Mock API 를 호출합니다.');
+    
+    //if (error instanceof Error) throw error;
+    //throw new Error('알 수 없는 네트워크 에러가 발생했습니다.');
+    let payload : unknown;
+    payload = {
+      "code" : 500,
+      "message": "This is a mock response due to an unknown server error.",
+      "data": {}
+    };
+    return payload as T;
   }
 
-  // --- 에러 처리 ---
-  if (!response.ok) {
-    let errorMessage = '요청이 실패했습니다.';
-    if (typeof payload === 'string') {
-      if (!payload.trim().startsWith('<!DOCTYPE') && !payload.trim().startsWith('<html')) {
-        errorMessage = payload || errorMessage;
-      }
-    } else if (payload && typeof payload === 'object') {
-      const payloadObj = payload as Record<string, unknown>;
-      if ('message' in payloadObj && typeof payloadObj.message === 'string' && payloadObj.message) {
-        errorMessage = payloadObj.message;
-      }
-    }
-    if (response.status === 404) errorMessage = '요청한 리소스를 찾을 수 없습니다.';
-    throw new Error(`${response.status} ${errorMessage}`);
-  }
 
-  return payload as T;
 }

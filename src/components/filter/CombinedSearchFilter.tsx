@@ -74,9 +74,9 @@ export default function CombinedSearchFilter({
     timeout.current = setTimeout(async () => {
       try {
         const res = await TagAPI.getTagAutoCompleteList({ keyword: keyword });
-        setTagSuggestions(res.data);
-        setShowSuggestions(true);
-        setSelectedSuggestionIndex(-1);
+        setTagSuggestions(res.data);    //태그 목록 설정
+        setShowSuggestions(true);       //태그 목록 창 띄우기
+        setSelectedSuggestionIndex(-1); //키보드 위치 초기화 시키기
       } catch (error) {
         console.error("Failed to fetch tag suggestions:", error);
         setTagSuggestions([]);
