@@ -1,0 +1,25 @@
+# .github/workflows/ci.yml
+
+name : Promocean-front CI
+
+on :
+  pull_request :
+    branches : [ fe-mockdev ]
+  push :
+    branches : [ fe-mockdev ]
+
+jobs : 
+  build-and-test:
+    runs-on : ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # 소스 코드 체크아웃 (소스코드를 받음)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 # Node.js 설정
+        with:
+          node-version: "22.19.0"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
