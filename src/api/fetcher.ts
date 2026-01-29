@@ -9,6 +9,15 @@ if (!BASE_URL) {
   throw new Error('NEXT_PUBLIC_BASE_URL 환경 변수가 설정되지 않았습니다.');
 }
 
+const ABORT_TIMEOUT_MS = 1500; // 1.5초 타임아웃
+
+
+export interface ErrorApiResponse{
+  code: number;
+  message: string;
+  data: null;
+}
+
 /**
  * API 요청 공통 래퍼 (fetch 기반)
  * - BASE_URL 자동 prepend
@@ -47,12 +56,14 @@ export async function apiFetch<T = unknown>(
   const url = input.startsWith('http') ? input : `${BASE_URL}${input}`;
 
   try{
-
-  const response = await fetch(url, {
-    cache: 'no-store',
-    ...fetchInit,
-    headers: headers as HeadersInit,
-  });
+    const abortController = new AbortController();
+    setTimeout(() => abortController.abort(), ABORT_TIMEOUT_MS); // 1.5초 타임아웃
+    const response = await fetch(url, {
+      cache: 'no-store',
+      ...fetchInit,
+      headers: headers as HeadersInit,
+      signal: abortController.signal
+    });
 
 
     // --- 응답 파싱 ---
@@ -98,12 +109,11 @@ export async function apiFetch<T = unknown>(
     
     //if (error instanceof Error) throw error;
     //throw new Error('알 수 없는 네트워크 에러가 발생했습니다.');
-    let payload : unknown;
-    payload = {
-      "code" : 500,
-      "message": "This is a mock response due to an unknown server error.",
-      "data": {}
-    };
+    let payload : ErrorApiResponse={
+      code: 500,
+      message: '알 수 없는 서버 에러로 Mock API 를 호출합니다.',
+      data: null
+    }
     return payload as T;
   }
 
