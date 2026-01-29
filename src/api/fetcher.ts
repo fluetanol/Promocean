@@ -57,7 +57,7 @@ export async function apiFetch<T = unknown>(
 
   try{
     const abortController = new AbortController();
-    setTimeout(() => abortController.abort(), ABORT_TIMEOUT_MS); // 1.5초 타임아웃
+    const timeoutId = setTimeout(() => abortController.abort(), ABORT_TIMEOUT_MS); // 1.5초 타임아웃
     const response = await fetch(url, {
       cache: 'no-store',
       ...fetchInit,
@@ -65,6 +65,7 @@ export async function apiFetch<T = unknown>(
       signal: abortController.signal
     });
 
+    clearTimeout(timeoutId);
 
     // --- 응답 파싱 ---
     const contentType = response.headers.get('content-type') || '';
