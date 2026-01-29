@@ -11,6 +11,8 @@ on :
 jobs : 
   build-and-test:
     runs-on : ubuntu-latest
+    env:
+      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4 # 소스 코드 체크아웃 (소스코드를 받음)
