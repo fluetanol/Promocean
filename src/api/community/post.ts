@@ -1,6 +1,6 @@
 // frontend/src/api/community/post.ts
 
-import { apiFetch, ErrorApiResponse } from "@/api/fetcher";
+import { apiFetch,  ErrorFetchResponse, isErrorFetchResponse } from "@/api/fetcher";
 import {
   CommunityBoardItemProps,
   CommunityBoardItemResponse,
@@ -107,16 +107,13 @@ export class PostAPI {
     interface PopularPostsApiResponse {
       posts: CommunityFloatingItemProps[];
     }
-
-    const response = await apiFetch<ApiResponse<PopularPostsApiResponse | ErrorApiResponse>>(`/api/v1/posts/trending?${params.toString()}`);
-   
-    if ((response as unknown as ErrorApiResponse).code === 500) {
-      console.log("server error - returning empty list");
-      return { popularPosts: [] };
-    }
-    
-    return { popularPosts: (response as unknown as ApiResponse<PopularPostsApiResponse>).data.posts };
-    
+      try{
+        const response = await apiFetch<ApiResponse<PopularPostsApiResponse >>(`/api/v1/posts/trending?${params.toString()}`);
+        return { popularPosts: response.data.posts };
+        
+      } catch (error) {
+        return { popularPosts: [] };
+      }
   }
 
   /**

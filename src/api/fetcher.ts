@@ -12,11 +12,24 @@ if (!BASE_URL) {
 const ABORT_TIMEOUT_MS = 1500; // 1.5초 타임아웃
 
 
-export interface ErrorApiResponse{
-  code: number;
-  message: string;
-  data: null;
+/**
+ * Fetch 자체 에러 응답 타입
+ */
+export interface ErrorFetchResponse{
+  fetchError : boolean;
+  message : string;
 }
+
+//fetch error 응답 타입 가드
+export function isErrorFetchResponse(value :unknown) : value is ErrorFetchResponse{
+  if(!value || typeof value !== 'object') return false;
+  
+  const val = value as ErrorFetchResponse;
+    return 'fetchError' in val && typeof val.fetchError === 'boolean' &&
+            'message' in val && typeof val.message === 'string';
+}
+
+
 
 /**
  * API 요청 공통 래퍼 (fetch 기반)
@@ -63,9 +76,9 @@ export async function apiFetch<T = unknown>(
       ...fetchInit,
       headers: headers as HeadersInit,
       signal: abortController.signal
+    }).finally(() => {
+      clearTimeout(timeoutId);
     });
-
-    clearTimeout(timeoutId);
 
     // --- 응답 파싱 ---
     const contentType = response.headers.get('content-type') || '';
@@ -106,16 +119,16 @@ export async function apiFetch<T = unknown>(
       return payload as T;
 
   } catch (error) {
-    console.log('알수 없는 서버 에러로 Mock API 를 호출합니다.');
-    
-    //if (error instanceof Error) throw error;
-    //throw new Error('알 수 없는 네트워크 에러가 발생했습니다.');
-    let payload : ErrorApiResponse={
-      code: 500,
-      message: '알 수 없는 서버 에러로 Mock API 를 호출합니다.',
-      data: null
+    if (error instanceof Error && error.name === 'AbortError') {
+        console.log('요청이 시간 초과되었습니다. 다시 시도해주세요.');
+        const payload: ErrorFetchResponse = {
+          fetchError: true,
+          message: '요청이 시간 초과되었습니다. 다시 시도해주세요.'
+        };
+        return payload as T;
     }
-    return payload as T;
+
+    throw error;
   }
 
 

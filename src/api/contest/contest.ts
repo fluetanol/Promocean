@@ -1,6 +1,6 @@
 // frontend/src/api/contest/contest.ts
 
-import { apiFetch, ErrorApiResponse } from "@/api/fetcher";
+import { apiFetch } from "@/api/fetcher";
 import {
   ContestCardItemProps,
   ContestPostItemProps,
@@ -96,33 +96,28 @@ export class ContestAPI {
       totalPages: number;
       currentPage: number;
     }
+    try{
+      let response = await apiFetch<ApiResponse<contestListApiResponse>>(`/api/v1/contests?${queryParams.toString()}`);
+      
+      const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data as contestListApiResponse;
 
-    let response = await apiFetch<ApiResponse<contestListApiResponse | ErrorApiResponse>>(`/api/v1/contests?${queryParams.toString()}`);
-    
-    if((response as unknown as ErrorApiResponse).code == 500){
-        console.log("server error - returning empty list");
-        
-       return { contestCardList: [], itemCnt: 0, totalCnt: 0, totalPages: 0, currentPage: 0 };
+      const contestCardList: ContestCardItemProps[] = contests.map((contest) => ({
+        contestId: contest.contestId,
+        author: contest.author,
+        profileUrl: contest.profileUrl,
+        title: contest.title,
+        startAt: contest.startAt,
+        endAt: contest.endAt,
+        voteEndAt: contest.voteEndAt,
+        status: contest.status,
+        createdAt: contest.createdAt,
+        updatedAt: contest.updatedAt,
+      }));
+
+      return { contestCardList, itemCnt, totalCnt, totalPages, currentPage };
+    } catch (error) {
+      return { contestCardList: [], itemCnt: 0, totalCnt: 0, totalPages: 0, currentPage: 0 };
     }
-    
-
-    
-    const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data as contestListApiResponse;
-
-    const contestCardList: ContestCardItemProps[] = contests.map((contest) => ({
-      contestId: contest.contestId,
-      author: contest.author,
-      profileUrl: contest.profileUrl,
-      title: contest.title,
-      startAt: contest.startAt,
-      endAt: contest.endAt,
-      voteEndAt: contest.voteEndAt,
-      status: contest.status,
-      createdAt: contest.createdAt,
-      updatedAt: contest.updatedAt,
-    }));
-
-    return { contestCardList, itemCnt, totalCnt, totalPages, currentPage };
   }
   
   /**
