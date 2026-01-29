@@ -116,6 +116,7 @@ export class ContestAPI {
 
       return { contestCardList, itemCnt, totalCnt, totalPages, currentPage };
     } catch (error) {
+      console.error(error);
       return { contestCardList: [], itemCnt: 0, totalCnt: 0, totalPages: 0, currentPage: 0 };
     }
   }

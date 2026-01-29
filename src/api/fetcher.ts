@@ -125,7 +125,7 @@ export async function apiFetch<T = unknown>(
           fetchError: true,
           message: '요청이 시간 초과되었습니다. 다시 시도해주세요.'
         };
-        return payload as T;
+        throw payload;
     }
 
     throw error;

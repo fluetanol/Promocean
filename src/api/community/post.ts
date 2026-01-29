@@ -110,8 +110,9 @@ export class PostAPI {
       try{
         const response = await apiFetch<ApiResponse<PopularPostsApiResponse >>(`/api/v1/posts/trending?${params.toString()}`);
         return { popularPosts: response.data.posts };
-        
+
       } catch (error) {
+        console.error(error);
         return { popularPosts: [] };
       }
   }
