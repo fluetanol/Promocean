@@ -1,6 +1,6 @@
 // frontend/src/api/contest/contest.ts
 
-import { apiFetch } from "@/api/fetcher";
+import { apiFetch, ErrorApiResponse } from "@/api/fetcher";
 import {
   ContestCardItemProps,
   ContestPostItemProps,
@@ -89,15 +89,25 @@ export class ContestAPI {
       updatedAt: string;
     }
 
-    const response = await apiFetch<ApiResponse<{
+    interface contestListApiResponse {
       contests: ContestApiResponse[];
       itemCnt: number;
       totalCnt: number;
       totalPages: number;
       currentPage: number;
-    }>>(`/api/v1/contests?${queryParams.toString()}`);
+    }
+
+    let response = await apiFetch<ApiResponse<contestListApiResponse | ErrorApiResponse>>(`/api/v1/contests?${queryParams.toString()}`);
     
-    const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data;
+    if((response as unknown as ErrorApiResponse).code == 500){
+        console.log("server error - returning empty list");
+        
+       return { contestCardList: [], itemCnt: 0, totalCnt: 0, totalPages: 0, currentPage: 0 };
+    }
+    
+
+    
+    const { contests, itemCnt, totalCnt, totalPages, currentPage } = response.data as contestListApiResponse;
 
     const contestCardList: ContestCardItemProps[] = contests.map((contest) => ({
       contestId: contest.contestId,
