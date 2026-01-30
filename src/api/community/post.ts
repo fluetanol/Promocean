@@ -9,6 +9,10 @@ import {
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
 import { CommunityFloatingItemProps } from "@/types/itemType";
+import { makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
+
+
+
 
 /**
  * PostAPI
@@ -73,24 +77,39 @@ export class PostAPI {
       { key: 'category', value: convertCategoryToApiCode(category) },
     ].forEach(({ key, value }) => value && queryParams.set(key, value));
     
-    const response = await apiFetch<ApiResponse<{
-      posts: CommunityBoardItemResponse[];
-      itemCnt: number;
-      totalCnt: number;
-      totalPages: number;
-      currentPage: number;
-    }>>(`/api/v1/posts?${queryParams.toString()}`);
+    try{
+        const response = await apiFetch<ApiResponse<{
+          posts: CommunityBoardItemResponse[];
+          itemCnt: number;
+          totalCnt: number;
+          totalPages: number;
+          currentPage: number;
+        }>>(`/api/v1/posts?${queryParams.toString()}`);
 
-    const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
-    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post}));
-    
-    return {
-      communityBoardList,
-      itemCnt,
-      totalCnt,
-      totalPages,
-      currentPage,
-    };
+        const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
+        const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post}));
+        
+        return {
+          communityBoardList,
+          itemCnt,
+          totalCnt,
+          totalPages,
+          currentPage,
+        };
+      }
+      catch (error) {
+        console.error(error);
+        
+        const communityBoardList : CommunityBoardItemProps[] = makeMockPostList(size);
+
+        return {
+          communityBoardList,
+          itemCnt: 0,
+          totalCnt: communityBoardList.length,
+          totalPages: Math.ceil(communityBoardList.length / size),
+          currentPage: page,
+        };
+      }
   }
 
   /**
@@ -113,7 +132,8 @@ export class PostAPI {
 
       } catch (error) {
         console.error(error);
-        return { popularPosts: [] };
+        const popularPosts : CommunityFloatingItemProps[] = makeMockPostPopular(Number(limit));
+        return { popularPosts  };
       }
   }
 

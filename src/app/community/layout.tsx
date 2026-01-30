@@ -23,6 +23,7 @@ export default async function CommunityLayout({
   console.log("CommunityLayout 렌더링 - 인기글 데이터 가져오기 시작");
   const { popularPosts } = await PostAPI.getPopular("3");
   console.log("CommunityLayout 렌더링 - 인기글 데이터 가져오기 완료", popularPosts);
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <CommunityHeader />
