@@ -73,24 +73,43 @@ export class PostAPI {
       { key: 'category', value: convertCategoryToApiCode(category) },
     ].forEach(({ key, value }) => value && queryParams.set(key, value));
     
-    const response = await apiFetch<ApiResponse<{
-      posts: CommunityBoardItemResponse[];
-      itemCnt: number;
-      totalCnt: number;
-      totalPages: number;
-      currentPage: number;
-    }>>(`/api/v1/posts?${queryParams.toString()}`);
+    try{
+        const response = await apiFetch<ApiResponse<{
+          posts: CommunityBoardItemResponse[];
+          itemCnt: number;
+          totalCnt: number;
+          totalPages: number;
+          currentPage: number;
+        }>>(`/api/v1/posts?${queryParams.toString()}`);
 
-    const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
-    const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post}));
-    
-    return {
-      communityBoardList,
-      itemCnt,
-      totalCnt,
-      totalPages,
-      currentPage,
-    };
+        const { posts, itemCnt, totalCnt, totalPages, currentPage } = response.data;
+        const communityBoardList: CommunityBoardItemProps[] = posts.map((post) => ({ ...post}));
+        
+        return {
+          communityBoardList,
+          itemCnt,
+          totalCnt,
+          totalPages,
+          currentPage,
+        };
+      }
+      catch (error) {
+        console.error(error);
+        return {
+          communityBoardList: [{
+            postId: 0,
+            title: "테스트 게시글",
+            tags: [],
+            fileUrl: null,
+            likeCnt: 0,
+            replyCnt: 0,
+          }],
+          itemCnt: 0,
+          totalCnt: 0,
+          totalPages: 0,
+          currentPage: 0,
+        };
+      }
   }
 
   /**
@@ -113,7 +132,14 @@ export class PostAPI {
 
       } catch (error) {
         console.error(error);
-        return { popularPosts: [] };
+        return { popularPosts: [{
+          postId: 0,
+          title: "테스트 게시글",
+          tags: [],
+          fileUrl: null,
+          likeCnt: 0,
+          replyCnt: 0,
+        }] };
       }
   }
 
