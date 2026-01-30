@@ -1,5 +1,5 @@
-// 커뮤니티에서 사용할 목 데이터를 생성하는 헬퍼
-import { CommunityBoardItemProps, CommunityFloatingItemProps } from "@/types/itemType";
+﻿// Community mock helpers
+import { CommunityBoardItemProps, CommunityFloatingItemProps, CommunityPostItemResponse } from "@/types/itemType";
 
 export function makeMockPostPopular(count = 10): CommunityFloatingItemProps[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -30,6 +30,43 @@ export function makeMockPostList(count = 10): CommunityBoardItemProps[] {
     fileUrl: "",
   }));
 }
+
+
+export async function makeMockPostDetail(
+  postId: number
+): Promise<CommunityPostItemResponse | null> {
+  console.log("makeMockPostDetail called with postId:", postId);
+
+  const isServer = typeof window === "undefined";
+
+  const baseUrl = isServer
+    ? process.env.NEXT_PUBLIC_MOCK_URL || "http://localhost:3000"
+    : "";
+
+  const url = isServer
+    ? new URL("/mock/CommunityPostDetailResponse.json", baseUrl).toString()
+    : "/mock/CommunityPostDetailResponse.json";
+
+  console.log("Fetching mock data from URL:", url);
+
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) {
+    console.error("Failed to fetch mock data:", res.status);
+    return null;
+  }
+
+  const list = (await res.json()) as CommunityPostItemResponse[];
+
+  if (!Array.isArray(list) || list.length === 0) {
+    return null;
+  }
+
+  const safePostId = Number.isFinite(postId) ? postId : 0;
+  const index = ((safePostId % list.length) + list.length) % list.length;
+
+  return list[index] ?? null;
+}
+
 
 export const popularPostMocks: CommunityFloatingItemProps[] = makeMockPostPopular(10);
 export const communityBoardMocks: CommunityBoardItemProps[] = makeMockPostList(10);
