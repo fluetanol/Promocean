@@ -159,9 +159,9 @@ export class PostAPI {
       };
     }
     catch(error){
-      console.log("error");
+      //console.log("error");
       const communityPostDetailData : CommunityPostItemResponse | null = await makeMockPostDetail(postId);
-      console.log("take ", communityPostDetailData);
+      //console.log("take ", communityPostDetailData);
 
       return { communityPostDetailData };
     }
