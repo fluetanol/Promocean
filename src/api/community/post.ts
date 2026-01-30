@@ -9,7 +9,7 @@ import {
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
 import { CommunityFloatingItemProps } from "@/types/itemType";
-import { makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
+import { makeMockPostDetail, makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
 
 
 
@@ -146,7 +146,9 @@ export class PostAPI {
    * @param {string | null} [token] - 서버 환경에서 사용할 토큰 (선택사항)
    * @returns {Promise<{ communityPostDetailData: CommunityPostItemResponse }>}
    */
-  static async getDetail(postId: number, token?: string | null) {
+  static async getDetail(postId: number, token?: string | null) : Promise<{ communityPostDetailData: CommunityPostItemResponse | null }> {
+    console.log("PostAPI.getDetail called with postId:", postId, "token :", token);
+    try{
     const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`, {
       token,
     });
@@ -154,7 +156,16 @@ export class PostAPI {
     
     return {
       communityPostDetailData,
-    };
+      };
+    }
+    catch(error){
+      console.log("error");
+      const communityPostDetailData : CommunityPostItemResponse | null = await makeMockPostDetail(postId);
+      console.log("take ", communityPostDetailData);
+
+      return { communityPostDetailData };
+    }
   }
+
 }
 
