@@ -9,6 +9,10 @@ import {
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
 import { CommunityFloatingItemProps } from "@/types/itemType";
+import { makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
+
+
+
 
 /**
  * PostAPI
@@ -95,19 +99,15 @@ export class PostAPI {
       }
       catch (error) {
         console.error(error);
+        
+        const communityBoardList : CommunityBoardItemProps[] = makeMockPostList(size);
+
         return {
-          communityBoardList: [{
-            postId: 0,
-            title: "테스트 게시글",
-            tags: [],
-            fileUrl: null,
-            likeCnt: 0,
-            replyCnt: 0,
-          }],
+          communityBoardList,
           itemCnt: 0,
-          totalCnt: 0,
-          totalPages: 0,
-          currentPage: 0,
+          totalCnt: communityBoardList.length,
+          totalPages: Math.ceil(communityBoardList.length / size),
+          currentPage: page,
         };
       }
   }
@@ -132,14 +132,8 @@ export class PostAPI {
 
       } catch (error) {
         console.error(error);
-        return { popularPosts: [{
-          postId: 0,
-          title: "테스트 게시글",
-          tags: [],
-          fileUrl: null,
-          likeCnt: 0,
-          replyCnt: 0,
-        }] };
+        const popularPosts : CommunityFloatingItemProps[] = makeMockPostPopular(Number(limit));
+        return { popularPosts  };
       }
   }
 
