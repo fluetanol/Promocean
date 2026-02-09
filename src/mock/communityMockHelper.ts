@@ -1,5 +1,5 @@
-// 커뮤니티에서 사용할 목 데이터를 생성하는 헬퍼
-import { CommunityBoardItemProps, CommunityFloatingItemProps } from "@/types/itemType";
+﻿// Community mock helpers
+import { CommunityBoardItemProps, CommunityFloatingItemProps, CommunityPostItemResponse } from "@/types/itemType";
 
 export function makeMockPostPopular(count = 10): CommunityFloatingItemProps[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -30,6 +30,7 @@ export function makeMockPostList(count = 10): CommunityBoardItemProps[] {
     fileUrl: "",
   }));
 }
+
 
 export const popularPostMocks: CommunityFloatingItemProps[] = makeMockPostPopular(10);
 export const communityBoardMocks: CommunityBoardItemProps[] = makeMockPostList(10);
