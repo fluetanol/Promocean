@@ -1,5 +1,6 @@
 import { CommunityPostItemResponse } from "@/types/itemType";
 import { promises as fs } from 'fs';
+import path from 'path';
 
 // 파일 시스템을 이용한 mock detail 데이터 생성 함수
 export async function makeMockPostDetailFromFile(
@@ -9,8 +10,8 @@ export async function makeMockPostDetailFromFile(
   
   try {
     //파일 위치 : public/mock/CommunityPostDetailResponse.json
-    const data = await fs.readFile('public/mock/CommunityPostDetailResponse.json', 'utf-8');
-    console.log(data);
+    const filePath = path.join(process.cwd(), 'public', 'mock', 'CommunityPostDetailResponse.json');
+    const data = await fs.readFile(filePath, 'utf-8');
     const list : CommunityPostItemResponse[] = JSON.parse(data);
     
     console.log("list " ,list);
