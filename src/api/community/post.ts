@@ -149,21 +149,18 @@ export class PostAPI {
   static async getDetail(postId: number, token?: string | null) : Promise<{ communityPostDetailData: CommunityPostItemResponse | null }> {
     console.log("PostAPI.getDetail called with postId:", postId, "token :", token);
     try{
-    const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`, {
-      token,
-    });
-    const communityPostDetailData = response.data;
+        const response = await apiFetch<ApiResponse<CommunityPostItemResponse>>(`/api/v1/posts/${postId}`, {
+          token,
+        });
+        const communityPostDetailData = response.data;
     
     return {
       communityPostDetailData,
       };
     }
     catch(error){
-      //console.log("error");
-      const communityPostDetailData : CommunityPostItemResponse | null = await makeMockPostDetail(postId);
-      //console.log("take ", communityPostDetailData);
-
-      return { communityPostDetailData };
+      //console.error("error context " ,error);
+      throw error;
     }
   }
 

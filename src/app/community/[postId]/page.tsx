@@ -6,6 +6,7 @@ import CommunityCommentSection from "@/components/section/CommunityCommentSectio
 import { CommunityPostItemProps, HashtagItemProps, CommunityCommentItemProps } from "@/types/itemType";
 import { PostAPI } from "@/api/community";
 import { getServerAuthToken } from "@/lib/serverAuthToken";
+import { MockPostAPI } from "@/api/mock_community/post";
 
 interface CommunityPostPageProps {
   params: Promise<{ postId: string }>;
@@ -20,10 +21,9 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
   const { postId: postIdStr } = await params;
   const postId = parseInt(postIdStr, 10);
 
+  // 서버 환경에서 쿠키에서 토큰 가져오기
+const token = await getServerAuthToken();
   try {
-        // 서버 환경에서 쿠키에서 토큰 가져오기
-        const token = await getServerAuthToken();
-        
         const { communityPostDetailData } = await PostAPI.getDetail(postId, token);
 
         //없는 경우
@@ -33,9 +33,7 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
         }
         else{
           const hashtagList: HashtagItemProps[] = communityPostDetailData.tags.map((tag: string) => ({ tag }));
-          
           const communityPostData: CommunityPostItemProps = { ...communityPostDetailData };
-          
           const communityCommentList: CommunityCommentItemProps[] =
           communityPostDetailData!.replies.map((item: CommunityCommentItemProps) => ({
             ...item,
@@ -67,8 +65,47 @@ export default async function CommunityPostPage({ params }: CommunityPostPagePro
     if (error instanceof Error && error.message.includes('404')) {
       const { notFound } = await import('next/navigation');
       notFound();
+    }else{
+      const {communityPostDetailData} = await MockPostAPI.getMockDetail(postId, token);
+    
+      if(!communityPostDetailData){
+        const { notFound } = await import('next/navigation');
+        notFound();
+      } 
+      else{
+      const hashtagList: HashtagItemProps[] = communityPostDetailData.tags.map((tag: string) => ({ tag }));
+      const communityPostData: CommunityPostItemProps = { ...communityPostDetailData };
+      const communityCommentList: CommunityCommentItemProps[] =
+      communityPostDetailData!.replies.map((item: CommunityCommentItemProps) => ({
+        ...item,
+      }));
+
+      return (
+          <div className="flex-1 flex flex-col gap-6 bg-white rounded-lg shadow-md">
+            <div className = "font-bold text-red-500">* 이 글은 mock 데이터 글입니다.</div>
+            {/* 글 섹션 */}
+            <CommunityPostDetailSection communityPostData={communityPostData} hashtagList={hashtagList} />
+
+            {/* 좋아요 및 스크랩 섹션 */}
+            <CommunityLikeShareSection 
+              likeCnt={communityPostDetailData!.likeCnt} 
+              isLiked={communityPostDetailData!.isLiked} 
+              isScraped={communityPostDetailData!.isScraped}
+              postId={postId} 
+            />
+
+            {/* 구분선 */}
+            <hr className="border-gray-200" />
+
+            {/* 댓글 섹션 */}
+            <CommunityCommentSection communityCommentList={communityCommentList} postId={postId} />
+          </div>
+        );
+
+    }
+
     }
     // 404가 아닌 다른 에러는 error.tsx로 전달
-    throw error;
+    //throw error;
   }
 }
