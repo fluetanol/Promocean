@@ -9,7 +9,7 @@ import {
 import { convertCategoryToApiCode } from "@/utils/categoryConvert";
 import { ApiResponse } from "@/types/apiTypes/common";
 import { CommunityFloatingItemProps } from "@/types/itemType";
-import { makeMockPostDetail, makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
+import {  makeMockPostList, makeMockPostPopular } from "@/mock/communityMockHelper";
 
 
 
