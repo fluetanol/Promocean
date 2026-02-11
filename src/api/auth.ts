@@ -5,6 +5,8 @@ import { apiFetch, BASE_URL } from '@/api/fetcher';
 import { useAuthStore } from '@/store/authStore';
 import { ApiResponse } from '@/types/apiTypes/common';
 
+const ABORT_TIMEOUT = 5000;
+
 export const authAPI = {
 
   /**
@@ -17,45 +19,56 @@ export const authAPI = {
   async login(credentials: LoginRequest): Promise<{ payload: AuthResponse; token: string }> {
     const endpoint = `/api/v1/auth/login`;
     const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-      credentials: "include",
-    });
 
-    // 응답 헤더에서 토큰 추출
-    const token =
-      response.headers.get('Authorization')?.replace('Bearer ', '') ||
-      response.headers.get('X-Access-Token') ||
-      null;
+    const Abortsignal = new AbortController();
+    setTimeout(() => Abortsignal.abort(), ABORT_TIMEOUT);
 
-    // 응답 파싱
-    const contentType = response.headers.get('content-type') || '';
-    let payload: AuthResponse;
+    try{
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(credentials),
+          credentials: "include",
+          signal : Abortsignal.signal
+        });
 
-    if (contentType.includes('application/json')) {
-      payload = await response.json();
-    } else {
-      const textPayload = await response.text();
-      throw new Error(`예상치 못한 응답 형식: ${textPayload}`);
+
+        // 응답 헤더에서 토큰 추출
+        const token =
+          response.headers.get('Authorization')?.replace('Bearer ', '') ||
+          response.headers.get('X-Access-Token') ||
+          null;
+
+        // 응답 파싱
+        const contentType = response.headers.get('content-type') || '';
+        let payload: AuthResponse;
+
+        if (contentType.includes('application/json')) {
+          payload = await response.json();
+        } else {
+          const textPayload = await response.text();
+          throw new Error(`예상치 못한 응답 형식: ${textPayload}`);
+        }
+
+        // 에러 처리
+        if (!response.ok) {
+          const errorMessage = payload.message || '로그인에 실패했습니다.';
+          throw new Error(`${response.status} ${errorMessage}`);
+        }
+
+        // 응답 검증
+        if (!payload.data || !token) {
+          throw new Error(payload.message || '로그인에 실패했습니다.');
+        }
+
+        // 상태 관리 로직은 제거하고 결과만 반환
+        return { payload, token };
+    }catch(error){
+      console.error("Login API error:", error);
+      throw error;
     }
-
-    // 에러 처리
-    if (!response.ok) {
-      const errorMessage = payload.message || '로그인에 실패했습니다.';
-      throw new Error(`${response.status} ${errorMessage}`);
-    }
-
-    // 응답 검증
-    if (!payload.data || !token) {
-      throw new Error(payload.message || '로그인에 실패했습니다.');
-    }
-
-    // 상태 관리 로직은 제거하고 결과만 반환
-    return { payload, token };
   },
 
   /**
