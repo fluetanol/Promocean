@@ -21,7 +21,7 @@ export interface ErrorFetchResponse{
   message : string;
 }
 
-enum ErrorType{
+export enum ErrorType{
   Timeout,
   Network,
   NotFound,
