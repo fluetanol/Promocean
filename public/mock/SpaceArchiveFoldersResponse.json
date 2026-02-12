@@ -1,0 +1,64 @@
+{
+  "folders": [
+    {
+      "folderId": 1,
+      "name": "AI 챗봇 프롬프트",
+      "color": "0949ad",
+      "isPinned": true
+    },
+    {
+      "folderId": 2,
+      "name": "이미지 생성 템플릿",
+      "color": "fbbf24",
+      "isPinned": true
+    },
+    {
+      "folderId": 3,
+      "name": "코드 리뷰 가이드",
+      "color": "6ee7b7",
+      "isPinned": true
+    },
+    {
+      "folderId": 4,
+      "name": "문서 작성 도구",
+      "color": "ff6f61",
+      "isPinned": false
+    },
+    {
+      "folderId": 5,
+      "name": "데이터 분석 스크립트",
+      "color": "a855f7",
+      "isPinned": false
+    },
+    {
+      "folderId": 6,
+      "name": "프로젝트 관리",
+      "color": "fef08a",
+      "isPinned": false
+    },
+    {
+      "folderId": 7,
+      "name": "UI/UX 디자인",
+      "color": "fbcfe8",
+      "isPinned": false
+    },
+    {
+      "folderId": 8,
+      "name": "마케팅 자료",
+      "color": "99f6e4",
+      "isPinned": false
+    },
+    {
+      "folderId": 9,
+      "name": "학습 리소스",
+      "color": "c7d2fe",
+      "isPinned": true
+    },
+    {
+      "folderId": 10,
+      "name": "개발 도구",
+      "color": "fed7a1",
+      "isPinned": false
+    }
+  ]
+}

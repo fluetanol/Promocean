@@ -22,11 +22,15 @@ export const SpaceAPI = {
     async getSpaceArchiveFoldersData(spaceId : number) : Promise<GetSpaceArchiveFoldersResponse | null> {
         if(!spaceId){ return null;}
 
-        const res = await apiFetch <ApiResponse<GetSpaceArchiveFoldersResponse>>(`/api/v1/spaces/${spaceId}/folders`, {
-            method: "GET",
-        });
-
-        return res.data;
+        try{
+            const res = await apiFetch <ApiResponse<GetSpaceArchiveFoldersResponse>>(`/api/v1/spaces/${spaceId}/folders`, {
+                method: "GET",
+            });
+            return res.data;
+        }
+        catch(error){
+            throw error;
+        }
     },
 
 

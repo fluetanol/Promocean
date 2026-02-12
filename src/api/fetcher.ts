@@ -17,7 +17,16 @@ const ABORT_TIMEOUT_MS = 1500; // 1.5초 타임아웃
  */
 export interface ErrorFetchResponse{
   fetchError : boolean;
+  type : ErrorType;
   message : string;
+}
+
+export enum ErrorType{
+  Timeout,
+  Network,
+  NotFound,
+  Unauthorized,
+  BadRequest,
 }
 
 //fetch error 응답 타입 가드
@@ -123,6 +132,7 @@ export async function apiFetch<T = unknown>(
         console.log('요청이 시간 초과되었습니다. 다시 시도해주세요.');
         const payload: ErrorFetchResponse = {
           fetchError: true,
+          type : ErrorType.Timeout,
           message: '요청이 시간 초과되었습니다. 다시 시도해주세요.'
         };
         throw payload;

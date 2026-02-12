@@ -14,7 +14,7 @@ export async function makeMockPostDetailFromFile(
     const data = await fs.readFile(filePath, 'utf-8');
     const list : CommunityPostItemResponse[] = JSON.parse(data);
     
-    console.log("list " ,list);
+    //console.log("list " ,list);
     if (!Array.isArray(list) || list.length === 0) {
       return null;
     }
