@@ -8,6 +8,9 @@ import { useAuthStore } from "@/store/authStore";
 import { SpaceAPI } from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
+import { ErrorFetchResponse, ErrorType } from "@/api/fetcher";
+import MockSpaceAPI from "@/api/mock_space/space";
+import { GetSpaceArchiveFoldersResponse } from "@/types/apiTypes/space";
 
 export interface SpaceArchiveData {
   folderId : number;
@@ -23,6 +26,37 @@ export default function MySpacePage() {
     </AuthGuard>
   );
 }
+
+
+function ArchivefolderProcessing(res:GetSpaceArchiveFoldersResponse) : { newArchiveItemListState : SpaceArchiveData[], newPinnedItemListState : SpaceArchiveData[]} {
+      //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.
+    const newArchiveItemListState : SpaceArchiveData[] = [];
+    const newPinnedItemListState : SpaceArchiveData[] = [];
+
+    for(const folder of res.folders){
+      folder.color = `#${folder.color}`;
+      if(folder.isPinned){
+        newPinnedItemListState.push(folder);
+      } else {
+        newArchiveItemListState.push(folder);
+      }
+    }
+    return { newArchiveItemListState, newPinnedItemListState  };
+}
+
+
+function setCurrentSpaceInStore(spaceId: number, name: string) {
+  const spaceStore = useSpaceStore();
+  spaceStore.setCurrentSpace({
+    spaceId: spaceId,
+    name : name,  
+    participantCnt : 1,
+    spaceCoverUrl : "",
+    userRole : "OWNER"
+  });
+}
+
+
 
 function MySpaceContent() {
   const [archiveItemListState, setArchiveItemListState] = useState<SpaceArchiveData[]>([]);
@@ -44,46 +78,57 @@ function MySpaceContent() {
     const fetchData = async () => {
       try {
         const res = await SpaceAPI.getSpaceArchiveFoldersData(personalSpaceId!);
-
-        if(!res){
-          return;
-        }
-
+        if(!res) return;
+      
         if(personalSpaceId){
-
-        spaceStore.setCurrentSpace({
-          spaceId: personalSpaceId!,
-          name : name,
-          participantCnt : 1,
-          spaceCoverUrl : "",
-          userRole : "OWNER"
-        });
+          spaceStore.setCurrentSpace({
+            spaceId: personalSpaceId!,
+            name : name,
+            participantCnt : 1,
+            spaceCoverUrl : "",
+            userRole : "OWNER"
+          });
         }
 
         folderStore.setAllFolderList(res.folders);
 
-        //TODO :  가져온 response 를 pinned 와 none pinned로 나누어 리스트를 연결해야 합니다.
-        const newArchiveItemListState : SpaceArchiveData[] = [];
-        const newPinnedItemListState : SpaceArchiveData[] = [];
+        const { newArchiveItemListState, newPinnedItemListState } = ArchivefolderProcessing(res);
 
-        for(const folder of res.folders){
-          folder.color = `#${folder.color}`;
-          if(folder.isPinned){
-            newPinnedItemListState.push(folder);
-          } else {
-            newArchiveItemListState.push(folder);
-          }
-        }
-        // const mySpaceData = await mySpaceArchiveRes.json() as MySpaceArchiveDataResponse;
-        // console.log("data ", mySpaceData);
         setPinnedItemListState(newPinnedItemListState || []);
         setArchiveItemListState(newArchiveItemListState || []);
         setIsLoadingState(false);
-      } catch {
+      } catch(error) {
+        console.log("Error fetching space archive folders:", error);
+
+        const fetchError : ErrorFetchResponse =  error as ErrorFetchResponse;
+        
+        if(fetchError.type === ErrorType.Timeout){
+            MockSpaceAPI.getMockSpaceArchiveFoldersData().then((res)=>{
+                if(!res) return;
+            
+                if(personalSpaceId){
+                  spaceStore.setCurrentSpace({
+                    spaceId: personalSpaceId!,
+                    name : name,
+                    participantCnt : 1,
+                    spaceCoverUrl : "",
+                    userRole : "OWNER"
+                  });
+                }
+
+                folderStore.setAllFolderList(res.folders);
+
+                const { newArchiveItemListState, newPinnedItemListState } = ArchivefolderProcessing(res);
+                
+                setPinnedItemListState(newPinnedItemListState || []);
+                setArchiveItemListState(newArchiveItemListState || []);
+              
+            });
+        }
+
         setIsLoadingState(false);
       }
     };
-
     fetchData();
   }, [personalSpaceId]);
 
@@ -97,11 +142,6 @@ function MySpaceContent() {
 
   return (
       <div className="min-h-screen bg-gray-50">
-        {/* <div className="flex justify-end-safe">
-          <div className="shrink-0 min-w-[380px]">
-            <MySpaceArchiveFilterSection buttonMode="search" />
-          </div>
-        </div> */}
 
         <div className="flex justify-start px-6 pt-6 pb-2 w-full">
           <div className="w-full">
