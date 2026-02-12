@@ -96,7 +96,6 @@ function MySpaceContent() {
 
         setPinnedItemListState(newPinnedItemListState || []);
         setArchiveItemListState(newArchiveItemListState || []);
-        setIsLoadingState(false);
       } catch(error) {
         console.log("Error fetching space archive folders:", error);
 
@@ -126,10 +125,13 @@ function MySpaceContent() {
             });
         }
 
+      } finally{
         setIsLoadingState(false);
       }
     };
+
     fetchData();
+    
   }, [personalSpaceId]);
 
   if (isLoadingState) {
