@@ -7,6 +7,8 @@ import TeamSpaceTeamChoiceList from "../list/TeamSpaceTeamChoiceLlist"
 import TeamSpaceAddModal from "../modal/TeamSpaceAddModal";
 import { SpaceAPI } from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
+import { useRouter } from "next/navigation";
+import MockSpaceAPI from "@/api/mock_space/space";
 
 export default function TeamSpaceChoiceSection(){
     
@@ -14,7 +16,6 @@ export default function TeamSpaceChoiceSection(){
     const [shouldRenderModalState, setShouldRenderModalState] = useState(false);
     const [teamSpaceTeamChoiceListState, setTeamSpaceTeamChoiceListState] = useState<TeamSpaceChoiceItemProps[]>([]);
     const spaceStore = useSpaceStore();
-
 
     useEffect(()=>{
         // console.log("팀 스페이스 리스트 ", teamSpaceTeamChoiceListState);
@@ -30,7 +31,13 @@ export default function TeamSpaceChoiceSection(){
                 setTeamSpaceTeamChoiceListState(spaceList);
 
             } catch (error) {
-                console.error("Failed to fetch data:", error);
+                console.error(TeamSpaceChoiceSection.name + " -> Failed to fetch data:", error);
+                
+                const res = await MockSpaceAPI.getMockTeamSpaceListData();
+                const spaceList = res?.spaces || [];
+                spaceStore.setAllTeamSpaces(spaceList);
+                setTeamSpaceTeamChoiceListState(spaceList);
+
             }
         };
 
