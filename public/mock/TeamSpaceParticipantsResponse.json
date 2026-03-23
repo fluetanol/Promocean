@@ -1,0 +1,134 @@
+{
+  "101": {
+    "participants": [
+      {
+        "participantId": 1011,
+        "nickname": "mike",
+        "role": "OWNER",
+        "profileUrl": "/assets/icon_awkward_duck.png",
+        "email": "mike.frontend@example.com"
+      },
+      {
+        "participantId": 1012,
+        "nickname": "jina",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random6.png",
+        "email": "jina.frontend@example.com"
+      },
+      {
+        "participantId": 1013,
+        "nickname": "alex",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random7.png",
+        "email": "alex.frontend@example.com"
+      },
+      {
+        "participantId": 1014,
+        "nickname": "soyeon",
+        "role": "READER",
+        "profileUrl": "/assets/img_random8.png",
+        "email": "soyeon.frontend@example.com"
+      }
+    ]
+  },
+  "102": {
+    "participants": [
+      {
+        "participantId": 1021,
+        "nickname": "dylan",
+        "role": "OWNER",
+        "profileUrl": "/assets/img_random9.png",
+        "email": "dylan.backend@example.com"
+      },
+      {
+        "participantId": 1022,
+        "nickname": "harin",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random10.png",
+        "email": "harin.backend@example.com"
+      },
+      {
+        "participantId": 1023,
+        "nickname": "tony",
+        "role": "READER",
+        "profileUrl": "/assets/img_random11.png",
+        "email": "tony.backend@example.com"
+      }
+    ]
+  },
+  "103": {
+    "participants": [
+      {
+        "participantId": 1031,
+        "nickname": "mina",
+        "role": "OWNER",
+        "profileUrl": "/assets/img_random12.png",
+        "email": "mina.ai@example.com"
+      },
+      {
+        "participantId": 1032,
+        "nickname": "kevin",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random13.png",
+        "email": "kevin.ai@example.com"
+      },
+      {
+        "participantId": 1033,
+        "nickname": "yuna",
+        "role": "READER",
+        "profileUrl": "/assets/img_random14.png",
+        "email": "yuna.ai@example.com"
+      },
+      {
+        "participantId": 1034,
+        "nickname": "leo",
+        "role": "READER",
+        "profileUrl": "/assets/img_random15.png",
+        "email": "leo.ai@example.com"
+      }
+    ]
+  },
+  "104": {
+    "participants": [
+      {
+        "participantId": 1041,
+        "nickname": "sora",
+        "role": "OWNER",
+        "profileUrl": "/assets/img_random16.png",
+        "email": "sora.product@example.com"
+      },
+      {
+        "participantId": 1042,
+        "nickname": "noah",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random17.png",
+        "email": "noah.product@example.com"
+      }
+    ]
+  },
+  "105": {
+    "participants": [
+      {
+        "participantId": 1051,
+        "nickname": "jiho",
+        "role": "OWNER",
+        "profileUrl": "/assets/img_random18.png",
+        "email": "jiho.design@example.com"
+      },
+      {
+        "participantId": 1052,
+        "nickname": "emma",
+        "role": "EDITOR",
+        "profileUrl": "/assets/img_random19.png",
+        "email": "emma.design@example.com"
+      },
+      {
+        "participantId": 1053,
+        "nickname": "ravi",
+        "role": "READER",
+        "profileUrl": "/assets/img_random20.png",
+        "email": "ravi.design@example.com"
+      }
+    ]
+  }
+}
