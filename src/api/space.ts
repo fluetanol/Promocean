@@ -231,11 +231,15 @@ export const SpaceAPI = {
         * 스페이스 참가자 목록을 조회하는 API입니다.
     */
     async getSpaceParticipants(spaceId : number){
+        try{
         const res = await apiFetch<ApiResponse<getSpaceParticipantsResponse>>(`/api/v1/spaces/${spaceId}/participants`, {
             method: "GET",
         });
 
         return res.data;
+        }  catch(error){
+            throw error;
+        } 
     },
 
 
