@@ -7,7 +7,6 @@ import TeamSpaceTeamChoiceList from "../list/TeamSpaceTeamChoiceLlist"
 import TeamSpaceAddModal from "../modal/TeamSpaceAddModal";
 import { SpaceAPI } from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
-import { useRouter } from "next/navigation";
 import MockSpaceAPI from "@/api/mock_space/space";
 
 export default function TeamSpaceChoiceSection(){
@@ -31,7 +30,7 @@ export default function TeamSpaceChoiceSection(){
                 setTeamSpaceTeamChoiceListState(spaceList);
 
             } catch (error) {
-                console.error(TeamSpaceChoiceSection.name + " -> Failed to fetch data:", error);
+                console.error("Failed to fetch data:", error);
                 
                 const res = await MockSpaceAPI.getMockTeamSpaceListData();
                 const spaceList = res?.spaces || [];
@@ -44,10 +43,6 @@ export default function TeamSpaceChoiceSection(){
         fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-
-
-
 
     const onOpenModal = () => {
         setShouldRenderModalState(true);
