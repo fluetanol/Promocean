@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   eslint: {
   ignoreDuringBuilds: true,  // 빌드 시 ESLint 무시
   },
-  reactCompiler: true,
+  //reactCompiler: true,
   pageExtensions: ['page.tsx', 'page.ts', 'tsx', 'ts'],
   
   webpack: (config) => {
