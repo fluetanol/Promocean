@@ -81,7 +81,7 @@ export async function apiFetch<T = unknown>(
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), ABORT_TIMEOUT_MS); // 1.5초 타임아웃
     const response = await fetch(url, {
-      cache: 'no-store',
+      //cache: 'no-store', <- ISR이 동작을 못함
       ...fetchInit,
       headers: headers as HeadersInit,
       signal: abortController.signal

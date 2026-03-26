@@ -7,8 +7,8 @@ import { cookies } from 'next/headers';
  * @returns access_token 문자열 또는 null
  */
 export async function getServerAuthToken(): Promise<string | null> {
+  const cookieStore = await cookies();
   try {
-    const cookieStore = await cookies();
     const accessTokenCookie = cookieStore.get('access_token');
     return accessTokenCookie ? decodeURIComponent(accessTokenCookie.value) : null;
   } catch (error) {

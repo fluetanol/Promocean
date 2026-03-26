@@ -9,6 +9,7 @@ import SpaceAPI, { SpaceParticipants } from "@/api/space";
 import { useAuthStore } from "@/store/authStore";
 import { useSpaceStore } from "@/store/spaceStore";
 import { useParams, useRouter } from "next/navigation";
+import MockSpaceAPI from "@/api/mock_space/space";
 
 
 /**
@@ -100,7 +101,6 @@ export default function TeamSpaceHeader(
         const res = await SpaceAPI.getSpaceParticipants(spaceId);
         const participants: SpaceParticipants[] =  res.participants;
 
-
         const owner = participants.find(participant => participant.email=== userEmail) || null;
         if (owner) {
           participants.splice(participants.indexOf(owner), 1); // 소유자 제외
@@ -111,6 +111,18 @@ export default function TeamSpaceHeader(
         setMemberListState(participants);
      }
       catch (error) {
+        const res = await MockSpaceAPI.getMockSpaceParticipants(spaceId);
+        const participants: SpaceParticipants[] =  res?.participants || [];
+
+        const owner = participants.find(participant => participant.role === "OWNER") || null;
+        if (owner) {
+          setCurrentUserSpaceNickname(owner.nickname); // 현재 사용자의 팀 스페이스 별명 설정
+          participants.splice(participants.indexOf(owner), 1); // 소유자 제외
+        }
+
+        setOwnerMemberState(owner);
+        setMemberListState(participants);
+
         console.error("Failed to fetch space participants:", error);
       }
     }

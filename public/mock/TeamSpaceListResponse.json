@@ -1,0 +1,39 @@
+{
+  "spaces": [
+    {
+      "name": "Frontend Team Space",
+      "participantCnt": 8,
+      "spaceCoverUrl": "/assets/img_random1.png",
+      "spaceId": 101,
+      "userRole": "OWNER"
+    },
+    {
+      "name": "Backend Team Space",
+      "participantCnt": 6,
+      "spaceCoverUrl": "/assets/img_random2.png",
+      "spaceId": 102,
+      "userRole": "EDITOR"
+    },
+    {
+      "name": "AI Research Space",
+      "participantCnt": 12,
+      "spaceCoverUrl": "/assets/img_random3.png",
+      "spaceId": 103,
+      "userRole": "READER"
+    },
+    {
+      "name": "Product Planning Space",
+      "participantCnt": 5,
+      "spaceCoverUrl": "/assets/img_random4.png",
+      "spaceId": 104,
+      "userRole": "EDITOR"
+    },
+    {
+      "name": "Design Collaboration Space",
+      "participantCnt": 7,
+      "spaceCoverUrl": "/assets/img_random5.png",
+      "spaceId": 105,
+      "userRole": "READER"
+    }
+  ]
+}

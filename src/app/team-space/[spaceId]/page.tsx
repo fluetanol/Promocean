@@ -10,6 +10,7 @@ import SpaceAPI from "@/api/space";
 import { useSpaceStore } from "@/store/spaceStore";
 import { useArchiveFolderStore } from "@/store/archiveFolderStore";
 import { useParams, useRouter } from "next/navigation";
+import MockSpaceAPI from "@/api/mock_space/space";
 
 
 /**
@@ -35,7 +36,6 @@ export default function TeamSpaceArchivePage() {
     const fetchData = async () => {
       try {
         setIsLoadingState(true);
-
 
         // 1. currentSpace가 없거나 URL의 spaceId와 다르면 전체 스페이스 목록을 먼저 가져옴
         if (!currentSpace || currentSpace.spaceId !== spaceIdFromUrl) {
@@ -92,9 +92,30 @@ export default function TeamSpaceArchivePage() {
         setIsLoadingState(false);
       } catch (error) {
         console.error("Failed to fetch data:", error);
+        try{
+        const res = await MockSpaceAPI.getMockSpaceArchiveFoldersData();
+        const archiveFolders = res?.folders;
+        archiveFolderStore.setAllFolderList(archiveFolders || []);
+
+        const newArchiveItemListState: SpaceArchiveData[] = [];
+        const newPinnedItemListState: SpaceArchiveData[] = [];
+
+        for (const folder of archiveFolders || []) {
+          folder.color = `#${folder.color}`;
+          if (folder.isPinned) {
+            newPinnedItemListState.push(folder);
+          } else {
+            newArchiveItemListState.push(folder);
+          }
+        }
+        setPinnedItemListState(newPinnedItemListState);
+        setArchiveItemListState(newArchiveItemListState);
         setIsLoadingState(false);
-        // 에러 발생 시 리다이렉션
-        router.push('/team-space');
+        } catch (mockError) {
+          console.error("Failed to fetch mock data:", mockError); 
+          // 에러 발생 시 리다이렉션
+          router.push('/team-space');
+        }
       }
     }
 

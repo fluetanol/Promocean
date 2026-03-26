@@ -51,7 +51,7 @@ export const SpaceAPI = {
     },
 
 
-    /*
+    /** 
     * 마이스페이스의 아카이브 폴더를 삭제하는 API입니다.
     */
     async deleteMySpaceArchiveFolderData(personalSpaceId : number , folderId : number) : Promise<NoArgsResponse | null> {
@@ -67,7 +67,7 @@ export const SpaceAPI = {
         return res.data;
     },
 
-    /*
+    /** 
     * 마이스페이스의 아카이브 폴더를 수정하는 API입니다.
     */
     async patchMySpaceArchiveFolderData (personalSpaceId : number, folderId : number, folderData : PatchMySpaceArchiveFolderDataRequest) : Promise<NoArgsResponse | null> {
@@ -82,7 +82,7 @@ export const SpaceAPI = {
         return res;
     },
 
-    /*
+    /** 
     * 마이스페이스의 아카이브 폴더의 pinned 상태를 토글하는 API입니다.
     */
     async patchMySpaceArchiveFolderPinStatus (personalSpaceId : number, folderId : number) : Promise<PatchMySpaceArchiveFolderPinStatusRequest | null> {
@@ -104,10 +104,14 @@ export const SpaceAPI = {
     * 팀 스페이스 목록을 조회하는 API입니다.
     */
     async getTeamSpaceList() : Promise<GetTeamSpaceListResponse | null> {
-        const res = await apiFetch<ApiResponse<GetTeamSpaceListResponse>>(`/api/v1/spaces`, {
-            method: "GET"
-        });
-        return res.data;
+        try{
+            const res = await apiFetch<ApiResponse<GetTeamSpaceListResponse>>(`/api/v1/spaces`, {
+                method: "GET"
+            });
+            return res.data;
+        } catch(error){
+            throw error;
+        }
     },
 
     /*
@@ -227,11 +231,15 @@ export const SpaceAPI = {
         * 스페이스 참가자 목록을 조회하는 API입니다.
     */
     async getSpaceParticipants(spaceId : number){
+        try{
         const res = await apiFetch<ApiResponse<getSpaceParticipantsResponse>>(`/api/v1/spaces/${spaceId}/participants`, {
             method: "GET",
         });
 
         return res.data;
+        }  catch(error){
+            throw error;
+        } 
     },
 
 
